@@ -14,8 +14,8 @@ const M221_HOST = '192.168.10.91';
 const DOWNLOAD_PROGRAM_HOST = '192.168.10.251';
 
 const UDP_TECH_HOST = '192.168.10.251';
-const UDP_RESP_HOST = '127.0.0.1';
-//const UDP_RESP_HOST = '192.168.10.91';
+//const UDP_RESP_HOST = '127.0.0.1';
+const UDP_RESP_HOST = '192.168.10.91';
 
 const udp_rsbp_port = 5005;
 const udp_tech_port = 5006;
@@ -331,6 +331,7 @@ app.get('/actions/falseInj_Attack/startAttack', function (req, res) {
         if (err) throw err;
         console.log('UDP client message sent to ' + UDP_RESP_HOST + ':' + udp_rsbp_port);
     });
+    res.send(syslogs);
 });
 
 app.get('/actions/falseInj_Attack/stopAttack', function (req, res) {
@@ -340,6 +341,7 @@ app.get('/actions/falseInj_Attack/stopAttack', function (req, res) {
         if (err) throw err;
         console.log('UDP client message sent to ' + UDP_RESP_HOST + ':' + udp_rsbp_port);
     });
+    res.send(syslogs);
 });
 
 // Black out attack:
@@ -350,6 +352,7 @@ app.get('/actions/blackOut_Attack/startAttack', function (req, res) {
         if (err) throw err;
         console.log('UDP client message sent to ' + UDP_RESP_HOST + ':' + udp_rsbp_port);
     });
+    res.send(syslogs);
 });
 
 app.get('/actions/blackOut_Attack/stopAttack', function (req, res) {
@@ -359,6 +362,7 @@ app.get('/actions/blackOut_Attack/stopAttack', function (req, res) {
         if (err) throw err;
         console.log('UDP client message sent to ' + UDP_RESP_HOST + ':' + udp_rsbp_port);
     });
+    res.send(syslogs);
 });
 
 

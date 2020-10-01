@@ -32,8 +32,8 @@
             m221: "none",
             download_program: "none",
             download_program2: "none",
-            falseInj: "idle",
-            blackOut: "idle",
+            falseInj: "none",
+            blackOut: "none",
         }
 
         main.illuminateState = {
@@ -286,32 +286,40 @@
 
         // false data injection attack:
         main.startFalseInjAttack = function () {
-            $http.get("/actions/falseInj_Attack/startAttack").success(function (data) {
-                console.log(data);
-            });
-            main.state.falseInj = 'on';
+            if (main.state.falseInj == 'none' || main.state.falseInj == 'idle') {
+                $http.get("/actions/falseInj_Attack/startAttack").success(function (data) {
+                    console.log(data);
+                });
+                main.state.falseInj = 'on';
+            }
         };
 
         main.stopFalseInjAttack = function () {
-            $http.get("/actions/falseInj_Attack/stopAttack").success(function (data) {
-                console.log(data);
-            });
-            main.state.falseInj = 'idle';
+            if (main.state.falseInj == 'on') {
+                $http.get("/actions/falseInj_Attack/stopAttack").success(function (data) {
+                    console.log(data);
+                });
+                main.state.falseInj = 'idle';
+            }
         };
 
         // Black out attack:
         main.startBlackOutAttack = function () {
-            $http.get("/actions/blackOut_Attack/startAttack").success(function (data) {
-                console.log(data);
-            });
-            main.state.blackOut = 'on';
+            if (main.state.blackOut == 'none' || main.state.blackOut == 'idle') {
+                $http.get("/actions/blackOut_Attack/startAttack").success(function (data) {
+                    console.log(data);
+                });
+                main.state.blackOut = 'on';
+            }
         };
 
         main.stopBlackOutAttack = function () {
-            $http.get("/actions/blackOut_Attack/stopAttack").success(function (data) {
-                console.log(data);
-            });
-            main.state.blackOut = 'idle';
+            if (main.state.blackOut == 'on') {
+                $http.get("/actions/blackOut_Attack/stopAttack").success(function (data) {
+                    console.log(data);
+                });
+                main.state.blackOut = 'idle';
+            }
         };
 
         $interval(function () {
