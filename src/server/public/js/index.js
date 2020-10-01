@@ -33,7 +33,7 @@
             download_program: "none",
             download_program2: "none",
             falseInj: "idle",
-            blackOut: "on",
+            blackOut: "idle",
         }
 
         main.illuminateState = {
@@ -299,6 +299,20 @@
             main.state.falseInj = 'idle';
         };
 
+        // Black out attack:
+        main.startBlackOutAttack = function () {
+            $http.get("/actions/blackOut_Attack/startAttack").success(function (data) {
+                console.log(data);
+            });
+            main.state.blackOut = 'on';
+        };
+
+        main.stopBlackOutAttack = function () {
+            $http.get("/actions/blackOut_Attack/stopAttack").success(function (data) {
+                console.log(data);
+            });
+            main.state.blackOut = 'idle';
+        };
 
         $interval(function () {
             main.getStates();

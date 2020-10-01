@@ -323,8 +323,9 @@ app.get('/actions/download_program/illuminateOff', function (req, res) {
 });
 
 
+// falseInj_Attack
 app.get('/actions/falseInj_Attack/startAttack', function (req, res) {
-    console.log('start false data injectino attack');
+    console.log('start false data injection attack');
     var message = 'A;2';
     udpClient.send(message, 0, message.length, udp_rsbp_port, UDP_RESP_HOST, function (err, bytes) {
         if (err) throw err;
@@ -333,7 +334,7 @@ app.get('/actions/falseInj_Attack/startAttack', function (req, res) {
 });
 
 app.get('/actions/falseInj_Attack/stopAttack', function (req, res) {
-    console.log('stop false data injectino attack');
+    console.log('stop false data injection attack');
     var message = 'A;0';
     udpClient.send(message, 0, message.length, udp_rsbp_port, UDP_RESP_HOST, function (err, bytes) {
         if (err) throw err;
@@ -341,8 +342,28 @@ app.get('/actions/falseInj_Attack/stopAttack', function (req, res) {
     });
 });
 
+// Black out attack:
+app.get('/actions/blackOut_Attack/startAttack', function (req, res) {
+    console.log('start blackOut attack');
+    var message = 'A;1';
+    udpClient.send(message, 0, message.length, udp_tech_port, UDP_TECH_HOST, function (err, bytes) {
+        if (err) throw err;
+        console.log('UDP client message sent to ' + UDP_RESP_HOST + ':' + udp_rsbp_port);
+    });
+});
+
+app.get('/actions/blackOut_Attack/stopAttack', function (req, res) {
+    console.log('stop blackOut attack');
+    var message = 'A;0';
+    udpClient.send(message, 0, message.length, udp_rsbp_port, UDP_RESP_HOST, function (err, bytes) {
+        if (err) throw err;
+        console.log('UDP client message sent to ' + UDP_RESP_HOST + ':' + udp_rsbp_port);
+    });
+});
+
+
 app.get('/playSound/:num', function (req, res) {
-	var num = req.params.num;
-	io.emit('playSound', {soundNum: num});
-	res.send("played");
+    var num = req.params.num;
+    io.emit('playSound', { soundNum: num });
+    res.send("played");
 });
