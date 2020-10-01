@@ -31,7 +31,9 @@
             mitm: "none",
             m221: "none",
             download_program: "none",
-            download_program2: "none"
+            download_program2: "none",
+            falseInj: "idle",
+            blackOut: "on",
         }
 
         main.illuminateState = {
@@ -77,8 +79,6 @@
 		if (attackSounds[num]) {
 			attackSounds[num].play();
 		}
-
-
 	}
 	
 	var attackAudioSrc = {
@@ -283,6 +283,22 @@
             });
             main.state.download_program2 = 'progress';
         };
+
+        // false data injection attack:
+        main.startFalseInjAttack = function () {
+            $http.get("/actions/falseInj_Attack/startAttack").success(function (data) {
+                console.log(data);
+            });
+            main.state.falseInj = 'on';
+        };
+
+        main.stopFalseInjAttack = function () {
+            $http.get("/actions/falseInj_Attack/stopAttack").success(function (data) {
+                console.log(data);
+            });
+            main.state.falseInj = 'idle';
+        };
+
 
         $interval(function () {
             main.getStates();

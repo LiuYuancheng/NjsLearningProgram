@@ -4,6 +4,7 @@ var http = require('http');
 var request = require('request');
 var bodyParser = require('body-parser')
 var socketIo = require('socket.io')
+var dgram = require('dgram');
 
 var app = express();
 console.log(__dirname);
@@ -11,6 +12,15 @@ console.log(__dirname);
 const MITM_HOST = '192.168.10.21';
 const M221_HOST = '192.168.10.91';
 const DOWNLOAD_PROGRAM_HOST = '192.168.10.251';
+
+const UDP_TECH_HOST = '192.168.10.251';
+const UDP_RESP_HOST = '127.0.0.1';
+//const UDP_RESP_HOST = '192.168.10.91';
+
+const udp_rsbp_port = 5005;
+const udp_tech_port = 5006;
+var udpClient = dgram.createSocket('udp4');
+
 const listen_port = 8080;
 const agents_port = 8081;
 
@@ -313,15 +323,26 @@ app.get('/actions/download_program/illuminateOff', function (req, res) {
 });
 
 
+app.get('/actions/falseInj_Attack/startAttack', function (req, res) {
+    console.log('start false data injectino attack');
+    var message = 'A;2';
+    udpClient.send(message, 0, message.length, udp_rsbp_port, UDP_RESP_HOST, function (err, bytes) {
+        if (err) throw err;
+        console.log('UDP client message sent to ' + UDP_RESP_HOST + ':' + udp_rsbp_port);
+    });
+});
 
+app.get('/actions/falseInj_Attack/stopAttack', function (req, res) {
+    console.log('stop false data injectino attack');
+    var message = 'A;0';
+    udpClient.send(message, 0, message.length, udp_rsbp_port, UDP_RESP_HOST, function (err, bytes) {
+        if (err) throw err;
+        console.log('UDP client message sent to ' + UDP_RESP_HOST + ':' + udp_rsbp_port);
+    });
+});
 
 app.get('/playSound/:num', function (req, res) {
 	var num = req.params.num;
 	io.emit('playSound', {soundNum: num});
 	res.send("played");
 });
-
-
-
-
-//

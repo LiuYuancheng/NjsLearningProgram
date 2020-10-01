@@ -267,46 +267,26 @@
 				<td>
 
 					<span ng-hide="main.attackType">
-						<md-button ng-hide="main.state.download_program == 'on'" ng-click="main.startDownloadProgram()"
-							ng-disabled="['on','idle'].indexOf(main.state.download_program) < 0"
+						<md-button ng-hide="main.state.falseInj == 'on'" ng-click="main.startFalseInjAttack()"
+							ng-disabled="['on','idle'].indexOf(main.state.falseInj) < 0"
 							class="md-raised md-primary">Start Attack
 						</md-button>
-						<md-button ng-show="main.state.download_program == 'on'" ng-click="main.stopDownloadProgram()"
-							ng-disabled="['on','idle'].indexOf(main.state.download_program) < 0"
+						<md-button ng-show="main.state.falseInj == 'on'" ng-click="main.stopFalseInjAttack()"
+							ng-disabled="['on','idle'].indexOf(main.state.falseInj) < 0"
 							class="md-raised md-primary md-warn">Stop Attack
-						</md-button>
-					</span>
-					<span ng-show="main.attackType">
-						<md-button ng-hide="main.state.download_program == 'on'" ng-click="main.startDownloadProgram2()"
-							ng-disabled="['on','idle'].indexOf(main.state.download_program) < 0"
-							class="md-raised md-primary">Start Attack2
-						</md-button>
-						<md-button ng-show="main.state.download_program == 'on'" ng-click="main.stopDownloadProgram2()"
-							ng-disabled="['on','idle'].indexOf(main.state.download_program) < 0"
-							class="md-raised md-primary md-warn">Stop Attack2
 						</md-button>
 					</span>
 				</td>
 				<td style="text-align: center;padding:  20px;">
-					<div ng-if="main.state.download_program == 'on'"
+					<div ng-if="main.state.falseInj == 'on'"
 						style="border-radius: 20px; background-color: #82cc54; color: white;">
-						Attack is on
+						Attack is progress...
 					</div>
-					<div ng-if="main.state.download_program == 'progress'"
+					<div ng-if="main.state.falseInj == 'idle'"
 						style="border-radius: 20px; background-color: #6aacff; color: white;">
-						Attack in progress...
+						Attack has stopped...
 					</div>
-					<div ng-if="main.state.download_program == 'idle'"
-						style="border-radius: 20px; background-color: #ffbd6a; color: white;">
-						Idle
-					</div>
-					<div ng-if="main.state.download_program == 'none'"
-						style="border-radius: 20px; background-color: grey; color: white;">
-						Status: Unknown
-					</div>
-					<div ng-if="main.state.download_program == ''"
-						style="border-radius: 20px; background-color: #cecece; color: white;">
-						Machine is offline
+
 					</div>
 				</td>
 				<td class="center">
@@ -338,16 +318,6 @@
 						<md-button ng-show="main.state.download_program == 'on'" ng-click="main.stopDownloadProgram()"
 							ng-disabled="['on','idle'].indexOf(main.state.download_program) < 0"
 							class="md-raised md-primary md-warn">Stop Attack
-						</md-button>
-					</span>
-					<span ng-show="main.attackType">
-						<md-button ng-hide="main.state.download_program == 'on'" ng-click="main.startDownloadProgram2()"
-							ng-disabled="['on','idle'].indexOf(main.state.download_program) < 0"
-							class="md-raised md-primary">Start Attack2
-						</md-button>
-						<md-button ng-show="main.state.download_program == 'on'" ng-click="main.stopDownloadProgram2()"
-							ng-disabled="['on','idle'].indexOf(main.state.download_program) < 0"
-							class="md-raised md-primary md-warn">Stop Attack2
 						</md-button>
 					</span>
 				</td>
