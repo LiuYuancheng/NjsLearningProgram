@@ -1,0 +1,63 @@
+
+<head>
+  <style> body { margin: 0; } </style>
+
+  <script src="//unpkg.com/force-graph"></script>
+  <!--<script src="../../dist/force-graph.js"></script>-->
+</head>
+
+
+<p>graph-siem works!</p>
+
+<div class="container">  
+    
+    <h1> Display Data from Json File in Angular 9 </h1>  
+      
+    <table class="table table-striped">  
+      <thead>  
+          <tr>  
+            <th>ID</th>  
+            <th>Name</th>  
+            <th>Email</th>  
+            <th>Gender</th>  
+          </tr>  
+      </thead>  
+      <tbody>  
+        <tr *ngFor="let student of students">  
+          <td>{{ student.id }}</td>  
+          <td>{{ student.name }}</td>  
+          <td>{{ student.email }}</td>  
+          <td>{{ student.gender }}</td>  
+        </tr>  
+      </tbody>  
+    </table> 
+
+    <mat-tab-group>
+      <mat-tab label="First"> Content 13
+            <div id="3d-graph"></div>
+            
+            <script>
+              // Random tree
+              const N = 300;
+              const gData = {
+                nodes: [...Array(N).keys()].map(i => ({ id: i })),
+                links: [...Array(N).keys()]
+                  .filter(id => id)
+                  .map(id => ({
+                    source: id,
+                    target: Math.round(Math.random() * (id - 1))
+                  }))
+              };
+
+              const Graph = ForceGraph3D()
+                (document.getElementById('3d-graph'))
+                .graphData(gData);
+            </script>
+
+
+      </mat-tab>
+      <mat-tab label="Second"> Content 2 </mat-tab>
+      <mat-tab label="Third"> Content 3 </mat-tab>
+    </mat-tab-group>
+
+  </div>  
