@@ -1,63 +1,130 @@
 
-<head>
-  <style> body { margin: 0; } </style>
 
-  <script src="//unpkg.com/force-graph"></script>
-  <!--<script src="../../dist/force-graph.js"></script>-->
-</head>
-
-
-<p>graph-siem works!</p>
+<p>Graph-siem page</p>
 
 <div class="container">  
     
-    <h1> Display Data from Json File in Angular 9 </h1>  
-      
-    <table class="table table-striped">  
-      <thead>  
-          <tr>  
-            <th>ID</th>  
-            <th>Name</th>  
-            <th>Email</th>  
-            <th>Gender</th>  
-          </tr>  
-      </thead>  
-      <tbody>  
-        <tr *ngFor="let student of students">  
-          <td>{{ student.id }}</td>  
-          <td>{{ student.name }}</td>  
-          <td>{{ student.email }}</td>  
-          <td>{{ student.gender }}</td>  
-        </tr>  
-      </tbody>  
-    </table> 
+    <h3> {{title}} </h3>  
 
     <mat-tab-group>
-      <mat-tab label="First"> Content 13
-            <div id="3d-graph"></div>
-            
-            <script>
-              // Random tree
-              const N = 300;
-              const gData = {
-                nodes: [...Array(N).keys()].map(i => ({ id: i })),
-                links: [...Array(N).keys()]
-                  .filter(id => id)
-                  .map(id => ({
-                    source: id,
-                    target: Math.round(Math.random() * (id - 1))
-                  }))
-              };
+      <mat-tab label="Snort List "> Snort List Idx = 1
+        <hr>
+        <table class="table table-striped">  
+          <thead>  
+              <tr>  
+                <th>source</th>  
+                <th>target</th>  
+                <th>gini_t_port</th>  
+                <th>signature</th>
+                <th>unique_t_port_count</th>
+                <th>gini_s_port</th>
+                <th>signature_id</th>
+                <th>span</th>
+                <th>unique_s_port_count</th>
+                <th>dispersion</th>
+                <th>final_score</th>
+              </tr>  
+          </thead>  
+          <tbody>  
+            <tr *ngFor="let networkdata of networkdatas">  
+              <td>{{ networkdata.source }}</td>
+              <td>{{ networkdata.target }}</td>  
+              <td>{{ networkdata.gini_t_port }}</td>  
+              <td>{{ networkdata.signature }}</td>  
+              <td>{{ networkdata.unique_s_port_count }}</td>  
+              <td>{{ networkdata.gini_s_port }}</td>  
+              <td>{{ networkdata.signature_id }}</td>  
+              <td>{{ networkdata.span }}</td>  
+              <td>{{ networkdata.unique_s_port_count }}</td>  
+              <td>{{ networkdata.dispersion }}</td> 
+              <td>{{ networkdata.final_score }}</td>  
+            </tr>  
+          </tbody>  
+        </table> 
+      </mat-tab>
 
-              const Graph = ForceGraph3D()
-                (document.getElementById('3d-graph'))
-                .graphData(gData);
-            </script>
+      <mat-tab label="Windows List"> Windows List Idx = 1
+        <hr>
+        <table class="table table-striped">  
+          <thead>  
+              <tr>  
+                <th>source</th>  
+                <th>target</th>  
+                <th>unique_t_port_count</th>  
+                <th>dispersion</th>
+                <th>gini_t_port</th>
+                <th>final_score</th>
+                <th>signature</th>
+                <th>unique_s_port_count</th>
+                <th>span</th>
+                <th>signature_id</th>
+                <th>gini_s_port</th>
+              </tr>  
+          </thead>  
+          <tbody>  
+            <tr *ngFor="let networkdata of networkdataw">  
+              <td>{{ networkdata.source }}</td>
+              <td>{{ networkdata.target }}</td>  
+              <td>{{ networkdata.unique_t_port_count }}</td>  
+              <td>{{ networkdata.dispersion }}</td>  
+              <td>{{ networkdata.gini_t_port }}</td>  
+              <td>{{ networkdata.final_score }}</td>  
+              <td>{{ networkdata.signature }}</td>  
+              <td>{{ networkdata.unique_s_port_count }}</td>  
+              <td>{{ networkdata.span }}</td>  
+              <td>{{ networkdata.signature_id }}</td> 
+              <td>{{ networkdata.gini_s_port }}</td>  
+            </tr>  
+          </tbody>  
+        </table> 
+      </mat-tab>
 
+      <mat-tab label="Fortinet List"> Fortinet List Idx = 0
+        <hr>
+        <table class="table table-striped">  
+          <thead>  
+              <tr>  
+                <th>source</th>  
+                <th>target</th>  
+                <th>gini_t_port</th>  
+                <th>signature</th>
+                <th>unique_t_port_count</th>
+                <th>gini_s_port</th>
+                <th>signature_id</th>
+                <th>span</th>
+                <th>unique_s_port_count</th>
+                <th>dispersion</th>
+                <th>final_score</th>
+              </tr>  
+          </thead>  
+          <tbody>  
+            <tr *ngFor="let networkdata of networkdataf">  
+              <td>{{ networkdata.source }}</td>
+              <td>{{ networkdata.target }}</td>  
+              <td>{{ networkdata.gini_t_port }}</td>  
+              <td>{{ networkdata.signature }}</td>  
+              <td>{{ networkdata.unique_s_port_count }}</td>  
+              <td>{{ networkdata.gini_s_port }}</td>  
+              <td>{{ networkdata.signature_id }}</td>  
+              <td>{{ networkdata.span }}</td>  
+              <td>{{ networkdata.unique_s_port_count }}</td>  
+              <td>{{ networkdata.dispersion }}</td> 
+              <td>{{ networkdata.final_score }}</td>  
+            </tr>  
+          </tbody>  
+        </table> 
 
       </mat-tab>
-      <mat-tab label="Second"> Content 2 </mat-tab>
-      <mat-tab label="Third"> Content 3 </mat-tab>
+
+
+
+      <mat-tab label="Graph List"> Content 3 
+        <hr>
+
+        <app-editor></app-editor>
+       
+      </mat-tab>
+    
     </mat-tab-group>
 
   </div>  
