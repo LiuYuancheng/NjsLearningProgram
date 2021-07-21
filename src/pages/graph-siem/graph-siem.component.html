@@ -1,12 +1,42 @@
 
-
-<p>Graph-siem page</p>
-
 <div class="container">  
     
-    <h3> {{title}} </h3>  
+    <h4> {{title}} </h4>  
 
     <mat-tab-group>
+    <mat-tab label="Graph List">
+      <!-- Show the subgraph and group -->
+      <mat-grid-list cols="4" rowHeight="280px" >
+        <mat-grid-tile [colspan]="4" [rowspan]="2" [style.background]="'lightblue'">
+          <!-- Graph panel -->
+          <app-cytoscape></app-cytoscape>
+
+        </mat-grid-tile>
+        <mat-grid-tile [colspan]="1" [rowspan]="1" [style.background]="'lightgreen'">
+          <!-- Sub group list  -->
+          <jqxGrid 
+          [selectionmode]="'checkbox'" 
+          [source]="subgrapSrc"
+          [theme]="'material'"
+          [width]="400"
+          [autoheight]="true" 
+          [pageable]="true" 
+          [altrows]="true" 
+          [filterable]="true" 
+          [sortable]="true" 
+          [columns]="subgrapColumns" 
+        #grid>
+        </jqxGrid>  
+
+
+
+        </mat-grid-tile>
+        <mat-grid-tile [colspan]="3" [rowspan]="1" [style.background]="'lightpink'">
+          edges list  
+        </mat-grid-tile>
+      </mat-grid-list>
+    
+      </mat-tab>
       <mat-tab label="Snort List "> Snort List Idx = 1
         <hr>
         <table class="table table-striped">  
@@ -120,11 +150,22 @@
 
       <mat-tab label="Graph List"> Content 3 
         <hr>
-
-        <app-editor></app-editor>
-       
+        <hello-world></hello-world>
+        
+        <hr>
+        <jqxGrid 
+        [selectionmode]="'checkbox'" 
+        [source]="source" 
+        [theme]="'material'" 
+        [autoheight]="true" 
+        [pageable]="true" 
+        [altrows]="true" 
+        [filterable]="true" 
+        [sortable]="true" 
+        [columns]="columns" 
+      #grid>
+      </jqxGrid>  
       </mat-tab>
-    
     </mat-tab-group>
 
   </div>  

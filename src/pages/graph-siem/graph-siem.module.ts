@@ -2,22 +2,27 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-//import { DragAndDropModule } from '@angular/angular-draggable-droppable';
+import { HttpModule } from '@angular/http';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatGridListModule } from '@angular/material/grid-list';
+// import other modules: 
+import { jqxGridModule } from 'jqwidgets-ng/jqxgrid';
+import { GraphSiemComponent } from './graph-siem.component';
+import { HelloWorld } from './hello-word/hello-world.component';
+import { CytoscapeComponent } from './cytoscape/cytoscape.component';
 
-
-import {GraphSiemComponent} from './graph-siem.component';
-
-import { EditorComponent } from './editor/editor.component';
 
 @NgModule({
-  declarations: [GraphSiemComponent],
+  declarations: [
+    GraphSiemComponent, 
+    HelloWorld,
+    CytoscapeComponent,
+  ],
   imports: [
     CommonModule,
-    BrowserModule, FormsModule, EditorComponent,
-    GraphSiemComponent,
-  ], 
-  exports: [
-    GraphSiemComponent,
-  ],
+    MatTabsModule,
+    jqxGridModule,
+    MatGridListModule,
+  ]
 })
 export class GraphSiemModule { }

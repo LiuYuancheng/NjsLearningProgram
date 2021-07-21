@@ -1,6 +1,31 @@
 table {
     border-spacing: 12px;
-  }
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    width: 100%;
+}
+table thead {
+    /* head takes the height it requires, 
+    and it's not scaled when table is resized */
+    //flex: 0 0 auto;
+    width: calc(100% - 0.9em);
+}
+table tbody {
+    /* body takes all the remaining available space */
+    flex: 1 1 auto;
+    display: block;
+    overflow-y: scroll;
+}
+table tbody tr {
+    width: 100%;
+}
+
+table thead, table tbody tr {
+    display: table;
+    table-layout: fixed;
+}
+
 
 #container {
   min-width: 320px;
@@ -8,6 +33,22 @@ table {
   margin: 0 auto;
   height: 500px;
 }
+
+#cy {
+    width: 300px;
+    height: 300px;
+    display: block;
+  }
+
+::ng-deep .cy {
+    width: 1000px;
+    height: 500px;
+    border:solid 1px black;
+    display: block;
+    float: left;
+    margin: 0px;
+  }
+  
 
 p {
   font-family: Lato;
