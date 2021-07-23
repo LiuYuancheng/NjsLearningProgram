@@ -8,9 +8,10 @@ import { MatGridListModule } from '@angular/material/grid-list';
 // import other modules: 
 import { jqxGridModule } from 'jqwidgets-ng/jqxgrid';
 import { GraphSiemComponent } from './graph-siem.component';
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { HelloWorld } from './hello-word/hello-world.component';
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
-
+import { CardModule } from 'primeng/card';
 
 @NgModule({
   declarations: [
@@ -21,8 +22,10 @@ import { CytoscapeComponent } from './cytoscape/cytoscape.component';
   imports: [
     CommonModule,
     MatTabsModule,
+    CardModule,
     jqxGridModule,
     MatGridListModule,
+    FlexLayoutModule
   ]
 })
 export class GraphSiemModule { }

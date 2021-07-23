@@ -1,16 +1,15 @@
 import { Component, OnInit, ElementRef, ViewChild, AfterViewInit} from '@angular/core';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
-//import { BaseGraphComponent } from '../../../components/base-graph/base-graph.component';
-import {elements} from '../data/windows.json';
-import { nodes, edges } from '../data/test.json';
+import {elements as elementsW}  from '../data/windows.json' ;
+import {elements as elementsS} from '../data/snort.json';
+import {elements as elementsF} from '../data/fortinet.json';
 
 // use fcose layout. 
 cytoscape.use(fcose);
 
 @Component({
   selector: 'app-cytoscape',
-  //template: '<div #cyvpn [className]="\'cy\'"></div>'
   templateUrl: './cytoscape.component.html'
 })
 
@@ -22,26 +21,13 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   //@Input() layout: cytoscape.LayoutOptions;
   
   // temporary use the simple test data
-  nodes: cytoscape.NodeDefinition[] = elements['nodes'];
-  edges: cytoscape.EdgeDefinition[] = elements['edges'];
+  nodes: cytoscape.NodeDefinition[] = elementsW['nodes'];
+  edges: cytoscape.EdgeDefinition[] = elementsW['edges'];
   style: cytoscape.Stylesheet[];
   cy: cytoscape.Core;
 
   private nativeElement: HTMLElement;
   private options: any;
-
-  // temporary use the simple test data
-  public graph: any = {
-    nodes: [
-      { data: { id: 'R1', name: 'Resistor', value: 1000,  type:'node', line1:'missing', line2:0} },
-      { data: { id: 'C1', name: 'Capacitor', value: 1001, type:'node', line1:0, line2:1, line3:3} },
-      { data: { id: 'I1', name: 'Inductor', value: 1002, type:'node', line1:1, line2:'missing' } }
-    ],
-    edges: [
-      { data: { id: 0, source: 'R1', target: 'C1', type: "bendPoint"} },
-      { data: { id: 1, source: 'C1', target: 'I1', type: "bendPoint"} }
-    ]
-  };
 
   constructor(element: ElementRef) {
     //super();
@@ -170,5 +156,24 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     //layout.run();
 
   }
+
+  setCrtGraph(ghNmae:String){
+    if(ghNmae == 'windows'){   
+      this.nodes = elementsW['nodes'];
+      this.edges = elementsW['edges'];
+    }
+    else  if(ghNmae== 'snort'){   
+      this.nodes = elementsS['nodes'];
+      this.edges = elementsS['edges'];
+    }
+    else{  
+        this.nodes = elementsF['nodes'];
+        this.edges = elementsF['edges'];
+    }
+    this.redraw();
+  }
+
+
+
 
 }
