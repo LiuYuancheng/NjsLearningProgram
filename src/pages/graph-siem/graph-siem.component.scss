@@ -74,7 +74,17 @@ table thead, table tbody tr {
     float: left;
     margin: 0px;
   }
-  
+
+
+::ng-deep .rightsidebar{
+    width: 300px;
+    height:500px;
+    border:solid 1px red;
+    display: block;
+    float: left;
+    margin: 0px;
+    background-color:grey; 
+  }
 
 p {
   font-family: Lato;

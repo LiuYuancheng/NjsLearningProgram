@@ -9,11 +9,9 @@
     
       <tbody>
         <tr>
-          <p-card header="Events" [style]="{'width': '100%', 'height':'450px'}" styleClass="panel-background">
-            <app-cytoscape #cygraph></app-cytoscape>
-          </p-card>
+          <app-cytoscape #cygraph></app-cytoscape>
         </tr>
-    
+        
         <tr>
           <hr>
         </tr>
@@ -31,7 +29,7 @@
     
               <p><span>You selected: </span><b>{{selectedgraph}}</b></p>
 
-              <jqxGrid #nodeGrid (onSelectallrows)="selectRow($event)"
+              <jqxGrid #nodeGrid (onRowselect)="selectRow($event)" (onRowunselect)="selectRow($event)"
                 [selectionmode]="'checkbox'" [source]="subgrapSrc" [width]="'100%'" [theme]="'metrodark'"
                 [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true" [columns]="subgrapColumns" >
               </jqxGrid>
@@ -40,7 +38,7 @@
     
             <div fxFlex="85%" class="right">
               <jqxGrid [selectionmode]="'checkbox'" [source]="edgesSrc" [width]="'100%'" [theme]="'metrodark'"
-                [height]="'80%'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
+                [height]="'70%'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
                 [columns]="edgesWColumns" #grid>
               </jqxGrid>
             </div>

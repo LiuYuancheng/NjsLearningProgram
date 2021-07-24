@@ -9,8 +9,6 @@ import {elements as elementsW}  from './data/windows.json' ;
 import {elements as elementsS} from './data/snort.json';
 import {elements as elementsF} from './data/fortinet.json';
 
-
-
 interface networkDatas {  
   source: String;  
   target: String;
@@ -129,6 +127,7 @@ export class GraphSiemComponent implements OnInit {
 	 });
 
    selectedgraph: String = 'windows';
+   nodeIDlist: String[] = [] // list to store all the nodes ID shown in the graph.
 
   constructor() { }
 
@@ -156,7 +155,7 @@ export class GraphSiemComponent implements OnInit {
     for (let obj of this.nodes) {
       if(!obj['data'].hasOwnProperty('parent')){
         this.subgrapW.push({"id": idxCount,"name":obj['data']["id"]});
-        console.log(idxCount);
+        //console.log(idxCount);
         idxCount += 1;
       }
     }
@@ -175,6 +174,7 @@ export class GraphSiemComponent implements OnInit {
     this.edgesSrc = new jqx.dataAdapter({
       localData: this.edgesW
     });
+
   }
 
   selectChangeHandler (event: any) {
@@ -182,6 +182,7 @@ export class GraphSiemComponent implements OnInit {
     this.selectedgraph = event.target.value;
     this.loadNodesData();
     this.loadEdgesData();
+    // update the siem graph.
     this.cygraph.setCrtGraph(this.selectedgraph);
     this.cygraph.redraw();
   }
@@ -189,7 +190,39 @@ export class GraphSiemComponent implements OnInit {
   selectRow(event: any){
     var rowindexes = [];
     rowindexes = this.nodeGridList.getselectedrowindexes();
-    console.log("rowindexes", rowindexes);
+    //console.log("rowindexes", rowindexes);
+    //build the edges list: 
+    this.buildEdges(rowindexes);
 
   }
+
+  buildEdges(graphIdArr: Number[]){
+    
+    this.nodeIDlist = []; // Clear the node list
+    for (let idx of graphIdArr) {
+      var partName = "subgraph"+idx.toString(); 
+      for (let obj of this.nodes) {
+        if(obj['data'].hasOwnProperty('parent') && obj['data']['parent'] == partName){
+          this.nodeIDlist.push(obj['data']['id']);
+        }
+      }
+    }
+
+    this.edgesW = [];
+    for (let obj of this.edges) {
+      //if(this.nodeIDlist.indexOf(obj['data']['source']) !== -1 || this.nodeIDlist.indexOf(obj['data']['target']) !== -1)
+      if(this.nodeIDlist.indexOf(obj['data']['source']) !== -1 && this.nodeIDlist.indexOf(obj['data']['target']) !== -1)
+      {
+        this.edgesW.push(obj['data']);
+      }
+    }
+    
+    this.edgesSrc = new jqx.dataAdapter({
+      localData: this.edgesW
+    });
+
+    this.cygraph.setCrtSubGraph(graphIdArr);
+  
+  }
+
 }

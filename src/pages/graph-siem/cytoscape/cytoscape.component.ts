@@ -8,6 +8,27 @@ import {elements as elementsF} from '../data/fortinet.json';
 // use fcose layout. 
 cytoscape.use(fcose);
 
+export interface NodeData {
+  id?: String;
+  value?: String;
+  name?: String;
+  parent?: String;
+}
+export interface EdgeData {  
+  source?: String;  
+  target?: String;
+  gini_t_port?: Number;
+  signature?: String[];  
+  unique_t_port_count?: Number;
+  gini_s_port?: Number;
+  signature_id?: String[];
+  span?: Number;
+  unique_s_port_count?: Number;
+  dispersion?: Number;
+  final_score?: Number;
+  key?:Number;
+}
+
 @Component({
   selector: 'app-cytoscape',
   templateUrl: './cytoscape.component.html'
@@ -25,7 +46,12 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   edges: cytoscape.EdgeDefinition[] = elementsW['edges'];
   style: cytoscape.Stylesheet[];
   cy: cytoscape.Core;
+  
+  selectNode: NodeData; 
+  selectEdge: EdgeData;
+  showNode: boolean = true
 
+  title1 = "N ode info";
   private nativeElement: HTMLElement;
   private options: any;
 
@@ -115,6 +141,29 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       }
     },
     ];
+    //
+    this.selectNode = {
+      id: '',
+      value: '',
+      name:'',
+      parent: ''
+    };
+
+    this.selectEdge = {
+      source:'',
+      target:'',
+      gini_t_port:0,
+      signature: [],
+      unique_t_port_count:0,
+      gini_s_port:0,
+      signature_id:[],
+      span:0,
+      unique_s_port_count:0,
+      dispersion:0,
+      final_score:0,
+      key:0
+    };
+
   }
 
   ngOnInit(): void {
@@ -127,6 +176,25 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
 
   redraw() {
 
+    this.buildGraph();
+    this.cy.pan({
+      x: 200,
+      y: 200 
+    });
+    this.cy.fit()
+
+
+    //var collection = this.cy.elements('node[id == "127.0.0.1"]');
+    //this.cy.remove(collection);
+
+    
+    // Get a new layout, which can be used to algorithmically position the nodes in the graph.
+    //let layout = this.cy.layout(this.options); 
+    //layout.run();
+
+  }
+
+  buildGraph(){
     this.cy = cytoscape({
       container: this.cyRef.nativeElement,
       boxSelectionEnabled: false,
@@ -144,33 +212,94 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       minZoom: 0.1,
       maxZoom: 5,
     });
-    this.cy.pan({
-      x: 200,
-      y: 200 
-    });
-    this.cy.fit()
-
-
-    // Get a new layout, which can be used to algorithmically position the nodes in the graph.
-    //let layout = this.cy.layout(this.options); 
-    //layout.run();
-
   }
 
-  setCrtGraph(ghNmae:String){
-    if(ghNmae == 'windows'){   
+
+
+  setCrtGraph(ghNmae: String) {
+    if (ghNmae == 'windows') {
       this.nodes = elementsW['nodes'];
       this.edges = elementsW['edges'];
     }
-    else  if(ghNmae== 'snort'){   
+    else if (ghNmae == 'snort') {
       this.nodes = elementsS['nodes'];
       this.edges = elementsS['edges'];
     }
-    else{  
-        this.nodes = elementsF['nodes'];
-        this.edges = elementsF['edges'];
+    else {
+      this.nodes = elementsF['nodes'];
+      this.edges = elementsF['edges'];
     }
-    this.redraw();
+
+    //this.redraw();
+  }
+
+  setCrtSubGraph(graphIdArr: Number[]){
+    
+    //this.graphIdArr.indexOf(obj['data']['source']) !== -1
+    this.buildGraph();
+
+    var graphNameArr:String[] = [];
+    for (let idx of graphIdArr) {
+      graphNameArr.push("subgraph"+idx.toString());
+    }
+    console.log("This: ", graphNameArr)
+    //this.cy.nodes().filter(ele => ele.data('parent') == "subgraph1").remove();
+    this.cy.nodes().filter(ele => graphNameArr.indexOf(ele.data('parent')) !== -1).remove();
+    //for (let prtName of graphNameArr) {
+    //  this.cy.nodes().filter(ele => ele.data('parent') == prtName).remove();
+    //}
+
+   this.cy.fit();
+  }
+
+  evtListener() {
+    this.cy.one('tap', (event) => {
+      var evtTarget = event.target;
+      if (evtTarget.isNode()) {
+        this.selectNode = {
+          id: evtTarget.data('id'),
+          value: evtTarget.data('value'),
+          name: evtTarget.data('name'),
+          parent: evtTarget.data('parent')
+        };
+        this.showNode = true;
+      }
+      else if (evtTarget.isEdge()) {
+        this.selectEdge = {
+          source: evtTarget.data('source'),
+          target: evtTarget.data('target'),
+          signature_id: evtTarget.data('signature_id'),
+          signature: evtTarget.data('signature'),
+          dispersion: evtTarget.data('dispersion'),
+          span: evtTarget.data('span'),
+          unique_s_port_count: evtTarget.data('unique_s_port_count'),
+          gini_s_port: evtTarget.data('gini_s_port'),
+          unique_t_port_count: evtTarget.data('unique_t_port_count'),
+          gini_t_port: evtTarget.data('gini_t_port'),
+          final_score: evtTarget.data('final_score'),
+          key: evtTarget.data('key')
+        };
+        this.showNode = false;
+      }
+      else {
+        console.log('this is the background');
+      }
+    });
+    
+    console.log("evtListener", this.selectInfo )
+
+
+    /*this.cy.on('mousedown', (event) => {
+      var evtTarget = event.target;
+      console.log('here now');
+      this.cy.edgehandles('drawon');
+    });
+
+    this.cy.on('mouseup', (event) =>{
+      var evtTarget = event.target;
+      console.log('quit now');
+      this.cy.edgehandles('drawoff');
+    });*/
   }
 
 
