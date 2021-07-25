@@ -12,6 +12,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { HelloWorld } from './hello-word/hello-world.component';
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
 import { CardModule } from 'primeng/card';
+import { NodedetailComponent } from './nodedetail/nodedetail.component';
 
 //import cytoscape from 'cytoscape';
 //import cxtmenu from 'cytoscape-cxtmenu';
@@ -19,9 +20,10 @@ import { CardModule } from 'primeng/card';
 
 @NgModule({
   declarations: [
-    GraphSiemComponent, 
     HelloWorld,
     CytoscapeComponent,
+    GraphSiemComponent,
+    NodedetailComponent, 
   ],
   imports: [
     CommonModule,

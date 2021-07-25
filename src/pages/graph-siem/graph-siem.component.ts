@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import {FormControl} from '@angular/forms';
 import { jqxGridComponent } from 'jqwidgets-ng/jqxgrid';
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
 
@@ -63,6 +64,9 @@ export class GraphSiemComponent implements OnInit {
   @ViewChild('cygraph') cygraph: CytoscapeComponent;
 
   title = "Graph table";
+  selectedIndex = false;
+  selected = new FormControl(0);
+
   //students: Student[] = studentsData;
   networkdatas: networkDatas[] = networkDataS;
   networkdataw: networkDatas[] = networkDataW;
@@ -162,8 +166,16 @@ export class GraphSiemComponent implements OnInit {
     this.subgrapSrc = new jqx.dataAdapter({
       localData: this.subgrapW
     });
-
+    
   }
+
+
+  parentFun(nodeID:String):void{
+    this.selected.setValue(1);
+    //alert("parent component function.:"+nodeID.toString());
+  }
+
+
 
   loadEdgesData() {
     this.edgesW = [];

@@ -2,14 +2,14 @@
 
   <!-- <h4> {{title}} </h4> -->
 
-  <mat-tab-group>
+  <mat-tab-group [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event)">
     <mat-tab label="Graph List">
       <!-- Show the subgraph and group -->
     <table style="width:100%">
     
       <tbody>
         <tr>
-          <app-cytoscape #cygraph></app-cytoscape>
+          <app-cytoscape #cygraph (parentFun)="parentFun($event)"></app-cytoscape>
         </tr>
         
         <tr>
@@ -51,7 +51,7 @@
     
     </mat-tab>
     
-    <mat-tab label="Snort List "> Snort List Idx = 1
+    <mat-tab label="Snort List"> Snort List Idx = 1
       <hr>
       <table class="table table-striped">
         <thead>
@@ -167,20 +167,7 @@
       <hello-world></hello-world>
 
       <hr>
-      <p-card header="Events" [style]="{'width': '100%'}" styleClass="panel-background">
-      <jqxGrid [selectionmode]="'checkbox'" 
-                [source]="source" 
-                [theme]="'material'"
-                [width]="'100%'" 
-                [autoheight]="true"
-                [theme]="'metrodark'" 
-                [pageable]="true"
-                [altrows]="true" 
-                [filterable]="true" 
-                [sortable]="true" 
-                [columns]="columns" #grid>
-      </jqxGrid>
-    </p-card>
+      <app-nodedetail></app-nodedetail>
     </mat-tab>
   </mat-tab-group>
 

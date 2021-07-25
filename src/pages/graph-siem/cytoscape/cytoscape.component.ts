@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, AfterViewInit} from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, Output, EventEmitter, AfterViewInit} from '@angular/core';
 //import { trigger, state, style, transition, animate } from '@angular/animations';
 
 import cytoscape from 'cytoscape';
@@ -41,6 +41,8 @@ export interface EdgeData {
 
 export class CytoscapeComponent implements OnInit, AfterViewInit {
   @ViewChild('cyvpn') cyRef: ElementRef;
+  @Output("parentFun") parentFun: EventEmitter<any> = new EventEmitter();
+  
   //@Input() nodes: cytoscape.NodeDefinition[];
   //@Input() edges: cytoscape.EdgeDefinition[];
   //@Input() style: cytoscape.Stylesheet[];
@@ -61,9 +63,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   title1 = "N ode info";
   private nativeElement: HTMLElement;
   private options: any;
-
-
-
+  
   constructor(element: ElementRef) {
     //super();
     this.nativeElement = element.nativeElement;
@@ -253,19 +253,44 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
 
     //this.createContextMenu();
     let defaults = {
-      menuRadius: function(ele){ return 100; }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
+      menuRadius: function(ele){ return 60; }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
       selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
       commands: [ // an array of commands to list in the menu or a function that returns the array
   
-        { // example command
+        // { // example command
+        //   fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
+        //   content: 'View Node Deail', // html/text content to be displayed in the menu
+        //   contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+        //   select: function(ele){ // a function to execute when the command is selected
+        //     console.log( ele.id() ); // `ele` holds the reference to the active element
+        //     window.open(`/#/abstraction-layer-domain?domain=${ele.id()}`, '_blank');
+        //   },
+        //   enabled: true // whether the command is selectable
+        // },
+
+        { 
           fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-          content: 'a command name', // html/text content to be displayed in the menu
+          content: 'View Node Deail', // html/text content to be displayed in the menu
           contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-          select: function(ele){ // a function to execute when the command is selected
-            console.log( ele.id() ) // `ele` holds the reference to the active element
+          select: ele => {
+            this.chileFunction(ele.id());
+          },
+          enabled: true // whether the command is selectablele
+        },
+
+        {
+          content: 'Zoom To',
+          select: ele => {
+            // console.log("Zoom", ele.id())
+            // let pos = ele.position();
+            let cy = ele.cy();
+            cy.zoom({ level: 1 });
+            cy.center(ele);
+            //this.chileFunction(ele.id());
           },
           enabled: true // whether the command is selectable
         }
+
 
       ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
       fillColor: 'rgba(0, 0, 0, 0.75)', // the background colour of the menu
@@ -290,6 +315,11 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.cy.cxtmenu( defaults );
 
     //-------------------
+  }
+
+  chileFunction(nodeID:String){
+    console.log('test', "123");
+    this.parentFun.emit(nodeID);
   }
 
 

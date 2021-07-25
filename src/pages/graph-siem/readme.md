@@ -9,3 +9,13 @@ https://malcoded.com/posts/angular-ngif-else/
 cytocapte.Js API: 
 
 https://js.cytoscape.org/#ele.isEdge
+
+
+
+call parent function from child: 
+
+https://stackblitz.com/edit/calling-parent-function-from-child-component?file=src%2Fapp%2Fparent-component%2Fparent-component.component.html
+
+how to pass value in parent funcion:
+
+ <app-cytoscape #cygraph (parentFun)="parentFun($event)"></app-cytoscape>
