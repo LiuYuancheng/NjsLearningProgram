@@ -13,6 +13,10 @@ import { HelloWorld } from './hello-word/hello-world.component';
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
 import { CardModule } from 'primeng/card';
 
+//import cytoscape from 'cytoscape';
+//import cxtmenu from 'cytoscape-cxtmenu';
+//cytoscape.use(cxtmenu);
+
 @NgModule({
   declarations: [
     GraphSiemComponent, 
