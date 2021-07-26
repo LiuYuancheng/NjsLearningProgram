@@ -56,23 +56,14 @@ table thead, table tbody tr {
     table-layout: fixed;
 }
 
-//::ng-deep .mat-tab-links {
-//  flex-flow: wrap;
-//}
-
-#cy {
-    width: 300px;
-    height: 300px;
-    display: block;
-  }
-
 ::ng-deep .cy {
     width: 1000px;
     height: 500px;
     border:solid 1px black;
-    display: block;
+    vertical-align: center;
+    //display: block;
     float: left;
-    margin: 0px;
+    margin: 10px;
   }
 
 

@@ -17,7 +17,7 @@ export interface NodeData {
   id?: String;
   value?: String;
   name?: String;
-  parent?: String;
+  subgraphs?: String[];
 }
 export interface EdgeData {  
   source?: String;  
@@ -49,9 +49,13 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   //@Input() layout: cytoscape.LayoutOptions;
   
   // temporary use the simple test data
-  nodes: cytoscape.NodeDefinition[] = elementsW['nodes'];
-  edges: cytoscape.EdgeDefinition[] = elementsW['edges'];
+  //nodes: cytoscape.NodeDefinition[] = elementsW['nodes'];
+  //edges: cytoscape.EdgeDefinition[] = elementsW['edges'];
+  
+  nodes: cytoscape.NodeDefinition[] = [];
+  edges: cytoscape.EdgeDefinition[] = [];
   style: cytoscape.Stylesheet[];
+  subgraphNameArr: string[];
   //cy: cytoscape.Core;
   cy: any = null;
 
@@ -67,13 +71,14 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   constructor(element: ElementRef) {
     //super();
     this.nativeElement = element.nativeElement;
+    this.subgraphNameArr = [];
     this.options = {
       name: 'fcose',
       positions: undefined, // map of (node id) => (position obj); or function(node){ return somPos; }
       zoom: 1, // the zoom level to set (prob want fit = false if set)
       pan: undefined, // the pan level to set (prob want fit = false if set)
       fit: true, // whether to fit to viewport
-      padding: 30, // padding on fit
+      padding: 50, // padding on fit
       animate: false, // whether to transition the node positions
       animationDuration: 500, // duration of animation in ms if enabled
       animationEasing: undefined, // easing of animation if enabled
@@ -108,10 +113,20 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         }
       },
       {
-        selector:'node[name="Resistor"]',
+        selector:'node[id *="subgraph"]',
         style:{
           'label': 'data(id)',
-          'background-image':'url("")'
+          "width": "40px",
+          "height": "40px",
+          "text-wrap": "ellipsis",
+          "text-max-width": "200px",
+          'background-image':'url("")',
+          "color": "#FF0000",
+          "font-size": "24px",
+          "text-valign": "up",
+          "text-halign": "center",
+          "border-color": "#FF0000",
+          "border-style": "double",
         }
       },
       {
@@ -124,6 +139,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "color": "#454434",
         }
       },
+
+
       {
       selector: 'node[type= "bendPoint"]',
       style:{
@@ -156,7 +173,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       id: '',
       value: '',
       name:'',
-      parent: ''
+      subgraphs: []
     };
 
     this.selectEdge = {
@@ -181,7 +198,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void{
-    this.redraw()
+    //this.redraw()
   }
 
   redraw() {
@@ -201,6 +218,12 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     //layout.run();
 
   }
+
+  clearGraph(){
+    this.cy.destroy();
+  }
+
+
 
   buildGraph(){
     this.cy = cytoscape({
@@ -227,7 +250,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         content: () => {
           let div = document.createElement('div');
           div.classList.add("popper");
-          div.innerHTML = 'Node:' + node.id();
+          div.innerHTML = 'Node : ' + node.id()+'<br> subgraph : [' + node.data('subgraphs')+']';
           document.body.appendChild(div);
           return div;
         },
@@ -340,18 +363,32 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     //this.redraw();
   }
 
-  setCrtSubGraph(graphIdArr: Number[]){
-    
-    //this.graphIdArr.indexOf(obj['data']['source']) !== -1
-    this.buildGraph();
-
-    var graphNameArr:String[] = [];
-    for (let idx of graphIdArr) {
-      graphNameArr.push("subgraph"+idx.toString());
+  setCrtSubGraph(subgraphNames:string[], nodesDis:any[], edgesDis:any[]):void{
+    if(nodesDis.length == 0 || edgesDis.length ==0){
+      this.subgraphNameArr = [];
+      this.clearGraph();
+      return
     }
-    console.log("This: ", graphNameArr)
-    //this.cy.nodes().filter(ele => ele.data('parent') == "subgraph1").remove();
-    this.cy.nodes().filter(ele => graphNameArr.indexOf(ele.data('parent')) !== -1).remove();
+    this.subgraphNameArr = subgraphNames;
+    this.nodes = nodesDis;
+    this.edges = edgesDis;
+    this.buildGraph();
+    /*
+    for (let graphName of graphNameArr) {
+      this.cy.nodes().filter(ele => {
+        if (ele.id() != graphName){
+          return false;
+        }
+        if (ele.data('subgraphs') != null)
+        {
+          if(ele.data('subgraphs').includes(graphName)){
+            return false
+          }
+        }
+        return true;
+      } ).remove();
+    }
+    */
     //for (let prtName of graphNameArr) {
     //  this.cy.nodes().filter(ele => ele.data('parent') == prtName).remove();
     //}
@@ -367,7 +404,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           id: evtTarget.data('id'),
           value: evtTarget.data('value'),
           name: evtTarget.data('name'),
-          parent: evtTarget.data('parent')
+          subgraphs: evtTarget.data('subgraphs')
+          //parent: evtTarget.data('parent')
         };
         this.showNode = true;
         //this.menuState = 'out';

@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angula
 import {FormControl} from '@angular/forms';
 import { jqxGridComponent } from 'jqwidgets-ng/jqxgrid';
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
+import { NodedetailComponent } from './nodedetail/nodedetail.component';
 
 import networkDataS from './data/data_fortinet.json';
 import networkDataW from './data/data_windows.json';
@@ -38,7 +39,8 @@ interface networkDatas {
   final_score: Number;
 }
 
-type subGraphType = Array<{id: number, name: string}>;
+type subGraphType = Array<{name: string, score:number}>;
+
 type edgesType = Array<{
   source: String,
   target: String,
@@ -62,6 +64,7 @@ type edgesType = Array<{
 export class GraphSiemComponent implements OnInit {
   @ViewChild('nodeGrid') nodeGridList: jqxGridComponent;
   @ViewChild('cygraph') cygraph: CytoscapeComponent;
+  @ViewChild('nodegraph') nodegraph: NodedetailComponent;
 
   title = "Graph table";
   selectedIndex = false;
@@ -72,14 +75,19 @@ export class GraphSiemComponent implements OnInit {
   networkdataw: networkDatas[] = networkDataW;
   networkdataf: networkDatas[] = networkDataF;
   
-  subgrapW: subGraphType = [];
+  subgrapsSelected: subGraphType = [];
+
   subgrapColumns = [
-		{text: 'Id', datafield: 'id'},
-		{text: 'SubGraphName', datafield: 'name'}
+		{text: 'SubGraphName', datafield: 'name'},
+    {text: 'Score', datafield: 'score'}
   ];
   subgrapSrc: any;
   
+  nodesDis = [];
+  edgesDis = []; 
+
   edgesW: edgesType = [];
+
   edgesWColumns = [
 		{text: 'Source', datafield: 'source'},
 		{text: 'Target', datafield: 'target'},
@@ -131,17 +139,17 @@ export class GraphSiemComponent implements OnInit {
 	 });
 
    selectedgraph: String = 'windows';
-   nodeIDlist: String[] = [] // list to store all the nodes ID shown in the graph.
+   //nodeIDlist: String[] = [] // list to store all the nodes ID shown in the graph.
+   loadProMode: String = "indeterminate";
 
   constructor() { }
 
   ngOnInit(): void {
-    this.loadNodesData();
-    this.loadEdgesData();
+    this.loadGraphsData();
   }
 
-  loadNodesData(){
-    
+  loadGraphsData():void{
+    // load subgraphs data based on user's selection:  
     if(this.selectedgraph == 'windows'){   
       this.nodes = elementsW['nodes'];
       this.edges = elementsW['edges'];
@@ -154,19 +162,18 @@ export class GraphSiemComponent implements OnInit {
         this.nodes = elementsF['nodes'];
         this.edges = elementsF['edges'];
     }
-    this.subgrapW = [];
-    var idxCount = 0 ;
+    // build the subgraph table: 
+    this.subgrapsSelected = [];
     for (let obj of this.nodes) {
-      if(!obj['data'].hasOwnProperty('parent')){
-        this.subgrapW.push({"id": idxCount,"name":obj['data']["id"]});
-        //console.log(idxCount);
-        idxCount += 1;
+      if(!obj['data'].hasOwnProperty('subgraphs')){
+        this.subgrapsSelected.push({"name":obj['data']["id"], "score":obj['data']["score"]});
       }
     }
     this.subgrapSrc = new jqx.dataAdapter({
-      localData: this.subgrapW
+      localData: this.subgrapsSelected
     });
-    
+    // buidl the edges table: 
+    this.buildEdgesTable([]);
   }
 
 
@@ -177,64 +184,76 @@ export class GraphSiemComponent implements OnInit {
 
 
 
-  loadEdgesData() {
-    this.edgesW = [];
-    for (let obj of this.edges) {
-      this.edgesW.push(obj['data']);
-    }
-
-    this.edgesSrc = new jqx.dataAdapter({
-      localData: this.edgesW
-    });
-
-  }
-
   selectChangeHandler (event: any) {
     //update the ui
+    this.loadProMode = "indeterminate"; 
     this.selectedgraph = event.target.value;
-    this.loadNodesData();
-    this.loadEdgesData();
+    this.loadGraphsData();
+
+    //this.loadEdgesData();
     // update the siem graph.
-    this.cygraph.setCrtGraph(this.selectedgraph);
-    this.cygraph.redraw();
+    this.cygraph.clearGraph();
+    //this.cygraph.setCrtGraph(this.selectedgraph);
+    //this.cygraph.redraw();
+
+    this.loadProMode = "determinate"; 
   }
 
   selectRow(event: any){
-    var rowindexes = [];
-    rowindexes = this.nodeGridList.getselectedrowindexes();
-    //console.log("rowindexes", rowindexes);
-    //build the edges list: 
-    this.buildEdges(rowindexes);
 
+    let value = this.nodeGridList.getselectedrowindexes();
+    var subgraphNames = [];  
+    for(let idx of value){
+      subgraphNames.push(this.nodeGridList.getcelltext(idx,'name'));
+    }
+
+    this.buildNodesTable(subgraphNames);
+    this.buildEdgesTable(subgraphNames);
+    this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
   }
 
-  buildEdges(graphIdArr: Number[]){
-    
-    this.nodeIDlist = []; // Clear the node list
-    for (let idx of graphIdArr) {
-      var partName = "subgraph"+idx.toString(); 
+  buildNodesTable(subgraphNames: string[]){
+    this.nodesDis = [];
+    for (let subgName of subgraphNames) {
       for (let obj of this.nodes) {
-        if(obj['data'].hasOwnProperty('parent') && obj['data']['parent'] == partName){
-          this.nodeIDlist.push(obj['data']['id']);
+        if(obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)){
+          this.nodesDis.push(obj);
+        }
+      }
+    }
+  }
+
+  buildEdgesTable(subgraphNames: string[]){
+    // find all nodes's id belongs to the sub graph list: 
+    let nodeIDlist = []; // Clear the node list
+    for (let subgName of subgraphNames) {
+      for (let obj of this.nodes) {
+        if(obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)){
+          nodeIDlist.push(obj['data']['id']);
         }
       }
     }
 
+    // find all edges src+tgt nodes are all in the subgraph list.
+    this.edgesDis = [];
     this.edgesW = [];
+
+
     for (let obj of this.edges) {
       //if(this.nodeIDlist.indexOf(obj['data']['source']) !== -1 || this.nodeIDlist.indexOf(obj['data']['target']) !== -1)
-      if(this.nodeIDlist.indexOf(obj['data']['source']) !== -1 && this.nodeIDlist.indexOf(obj['data']['target']) !== -1)
+      
+      
+      if(nodeIDlist.includes(obj['data']['source']) && nodeIDlist.includes(obj['data']['target']))
       {
+        this.edgesDis.push(obj);
         this.edgesW.push(obj['data']);
       }
     }
     
+    // build the Edges table
     this.edgesSrc = new jqx.dataAdapter({
       localData: this.edgesW
-    });
-
-    this.cygraph.setCrtSubGraph(graphIdArr);
-  
+    });  
   }
 
 }

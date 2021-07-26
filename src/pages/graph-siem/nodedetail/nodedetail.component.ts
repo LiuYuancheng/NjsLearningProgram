@@ -1,11 +1,11 @@
-import { Component, OnInit,ElementRef, ViewChild,AfterViewInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 
 import {elements as elementsW}  from '../data/windows.json' ;
-import {elements as elementsS} from '../data/snort.json';
-import {elements as elementsF} from '../data/fortinet.json';
+//import {elements as elementsS} from '../data/snort.json';
+//import {elements as elementsF} from '../data/fortinet.json';
 
 cytoscape.use(fcose);
 
@@ -14,8 +14,9 @@ cytoscape.use(fcose);
   templateUrl: './nodedetail.component.html',
   styleUrls: ['./nodedetail.component.scss']
 })
+
 export class NodedetailComponent implements OnInit, AfterViewInit {
-  @ViewChild('cynodedetail') cyRef: ElementRef;
+  @ViewChild('cyvpn') cyRef: ElementRef;
 
   // temporary use the simple test data
   nodes: cytoscape.NodeDefinition[] = elementsW['nodes'];
@@ -38,7 +39,6 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
       { data: { id: 1, source: 'C1', target: 'I1', type: "bendPoint"} }
     ]
   };
-
 
 
   constructor(element: ElementRef) {

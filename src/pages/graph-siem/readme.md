@@ -19,3 +19,9 @@ https://stackblitz.com/edit/calling-parent-function-from-child-component?file=sr
 how to pass value in parent funcion:
 
  <app-cytoscape #cygraph (parentFun)="parentFun($event)"></app-cytoscape>
+
+
+
+Node selector setup: 
+
+https://dash.plotly.com/cytoscape/styling

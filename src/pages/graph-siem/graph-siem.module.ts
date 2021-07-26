@@ -5,11 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatProgressBarModule } from '@angular/material/progress-bar'
 // import other modules: 
 import { jqxGridModule } from 'jqwidgets-ng/jqxgrid';
-import { GraphSiemComponent } from './graph-siem.component';
+
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { HelloWorld } from './hello-word/hello-world.component';
+import { GraphSiemComponent } from './graph-siem.component';
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
 import { CardModule } from 'primeng/card';
 import { NodedetailComponent } from './nodedetail/nodedetail.component';
@@ -31,6 +33,7 @@ import { NodedetailComponent } from './nodedetail/nodedetail.component';
     CardModule,
     jqxGridModule,
     MatGridListModule,
+    MatProgressBarModule,
     FlexLayoutModule
   ]
 })

@@ -1,6 +1,10 @@
 <div fxLayout="row" fxLayoutGap="10px" class="parent">
     <div fxFlex="75%" class="left">
         <p-card header="Cytocape Graph" [style]="{'width': '100%', 'height':'450px'}" styleClass="panel-background">
+            <p> Displayed Subgraph: </p>
+            <div *ngFor="let subgraphName of subgraphNameArr">
+                <p>->[ {{subgraphName}} ]</p>
+            </div>
             <div #cyvpn [className]="'cy'" (click)="evtListener()"></div>
         </p-card>
     </div>
@@ -11,7 +15,7 @@
             <p>Node ID: {{selectNode?.id}}</p>
             <p>Node Name: {{selectNode?.value}}</p>
             <p>Node Value: {{selectNode?.name}}</p>
-            <p>Node's Parent: {{selectNode?.parent}}</p>
+            <p>Node's Subgraphs:[ {{selectNode?.subgraphs}} ]</p>
             <hr>
         </div>
         <div *ngIf="!showNode">
