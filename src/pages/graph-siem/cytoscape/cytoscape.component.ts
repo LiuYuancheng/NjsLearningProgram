@@ -101,11 +101,12 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "font-size": "16px",
           "text-valign": "bottom",
           "text-halign": "center",
-          "background-color": "#1234",
+          "background-color": "#C8D2C8",
           "background-opacity": 2,
           "text-outline-color": "#555",
           "text-outline-width": "2px",
-          "color": "#123",
+          "color": "#FFFFFF",
+          "border-color": "#33FFFC",
           "overlay-padding": "6px",
           "padding": "0",
           'shape': 'round-rectangle',
@@ -113,41 +114,33 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         }
       },
       {
-        selector:'node[id *="subgraph"]',
-        style:{
-          'label': 'data(id)',
-          "width": "40px",
-          "height": "40px",
-          "text-wrap": "ellipsis",
-          "text-max-width": "200px",
-          'background-image':'url("")',
-          "color": "#FF0000",
-          "font-size": "24px",
-          "text-valign": "up",
-          "text-halign": "center",
-          "border-color": "#FF0000",
-          "border-style": "double",
-        }
-      },
-      {
         selector: 'edges', // default edge style
         style: {
           // 'label': 'data(relationshipType)',
+          'width': 1,  
           'curve-style': 'bezier',
           'target-arrow-shape': 'triangle',
           "font-size": "8px",
-          "color": "#454434",
+          "color": "#33FFFC",
         }
       },
 
 
-      {
-      selector: 'node[type= "bendPoint"]',
-      style:{
-        'width': '1.00001px',
-        'height': '1.00001px'
-      }
-    },
+      {   
+        selector: 'node:selected',
+        style: {
+          'label': 'data(id)',
+          "background-color": "#0000FF",
+          "border-width": "2px",
+          "border-color": "green",
+          "border-opacity": 0.7,
+          "font-size": "8px",
+          "text-outline-color": "#0000FF"
+          // "background-color": "yellow",
+          // "text-outline-color": "yellow",
+        }
+      },  
+
     {
       selector:'node[type = "node"]',
       style:{
@@ -219,8 +212,11 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
 
   }
 
-  clearGraph(){
-    this.cy.destroy();
+  clearGraph() {
+    // clear the graph for redrow.
+    if (this.cy != null) {
+      this.cy.destroy();
+    }
   }
 
 
@@ -373,7 +369,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.nodes = nodesDis;
     this.edges = edgesDis;
     this.buildGraph();
-    /*
+    
+    /* // use cy.filter function() to remove the nodes.
     for (let graphName of graphNameArr) {
       this.cy.nodes().filter(ele => {
         if (ele.id() != graphName){
@@ -389,9 +386,6 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       } ).remove();
     }
     */
-    //for (let prtName of graphNameArr) {
-    //  this.cy.nodes().filter(ele => ele.data('parent') == prtName).remove();
-    //}
 
    this.cy.fit();
   }
@@ -399,6 +393,9 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   evtListener() {
     this.cy.one('tap', (event) => {
       var evtTarget = event.target;
+      if(evtTarget==null){
+        return;
+      }
       if (evtTarget.isNode()) {
         this.selectNode = {
           id: evtTarget.data('id'),

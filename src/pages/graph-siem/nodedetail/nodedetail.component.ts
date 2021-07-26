@@ -3,53 +3,46 @@ import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angula
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 
-import {elements as elementsW}  from '../data/windows.json' ;
-//import {elements as elementsS} from '../data/snort.json';
-//import {elements as elementsF} from '../data/fortinet.json';
-
 cytoscape.use(fcose);
+
+export interface NodeData {
+  id?: String;
+  value?: String;
+  name?: String;
+  subgraphs?: String[];
+}
 
 @Component({
   selector: 'app-nodedetail',
-  templateUrl: './nodedetail.component.html',
-  styleUrls: ['./nodedetail.component.scss']
+  templateUrl: './nodedetail.component.html'
+  //styleUrls: ['./nodedetail.component.scss']
 })
 
 export class NodedetailComponent implements OnInit, AfterViewInit {
   @ViewChild('cyvpn') cyRef: ElementRef;
 
   // temporary use the simple test data
-  nodes: cytoscape.NodeDefinition[] = elementsW['nodes'];
-  edges: cytoscape.EdgeDefinition[] = elementsW['edges'];
+  nodes: cytoscape.NodeDefinition[] = [];
+  edges: cytoscape.EdgeDefinition[] = [];
   style: cytoscape.Stylesheet[];
   //cy: cytoscape.Core;
   cy: any = null;
 
   private nativeElement: HTMLElement;
   private options: any;
-
-  public graph: any = {
-    nodes: [
-      { data: { id: 'R1', name: 'Resistor', value: 1000,  type:'node', line1:'missing', line2:0} },
-      { data: { id: 'C1', name: 'Capacitor', value: 1001, type:'node', line1:0, line2:1, line3:3} },
-      { data: { id: 'I1', name: 'Inductor', value: 1002, type:'node', line1:1, line2:'missing' } }
-    ],
-    edges: [
-      { data: { id: 0, source: 'R1', target: 'C1', type: "bendPoint"} },
-      { data: { id: 1, source: 'C1', target: 'I1', type: "bendPoint"} }
-    ]
-  };
-
+  nodeName: String;
+  selectNode: NodeData; 
 
   constructor(element: ElementRef) {
     this.nativeElement = element.nativeElement;
+    this.nodeName = "";
     this.options = {
       name: 'fcose',
       positions: undefined, // map of (node id) => (position obj); or function(node){ return somPos; }
       zoom: 1, // the zoom level to set (prob want fit = false if set)
       pan: undefined, // the pan level to set (prob want fit = false if set)
       fit: true, // whether to fit to viewport
-      padding: 30, // padding on fit
+      padding: 50, // padding on fit
       animate: false, // whether to transition the node positions
       animationDuration: 500, // duration of animation in ms if enabled
       animationEasing: undefined, // easing of animation if enabled
@@ -59,23 +52,53 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
       transform: function (node, position) { return position; } // transform a given node position. Useful for changing flow direction in discrete layouts 
     };
 
-    this.options = {
-      name: 'fcose',
-      positions: undefined, // map of (node id) => (position obj); or function(node){ return somPos; }
-      zoom: 1, // the zoom level to set (prob want fit = false if set)
-      pan: undefined, // the pan level to set (prob want fit = false if set)
-      fit: true, // whether to fit to viewport
-      padding: 30, // padding on fit
-      animate: false, // whether to transition the node positions
-      animationDuration: 500, // duration of animation in ms if enabled
-      animationEasing: undefined, // easing of animation if enabled
-      animateFilter: function (node, i) { return true; }, // a function that determines whether the node should be animated.  All nodes animated by default on animate enabled.  Non-animated nodes are positioned immediately when the layout starts
-      ready: undefined, // callback on layoutready
-      stop: undefined, // callback on layoutstop
-      transform: function (node, position) { return position; } // transform a given node position. Useful for changing flow direction in discrete layouts 
+    this.selectNode = {
+      id: '',
+      value: '',
+      name:'',
+      subgraphs: []
     };
 
-    this.style  = <cytoscape.Stylesheet[]>[
+  }
+
+  ngOnInit(): void {
+  }
+
+  ngAfterViewInit(): void{
+   
+  }
+  
+  redraw() {
+
+    this.buildGraph();
+    this.cy.pan({
+      x: 300,
+      y: 300 
+    });
+    this.cy.fit()
+  }
+
+  setCrtSubGraph(subgraphNames: String, nodesDis: any[], edgesDis: any[]): void {
+    if (nodesDis.length == 0 || edgesDis.length == 0) {
+      this.nodeName = null;
+      //this.clearGraph();
+      return
+    }
+  
+    this.nodeName = subgraphNames;
+    this.nodes = nodesDis;
+    this.edges = edgesDis;
+
+    this.redraw();
+
+    //this.buildGraph();
+    //this.cy.fit();
+  }
+
+
+  buildGraph(){
+
+    this.style = <cytoscape.Stylesheet[]>[
       {
         selector: 'nodes', // default node style
         style: {
@@ -88,24 +111,33 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           "font-size": "16px",
           "text-valign": "bottom",
           "text-halign": "center",
-          "background-color": "#1234",
+          "background-color": "#C8D2C8",
           "background-opacity": 2,
           "text-outline-color": "#555",
           "text-outline-width": "2px",
-          "color": "#123",
+          "color": "#FFFFFF",
+          "border-color": "#33FFFC",
           "overlay-padding": "6px",
           "padding": "0",
           'shape': 'round-rectangle',
-          'label': 'data(id)'
+          'label': 'data(id)',
         }
       },
       {
-        selector:'node[name="Resistor"]',
-        style:{
+        selector: 'node[id *= "' + this.nodeName + '"]',
+        style: {
           'label': 'data(id)',
-          'background-image':'url("")'
+          "background-color": "#0000FF",
+          "border-width": "2px",
+          "border-color": "yellow",
+          "border-opacity": 0.7,
+          "font-size": "8px",
+          "text-outline-color": "#0000FF"
+          // "background-color": "yellow",
+          // "text-outline-color": "yellow",
         }
       },
+
       {
         selector: 'edges', // default edge style
         style: {
@@ -117,63 +149,41 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
         }
       },
       {
-      selector: 'node[type= "bendPoint"]',
-      style:{
-        'width': '1.00001px',
-        'height': '1.00001px'
-      }
-    },
-    {
-      selector:'node[type = "node"]',
-      style:{
-        'width': '60px',
-        'height': '40px',
-        'content': 'data(id)',
-        'font-size': 6,
-        'text-valign': 'center',
-        'text-halign': 'center'
-      }
-    },
-    {
-      selector:'edge[type = "bendPoint" ]',
-      style:{
-        'width': 1,  
-        'target-arrow-shape': 'none',
-        'opacity': 1
-      }
-    },
+        selector: 'node[type= "bendPoint"]',
+        style: {
+          'width': '1.00001px',
+          'height': '1.00001px'
+        }
+      },
+      {
+        selector: 'node[type = "node"]',
+        style: {
+          'width': '60px',
+          'height': '40px',
+          'content': 'data(id)',
+          'font-size': 6,
+          'text-valign': 'center',
+          'text-halign': 'center'
+        }
+      },
+      {
+        selector: 'edge[type = "bendPoint" ]',
+        style: {
+          'width': 1,
+          'target-arrow-shape': 'none',
+          'opacity': 1
+        }
+      },
     ];
 
-  }
-
-  ngOnInit(): void {
-  }
-
-  ngAfterViewInit(): void{
-    this.redraw()
-  }
-  
-  redraw() {
-
-    this.buildGraph();
-    this.cy.pan({
-      x: 200,
-      y: 200 
-    });
-    this.cy.fit()
-  }
-
-  buildGraph(){
     this.cy = cytoscape({
       container: this.cyRef.nativeElement,
       boxSelectionEnabled: false,
       //container:document.getElementById('cy'),
       elements: {
-        nodes: this.graph['nodes'],
-        edges: this.graph['edges'],
+        nodes: this.nodes,
+        edges: this.edges,
       },
-      //elements: this.graph,
-
       style: this.style,
       layout: this.options,
       autoungrabify: true,
@@ -188,7 +198,7 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
         content: () => {
           let div = document.createElement('div');
           div.classList.add("popper");
-          div.innerHTML = 'Node:' + node.id();
+          div.innerHTML = 'Node : ' + node.id()+'<br> subgraph : [' + node.data('subgraphs')+']';
           document.body.appendChild(div);
           return div;
         },
@@ -211,10 +221,9 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
         node.popperRef = null;
       }
     })
+    //this.
+    this.cy.zoom({level:3});
 
-
-
-    //-------------------
   }
 
 

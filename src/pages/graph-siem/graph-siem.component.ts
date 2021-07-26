@@ -25,20 +25,6 @@ interface networkDatas {
   final_score: Number;
 }
 
-interface networkDatas {  
-  source: String;  
-  target: String;
-  gini_t_port: Number;
-  signature: String[];  
-  unique_t_port_count: Number;
-  gini_s_port: Number;
-  signature_id: String[];
-  span: Number;
-  unique_s_port_count: Number;
-  dispersion: Number;
-  final_score: Number;
-}
-
 type subGraphType = Array<{name: string, score:number}>;
 
 type edgesType = Array<{
@@ -81,12 +67,27 @@ export class GraphSiemComponent implements OnInit {
 		{text: 'SubGraphName', datafield: 'name'},
     {text: 'Score', datafield: 'score'}
   ];
-  subgrapSrc: any;
   
+  subgrapSrc: any;
+  nodePrtSrc: any;
+
   nodesDis = [];
   edgesDis = []; 
 
   edgesW: edgesType = [];
+
+
+  subgraphsWColumns =[
+    {text: 'ID', datafield: 'id'},
+    {text: 'Score', datafield: 'score'},
+    {text: 'Consequences', datafield: 'consequences'},
+  ];
+
+
+  nodesWColumns = [
+    {text: 'NodeID', datafield: 'id'},
+    {text: 'Subgraph', datafield: 'subgraphs'}
+  ];
 
   edgesWColumns = [
 		{text: 'Source', datafield: 'source'},
@@ -180,8 +181,54 @@ export class GraphSiemComponent implements OnInit {
   parentFun(nodeID:String):void{
     this.selected.setValue(1);
     //alert("parent component function.:"+nodeID.toString());
-  }
+    let nodesToNP = []; // nodes shown in the 
+    let edgesToNP = []; 
+    let nodesNames = [nodeID,];
 
+    for (let obj of this.edges) {
+      //if(this.nodeIDlist.indexOf(obj['data']['source']) !== -1 || this.nodeIDlist.indexOf(obj['data']['target']) !== -1)
+      if(obj['data']['source'] == nodeID)
+      {
+        edgesToNP.push(obj);
+        nodesNames.push(obj['data']['target'])
+      }
+      if(obj['data']['target'] == nodeID)
+      {
+        edgesToNP.push(obj);
+        nodesNames.push(obj['data']['source'])
+      }
+    }
+
+    for (let obj of this.nodes) {
+      if(nodesNames.includes(obj['data']['id'])){
+        nodesToNP.push(obj);
+      }
+    }
+
+    // setup the subgrap table 
+    let parentName = [];
+    let nodeParents = [];
+    for (let obj of this.nodes) {
+      if (obj['data']['id'] == nodeID) {
+        parentName = obj['data']['subgraphs'];
+      }
+    }
+
+    for (let obj of this.nodes) {
+      if(parentName.includes(obj['data']['id'])){
+        nodeParents.push({"id":obj['data']['id'], "score":obj['data']['score'], "consequences":obj['data']['consequences']});
+      }
+    }
+
+    this.nodePrtSrc = new jqx.dataAdapter({
+      localData: nodeParents
+    });
+    //console.log("test", nodeParents);
+
+
+    //set the node page graph
+    this.nodegraph.setCrtSubGraph(nodeID, nodesToNP, edgesToNP);
+  }
 
 
   selectChangeHandler (event: any) {

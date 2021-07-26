@@ -26,7 +26,7 @@
                   <option value="fortinet">Fortinet Graph</option>
                 </select>
                 <mat-progress-bar mode="{{loadProMode}}" value="100"></mat-progress-bar>
-                
+
                 <!-- <p><span>You selected: </span><b>{{selectedgraph}}</b></p> -->
 
                 <jqxGrid #nodeGrid (onRowselect)="selectRow($event)" (onRowunselect)="selectRow($event)"
@@ -50,6 +50,52 @@
 
       </table>
 
+    </mat-tab>
+
+    <mat-tab label="Node detail Information ">
+      <!-- <hr>
+  <hello-world></hello-world>
+  <hr> -->
+      <table style="width:100%">
+        <tbody>
+          <tr>
+            <div fxLayout="row" fxLayoutGap="10px" class="parent">
+              <div fxFlex="75%" class="left">
+                <app-nodedetail #nodegraph></app-nodedetail>
+              </div>
+
+              <div fxFlex="25%" class="right">
+                <hr>
+                <h5> Subgraphs Table</h5>
+                <hr>
+                <jqxGrid [source]="nodePrtSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'70%'" [pageable]="true"
+                  [altrows]="true" [filterable]="true" [sortable]="true" [columns]="subgraphsWColumns" #grid>
+                </jqxGrid>
+
+              </div>
+            </div>
+          </tr>
+
+          <tr>
+            <div fxLayout="row" fxLayoutGap="10px" class="parent">
+              <div fxFlex="15%" class="left">
+                <p> Related Nodes table</p>
+                <jqxGrid [width]="'100%'" [theme]="'metrodark'" [height]="'200px'" [pageable]="true" [altrows]="true"
+                  [filterable]="true" [sortable]="true" [columns]="nodesWColumns" #grid>
+                </jqxGrid>
+              </div>
+
+
+              <div fxFlex="85%" class="right">
+                <p> Connected Edges table</p>
+                <jqxGrid [source]="edgesSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'200px'" [pageable]="true"
+                  [altrows]="true" [filterable]="true" [sortable]="true" [columns]="edgesWColumns" #grid>
+                </jqxGrid>
+              </div>
+            </div>
+          </tr>
+        </tbody>
+      </table>
     </mat-tab>
 
     <mat-tab label="Snort List"> Snort List Idx = 1
@@ -161,27 +207,6 @@
 
     </mat-tab>
 
-
-
-    <mat-tab label="Node detail Information "> 
-      <hr>
-      <hello-world></hello-world>
-      <hr>
-      <table style="width:100%">
-
-        <tbody>
-          <tr>
-            <p>Nodedetail Graph</p>
-          </tr>
-
-          <tr>
-            <!-- <app-nodedetail #nodegraph></app-nodedetail> -->
-
-          </tr>
-        </tbody>
-      </table>
-
-    </mat-tab>
   </mat-tab-group>
 
 </div>
