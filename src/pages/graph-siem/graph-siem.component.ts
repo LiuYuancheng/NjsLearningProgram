@@ -7,10 +7,12 @@ import { NodedetailComponent } from './nodedetail/nodedetail.component';
 import networkDataS from './data/data_fortinet.json';
 import networkDataW from './data/data_windows.json';
 import networkDataF from './data/data_fortinet.json';
+
 import {elements as elementsW}  from './data/windows.json' ;
 import {elements as elementsS} from './data/snort.json';
 import {elements as elementsF} from './data/fortinet.json';
 
+// 
 interface networkDatas {  
   source: String;  
   target: String;
@@ -23,15 +25,23 @@ interface networkDatas {
   unique_s_port_count: Number;
   dispersion: Number;
   final_score: Number;
-}
+};
 
-type subGraphType = Array<{name: string, score:number}>;
-
+// Define the data type used in jqxGrid table: 
+type subGraphType = Array<{
+  name: string,
+  score: number
+}>;
+type nodePrtType = Array<{
+  id: string,
+  score: number,
+  consequences: string[]
+}>;
 type edgesType = Array<{
   source: String,
   target: String,
   gini_t_port: Number,
-  signature: String[],  
+  signature: String[],
   unique_t_port_count: Number,
   gini_s_port: Number,
   signature_id: String[],
@@ -40,7 +50,7 @@ type edgesType = Array<{
   dispersion: Number,
   final_score: Number,
   key: Number,
-}>; 
+}>;
 
 @Component({
   selector: 'app-graph-siem',
@@ -56,18 +66,14 @@ export class GraphSiemComponent implements OnInit {
   selectedIndex = false;
   selected = new FormControl(0);
 
-  //students: Student[] = studentsData;
   networkdatas: networkDatas[] = networkDataS;
   networkdataw: networkDatas[] = networkDataW;
   networkdataf: networkDatas[] = networkDataF;
   
   subgrapsSelected: subGraphType = [];
+  nodePrtList: nodePrtType = []
 
-  subgrapColumns = [
-		{text: 'SubGraphName', datafield: 'name'},
-    {text: 'Score', datafield: 'score'}
-  ];
-  
+
   subgrapSrc: any;
   nodePrtSrc: any;
 
@@ -77,10 +83,16 @@ export class GraphSiemComponent implements OnInit {
   edgesW: edgesType = [];
 
 
+  subgrapColumns = [
+		{text: 'SubGraphName', datafield: 'name'},
+    {text: 'Score', datafield: 'score'}
+  ];
+  
+
   subgraphsWColumns =[
     {text: 'ID', datafield: 'id'},
     {text: 'Score', datafield: 'score'},
-    {text: 'Consequences', datafield: 'consequences'},
+    {text: 'Consequences', datafield: 'consequences'}
   ];
 
 
@@ -173,6 +185,10 @@ export class GraphSiemComponent implements OnInit {
     this.subgrapSrc = new jqx.dataAdapter({
       localData: this.subgrapsSelected
     });
+
+    this.nodePrtSrc = new jqx.dataAdapter({
+      localData: this.nodePrtList
+    });
     // buidl the edges table: 
     this.buildEdgesTable([]);
   }
@@ -207,22 +223,20 @@ export class GraphSiemComponent implements OnInit {
 
     // setup the subgrap table 
     let parentName = [];
-    let nodeParents = [];
+    
     for (let obj of this.nodes) {
       if (obj['data']['id'] == nodeID) {
         parentName = obj['data']['subgraphs'];
       }
     }
 
+    this.nodePrtList = [] ;
     for (let obj of this.nodes) {
       if(parentName.includes(obj['data']['id'])){
-        nodeParents.push({"id":obj['data']['id'], "score":obj['data']['score'], "consequences":obj['data']['consequences']});
+        this.nodePrtList.push({"id":obj['data']['id'], "score":obj['data']['score'], "consequences":obj['data']['consequences']});
       }
     }
 
-    this.nodePrtSrc = new jqx.dataAdapter({
-      localData: nodeParents
-    });
     //console.log("test", nodeParents);
 
 
