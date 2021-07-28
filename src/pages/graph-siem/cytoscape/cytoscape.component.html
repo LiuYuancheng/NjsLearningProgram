@@ -16,7 +16,11 @@
             <p>Node ID: {{selectNode?.id}}</p>
             <p>Node Name: {{selectNode?.value}}</p>
             <p>Node Value: {{selectNode?.name}}</p>
-            <p>Node's Subgraphs:[ {{selectNode?.subgraphs}} ]</p>
+            <!-- <p>Node's Parent Subgraphs:[ {{selectNode?.subgraphs.lengh()}} ]</p> -->
+            <p>Node's Parent Subgraphs:</p>
+            <div class="vertical-menu" >
+                <a *ngFor="let subgraph of selectNode?.subgraphs"> {{subgraph}} </a>
+            </div>
             <hr>
         </div>
         <div *ngIf="showEdge">

@@ -36,7 +36,7 @@ export interface EdgeData {
 
 @Component({
   selector: 'app-cytoscape',
-  templateUrl: './cytoscape.component.html'
+  templateUrl: './cytoscape.component.html',
 })
 
 export class CytoscapeComponent implements OnInit, AfterViewInit {
@@ -58,6 +58,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   subgraphNameArr: string[];
   //cy: cytoscape.Core;
   cy: any = null;
+  nodePopperRef: any = null;
 
   selectNode: NodeData; 
   selectEdge: EdgeData;
@@ -105,7 +106,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "background-color": "#C8D2C8",
           "background-opacity": 2,
           "text-outline-color": "#555",
-          "text-outline-width": "2px",
+          "text-outline-width": "1px",
           "color": "#FFFFFF",
           "border-color": "#33FFFC",
           "overlay-padding": "6px",
@@ -185,6 +186,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       key:0
     };
 
+    this.nodePopperRef = null;
+
   }
 
   ngOnInit(): void {
@@ -247,19 +250,28 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         content: () => {
           let div = document.createElement('div');
           div.classList.add("popper");
-          div.innerHTML = 'Node : ' + node.id()+'<br> subgraph : [' + node.data('subgraphs')+']';
+          div.innerHTML = 'Node : ' + node.id()+'<br>' + 
+          '<small>Parent subgraph : [' + node.data('subgraphs')+']</small>';;
           document.body.appendChild(div);
           return div;
         },
         popper: {} // my popper options here
-      })
+      });
+      // below section is added for remove the popper remaining on the page bug.
+      if(this.nodePopperRef){
+        this.nodePopperRef.destroy();
+        this.nodePopperRef = null
+      }else{
+        this.nodePopperRef = node.popperRef;
+      }    
     });
 
     this.cy.on('mouseout', 'node', evt => {
       let node = evt.target;
       if (node.popperRef) {
-        node.popperRef.destroy()
+        node.popperRef.destroy();
         node.popperRef = null;
+        this.nodePopperRef = null;
       }
     });
 
@@ -268,6 +280,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       if (node.popperRef) {
         node.popperRef.destroy()
         node.popperRef = null;
+        this.nodePopperRef = null;
       }
     })
 

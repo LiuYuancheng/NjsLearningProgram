@@ -58,7 +58,7 @@ table thead, table tbody tr {
 
 ::ng-deep .cy {
     width: 1000px;
-    height: 500px;
+    height: 450px;
     //border:solid 1px black; 
     vertical-align: center;
     //display: block;
@@ -79,4 +79,29 @@ table thead, table tbody tr {
 
 p {
   font-family: Lato;
+}
+
+
+::ng-deep .vertical-menu {
+  width: 200px;
+  height: 100px;
+  overflow-y: auto;
+}
+
+::ng-deep  .vertical-menu a {
+  background-color: #eee;
+  color: black;
+  display: block;
+  padding: 8px;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+::ng-deep  .vertical-menu a:hover {
+  background-color: #ccc;
+}
+
+::ng-deep  .vertical-menu a.active {
+  background-color: #04AA6D;
+  color: white;
 }

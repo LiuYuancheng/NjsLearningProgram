@@ -108,13 +108,13 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           'background-height': '20px',
           "text-wrap": "ellipsis",
           "text-max-width": "100px",
-          "font-size": "16px",
+          "font-size": "6px",
           "text-valign": "bottom",
           "text-halign": "center",
           "background-color": "#C8D2C8",
           "background-opacity": 2,
           "text-outline-color": "#555",
-          "text-outline-width": "2px",
+          "text-outline-width": "1px",
           "color": "#FFFFFF",
           "border-color": "#33FFFC",
           "overlay-padding": "6px",
@@ -127,11 +127,13 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
         selector: 'node[id *= "' + this.nodeName + '"]',
         style: {
           'label': 'data(id)',
+          "width": "40px",
+          "height": "40px",
           "background-color": "#0000FF",
           "border-width": "2px",
           "border-color": "yellow",
           "border-opacity": 0.7,
-          "font-size": "8px",
+          "font-size": "10px",
           "text-outline-color": "#0000FF"
           // "background-color": "yellow",
           // "text-outline-color": "yellow",
@@ -141,11 +143,11 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
       {
         selector: 'edges', // default edge style
         style: {
-          'label': 'data(source)',
+          'label': 'data(final_score)',
           'curve-style': 'bezier',
           'target-arrow-shape': 'triangle',
           "font-size": "8px",
-          "color": "#454434",
+          "color": "#FFFFFF",
         }
       },
       {
@@ -198,7 +200,11 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
         content: () => {
           let div = document.createElement('div');
           div.classList.add("popper");
-          div.innerHTML = 'Node : ' + node.id()+'<br> subgraph : [' + node.data('subgraphs')+']';
+          //div.innerHTML = 'Node : ' + node.id()+'<br> subgraph : [' + node.data('subgraphs')+']';
+          div.innerHTML = '<p style="font-size:14px;">Node ID: ' + node.id()+'</p>'+
+                          '<p style="font-size:10px;">Node Name: ' + node.id()+'</p>'+
+                          '<p style="font-size:10px;">Node Value: ' + node.id()+'</p>'+
+                          '<p style="font-size:10px;">Parent subgraph : [' + node.data('subgraphs')+']</p>';
           document.body.appendChild(div);
           return div;
         },
@@ -230,6 +236,9 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
   evtListener() {
     this.cy.one('tap', (event) => {
       var evtTarget = event.target;
+      if(evtTarget==null){
+        return;
+      }
       if (evtTarget.isNode()) {
         //this.menuState = 'out';
       }

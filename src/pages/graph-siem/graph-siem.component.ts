@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import {FormControl} from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { jqxGridComponent } from 'jqwidgets-ng/jqxgrid';
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
 import { NodedetailComponent } from './nodedetail/nodedetail.component';
@@ -33,11 +33,18 @@ type subGraphType = Array<{
   score: number,
   consequences: string[]
 }>;
+
+type nodeRelType = Array<{
+  name:string,
+  subgraphs: string[]
+}>;
+
 type nodePrtType = Array<{
   id: string,
   score: number,
   consequences: string[]
 }>;
+
 type edgesType = Array<{
   source: String,
   target: String,
@@ -58,8 +65,9 @@ type edgesType = Array<{
   templateUrl: './graph-siem.component.html',
   styleUrls: ['./graph-siem.component.scss']
 })
-export class GraphSiemComponent implements OnInit, AfterViewInit{
+export class GraphSiemComponent implements AfterViewInit, OnInit{
   @ViewChild('nodeGrid') nodeGridList: jqxGridComponent;
+  @ViewChild('subGrid') subGridList: jqxGridComponent;
   @ViewChild('cygraph') cygraph: CytoscapeComponent;
   @ViewChild('nodegraph') nodegraph: NodedetailComponent;
 
@@ -72,11 +80,15 @@ export class GraphSiemComponent implements OnInit, AfterViewInit{
   networkdataf: networkDatas[] = networkDataF;
   
   subgrapsSelected: subGraphType = [];
-  nodePrtList: nodePrtType = []
-
+  nodePrtList: nodePrtType = [];
+  nodeRelList: nodeRelType = [];
+  edgeRelList: edgesType = []; 
 
   subgrapSrc: any;
   nodePrtSrc: any;
+  nodeRelSrc: any;
+  edgeRelSrc: any;
+
 
   nodesDis = [];
   edgesDis = []; 
@@ -90,16 +102,15 @@ export class GraphSiemComponent implements OnInit, AfterViewInit{
     {text: 'Consequences', datafield: 'consequences'},
   ];
   
-
   subgraphsWColumns =[
-    {text: 'ID', datafield: 'id'},
+    {text: 'Sub-Graph ID', datafield: 'id'},
     {text: 'Score', datafield: 'score'},
     {text: 'Consequences', datafield: 'consequences'}
   ];
 
 
   nodesWColumns = [
-    {text: 'NodeID', datafield: 'id'},
+    {text: 'NodeID', datafield: 'name'},
     {text: 'Subgraph', datafield: 'subgraphs'}
   ];
 
@@ -154,6 +165,7 @@ export class GraphSiemComponent implements OnInit, AfterViewInit{
 	 });
 
    selectedgraph: String = 'windows';
+   selectednodeID: String =''
    //nodeIDlist: String[] = [] // list to store all the nodes ID shown in the graph.
    loadProMode: String = "indeterminate";
 
@@ -164,11 +176,8 @@ export class GraphSiemComponent implements OnInit, AfterViewInit{
   }
 
   ngAfterViewInit() {
-    
+    this.subGridList.refreshdata()
 }
-
-
-
 
   loadGraphsData():void{
     // load subgraphs data based on user's selection:  
@@ -201,9 +210,31 @@ export class GraphSiemComponent implements OnInit, AfterViewInit{
       sortdirection: 'dsc',
     });
     
+     this.nodePrtList.push({
+       "id": "0",
+       "score": 6,
+       "consequences": []
+     });
+    //this.nodePrtList = [];
     this.nodePrtSrc = new jqx.dataAdapter({
       localData: this.nodePrtList,
     });
+
+    
+    this.nodeRelList.push({
+      "name":"0",
+      subgraphs:[]
+    })
+    this.nodeRelSrc = new jqx.dataAdapter({
+      localData: this.nodeRelList,
+    });
+
+    this.edgeRelSrc = new jqx.dataAdapter({
+      localData: [],
+    });
+
+
+    
     // buidl the edges table: 
     this.buildEdgesTable([]);
   }
@@ -212,51 +243,78 @@ export class GraphSiemComponent implements OnInit, AfterViewInit{
   parentFun(nodeID:String):void{
     this.selected.setValue(1);
     //alert("parent component function.:"+nodeID.toString());
+    this.selectednodeID = nodeID;
     let nodesToNP = []; // nodes shown in the 
     let edgesToNP = []; 
     let nodesNames = [nodeID,];
+    this.nodeRelList = [];
+    this.edgeRelList = []; 
 
     for (let obj of this.edges) {
       //if(this.nodeIDlist.indexOf(obj['data']['source']) !== -1 || this.nodeIDlist.indexOf(obj['data']['target']) !== -1)
       if(obj['data']['source'] == nodeID)
       {
         edgesToNP.push(obj);
-        nodesNames.push(obj['data']['target'])
+        nodesNames.push(obj['data']['target']);
+        this.edgeRelList.push(obj['data']);
       }
       if(obj['data']['target'] == nodeID)
       {
         edgesToNP.push(obj);
-        nodesNames.push(obj['data']['source'])
+        this.edgeRelList.push(obj['data'])
+        nodesNames.push(obj['data']['source']);
       }
     }
 
     for (let obj of this.nodes) {
       if(nodesNames.includes(obj['data']['id'])){
         nodesToNP.push(obj);
+        this.nodeRelList = this.nodeRelList.concat({"name":obj['data']['id'], "subgraphs":obj['data']['subgraphs']})
       }
     }
 
     // setup the subgrap table 
-    let parentName = [];
+    let parentNames = [];
     
     for (let obj of this.nodes) {
       if (obj['data']['id'] == nodeID) {
-        parentName = obj['data']['subgraphs'];
+        parentNames = parentNames.concat(obj['data']['subgraphs']);
       }
     }
+    console.log("parents:", parentNames);
+    
+
 
     this.nodePrtList = [] ;
     for (let obj of this.nodes) {
-      if(parentName.includes(obj['data']['id'])){
+      if(parentNames.includes(obj['data']['id'])){
         this.nodePrtList.push({"id":obj['data']['id'], "score":obj['data']['score'], "consequences":obj['data']['consequences']});
       }
     }
 
-    //console.log("test", nodeParents);
+    console.log("Data to node page", this.nodePrtList);
+    
 
-
-    //set the node page graph
+    
+    //set the node page sub graph
     this.nodegraph.setCrtSubGraph(nodeID, nodesToNP, edgesToNP);
+    
+    // set the node page subgraph table: 
+    this.nodePrtSrc = new jqx.dataAdapter({
+      localData: this.nodePrtList,
+    });
+
+    this.nodeRelSrc =  new jqx.dataAdapter({
+      localData: this.nodeRelList,
+    });
+
+    this.edgeRelSrc = new jqx.dataAdapter({
+      localData: this.edgeRelList,
+    });
+
+
+    //this.subGridList.refresh();
+
   }
 
 

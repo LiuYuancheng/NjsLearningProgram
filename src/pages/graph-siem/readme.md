@@ -25,3 +25,7 @@ how to pass value in parent funcion:
 Node selector setup: 
 
 https://dash.plotly.com/cytoscape/styling
+
+
+
+jxgrid need to be init after 
