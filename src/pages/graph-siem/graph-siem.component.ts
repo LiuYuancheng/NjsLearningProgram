@@ -30,7 +30,8 @@ interface networkDatas {
 // Define the data type used in jqxGrid table: 
 type subGraphType = Array<{
   name: string,
-  score: number
+  score: number,
+  consequences: string[]
 }>;
 type nodePrtType = Array<{
   id: string,
@@ -57,7 +58,7 @@ type edgesType = Array<{
   templateUrl: './graph-siem.component.html',
   styleUrls: ['./graph-siem.component.scss']
 })
-export class GraphSiemComponent implements OnInit {
+export class GraphSiemComponent implements OnInit, AfterViewInit{
   @ViewChild('nodeGrid') nodeGridList: jqxGridComponent;
   @ViewChild('cygraph') cygraph: CytoscapeComponent;
   @ViewChild('nodegraph') nodegraph: NodedetailComponent;
@@ -84,8 +85,9 @@ export class GraphSiemComponent implements OnInit {
 
 
   subgrapColumns = [
-		{text: 'SubGraphName', datafield: 'name'},
-    {text: 'Score', datafield: 'score'}
+		{text: 'SubGraphName', datafield: 'name', width:'120px' },
+    {text: 'Score', datafield: 'score',  width:'130px'},
+    {text: 'Consequences', datafield: 'consequences'},
   ];
   
 
@@ -102,18 +104,18 @@ export class GraphSiemComponent implements OnInit {
   ];
 
   edgesWColumns = [
-		{text: 'Source', datafield: 'source'},
-		{text: 'Target', datafield: 'target'},
+		{text: 'Source', datafield: 'source', width:'100px'},
+		{text: 'Target', datafield: 'target', width:'100px'},
     {text: 'Gini_t_port', datafield: 'gini_t_port'},
     {text: 'Signature', datafield: 'signature'},
-    {text: 'Span', datafield: 'span'},
-    {text: 'Unique_t_port_count', datafield: 'unique_t_port_count'},
+    {text: 'Span', datafield: 'span',  width:'40px'},
+    {text: 'Unique_t_port_count', datafield: 'unique_t_port_count',width:'120px'},
     {text: 'Gini_s_port', datafield: 'gini_s_port'},
     {text: 'Signature_id', datafield: 'signature_id'},
-    {text: 'Unique_s_port_count', datafield: 'unique_s_port_count'},
+    {text: 'Unique_s_port_count', datafield: 'unique_s_port_count', width:'120px'},
     {text: 'Dispersion', datafield: 'dispersion'},
     {text: 'Final_score', datafield: 'final_score'},
-    {text: 'Key', datafield: 'key'}
+    {text: 'Key', datafield: 'key',  width:'40px'}
   ];
 
   edgesSrc: any;
@@ -161,6 +163,13 @@ export class GraphSiemComponent implements OnInit {
     this.loadGraphsData();
   }
 
+  ngAfterViewInit() {
+    
+}
+
+
+
+
   loadGraphsData():void{
     // load subgraphs data based on user's selection:  
     if(this.selectedgraph == 'windows'){   
@@ -179,15 +188,21 @@ export class GraphSiemComponent implements OnInit {
     this.subgrapsSelected = [];
     for (let obj of this.nodes) {
       if(!obj['data'].hasOwnProperty('subgraphs')){
-        this.subgrapsSelected.push({"name":obj['data']["id"], "score":obj['data']["score"]});
+        this.subgrapsSelected.push({"name":obj['data']["id"],
+                                    "score":obj['data']["score"],
+                                    "consequences":obj['data']["consequences"]
+                                  });
       }
     }
+    // set up the node list which sort by score
     this.subgrapSrc = new jqx.dataAdapter({
-      localData: this.subgrapsSelected
+      localData: this.subgrapsSelected,
+      sortcolumn: 'score',
+      sortdirection: 'dsc',
     });
-
+    
     this.nodePrtSrc = new jqx.dataAdapter({
-      localData: this.nodePrtList
+      localData: this.nodePrtList,
     });
     // buidl the edges table: 
     this.buildEdgesTable([]);
@@ -256,7 +271,7 @@ export class GraphSiemComponent implements OnInit {
     this.cygraph.clearGraph();
     //this.cygraph.setCrtGraph(this.selectedgraph);
     //this.cygraph.redraw();
-
+    this.nodeGridList.clearselection(); // clear the previous grid selection. 
     this.loadProMode = "determinate"; 
   }
 
@@ -274,6 +289,7 @@ export class GraphSiemComponent implements OnInit {
   }
 
   buildNodesTable(subgraphNames: string[]){
+    console.log('buildNodesTable', subgraphNames)
     this.nodesDis = [];
     for (let subgName of subgraphNames) {
       for (let obj of this.nodes) {

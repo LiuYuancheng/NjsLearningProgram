@@ -61,7 +61,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
 
   selectNode: NodeData; 
   selectEdge: EdgeData;
-  showNode: boolean = true
+  showNode: boolean = false
+  showEdge: boolean = false
   //menuState:String = 'out';
 
   title1 = "N ode info";
@@ -405,6 +406,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           //parent: evtTarget.data('parent')
         };
         this.showNode = true;
+        this.showEdge = false;
         //this.menuState = 'out';
       }
       else if (evtTarget.isEdge()) {
@@ -423,6 +425,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           key: evtTarget.data('key')
         };
         this.showNode = false;
+        this.showEdge = true;
         //this.menuState = 'out';
       }
       else {

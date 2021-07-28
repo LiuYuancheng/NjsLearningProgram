@@ -1,40 +1,39 @@
 <div fxLayout="row" fxLayoutGap="10px" class="parent">
     <div fxFlex="75%" class="left">
-        <p-card header="Cytocape Graph" [style]="{'width': '100%', 'height':'450px'}" styleClass="panel-background">
-            <p> Displayed Subgraph: </p>
-            <div *ngFor="let subgraphName of subgraphNameArr">
+        <p-card header="SIEM Sub-Graphs" [style]="{'width': '100%', 'height':'450px'}" styleClass="panel-background">
+            <!-- <p> Displayed Subgraph: </p>
+             <div *ngFor="let subgraphName of subgraphNameArr">
                 <p>->[ {{subgraphName}} ]</p>
-            </div>
+            </div> -->
             <div #cyvpn [className]="'cy'" (click)="evtListener()"></div>
         </p-card>
     </div>
     <div fxFlex="25%" class="right">
+        <h4> Selected Element Information </h4>
         <hr>
         <div *ngIf="showNode">
-            <p>Node Infomation:</p>
+            <h5>Node Information</h5>
             <p>Node ID: {{selectNode?.id}}</p>
             <p>Node Name: {{selectNode?.value}}</p>
             <p>Node Value: {{selectNode?.name}}</p>
             <p>Node's Subgraphs:[ {{selectNode?.subgraphs}} ]</p>
             <hr>
         </div>
-        <div *ngIf="!showNode">
-            <p>Edge Infomation:</p>
+        <div *ngIf="showEdge">
+            <h5>Edge Information:</h5>
             <p>Edge Source: {{selectEdge?.source}}</p>
             <p>Edge target: {{selectEdge?.target}}</p>
-            <p>gini_t_port: {{selectEdge?.gini_t_port}}</p>
-            <p>signature: {{selectEdge?.signature}}</p>
-            <p>unique_t_port_count: {{selectEdge?.unique_t_port_count}}</p>
-            <p>signature_id: {{selectEdge?.signature_id}}</p>
-            <p>span: {{selectEdge?.span}}</p>
-            <p>unique_s_port_count: {{selectEdge?.unique_s_port_count}}</p>
-            <p>dispersion: {{selectEdge?.dispersion}}</p>
-            <p>final_score: {{selectEdge?.final_score}}</p>
-            <p>key: {{selectEdge?.key}}</p>
+            <p>Gini_t_port: {{selectEdge?.gini_t_port}}</p>
+            <p>Signature: {{selectEdge?.signature}}</p>
+            <p>Unique_t_port_count: {{selectEdge?.unique_t_port_count}}</p>
+            <p>Signature_id: {{selectEdge?.signature_id}}</p>
+            <p>Span: {{selectEdge?.span}}</p>
+            <p>Unique_s_port_count: {{selectEdge?.unique_s_port_count}}</p>
+            <p>Dispersion: {{selectEdge?.dispersion}}</p>
+            <p>Final_score: {{selectEdge?.final_score}}</p>
+            <p>Key: {{selectEdge?.key}}</p>
             <hr>
         </div>
     </div>
-
-<!-- Add the menu display animation -->
-
+    <!-- Add the menu display animation -->
 </div>
