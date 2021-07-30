@@ -1,6 +1,6 @@
 <div fxLayout="row" fxLayoutGap="10px" class="parent">
     <div fxFlex="75%" class="left">
-        <p-card header="SIEM Sub-Graphs" [style]="{'width': '100%', 'height':'450px'}" styleClass="panel-background">
+        <p-card header="SIEM Sub-Graphs" [style]="{'width': '100%', 'height':'600px'}" styleClass="panel-background">
             <!-- <p> Displayed Subgraph: </p>
              <div *ngFor="let subgraphName of subgraphNameArr">
                 <p>->[ {{subgraphName}} ]</p>
@@ -16,8 +16,9 @@
             <p>Node ID: {{selectNode?.id}}</p>
             <p>Node Name: {{selectNode?.value}}</p>
             <p>Node Value: {{selectNode?.name}}</p>
+            <p>Node Geo: [ {{selectNode?.geo}} ]</p>
             <!-- <p>Node's Parent Subgraphs:[ {{selectNode?.subgraphs.lengh()}} ]</p> -->
-            <p>Node's Parent Subgraphs:</p>
+            <p>Subgraphs:</p>
             <div class="vertical-menu" >
                 <a *ngFor="let subgraph of selectNode?.subgraphs"> {{subgraph}} </a>
             </div>

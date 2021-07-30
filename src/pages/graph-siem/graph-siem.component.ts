@@ -97,8 +97,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 
 
   subgrapColumns = [
-		{text: 'SubGraphName', datafield: 'name', width:'120px' },
-    {text: 'Score', datafield: 'score',  width:'130px'},
+		{text: 'ID', datafield: 'name', width:'50px' },
+    {text: 'Score', datafield: 'score',  width:'60px'},
     {text: 'Consequences', datafield: 'consequences'},
   ];
   
@@ -198,7 +198,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     for (let obj of this.nodes) {
       if(!obj['data'].hasOwnProperty('subgraphs')){
         this.subgrapsSelected.push({"name":obj['data']["id"],
-                                    "score":obj['data']["score"],
+                                    "score":Number(obj['data']["score"].toFixed(2)),
                                     "consequences":obj['data']["consequences"]
                                   });
       }
@@ -329,17 +329,22 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     this.cygraph.clearGraph();
     //this.cygraph.setCrtGraph(this.selectedgraph);
     //this.cygraph.redraw();
-    this.nodeGridList.clearselection(); // clear the previous grid selection. 
+     // clear the previous grid selection. 
     this.loadProMode = "determinate"; 
   }
 
   selectRow(event: any){
 
-    let value = this.nodeGridList.getselectedrowindexes();
-    var subgraphNames = [];  
-    for(let idx of value){
-      subgraphNames.push(this.nodeGridList.getcelltext(idx,'name'));
-    }
+    let args = event.args;
+    console.log("row selected", args.rowindex)
+
+    //let value = this.nodeGridList.getselectedrowindexes();
+    //console.log('selectRow', value);
+    //var subgraphNames = [];
+    var subgraphNames = [this.nodeGridList.getcelltext(args.rowindex,'name')];  
+    //for(let idx of value){
+    //  subgraphNames.push(this.nodeGridList.getcelltext(idx,'name'));
+    //}
 
     this.buildNodesTable(subgraphNames);
     this.buildEdgesTable(subgraphNames);

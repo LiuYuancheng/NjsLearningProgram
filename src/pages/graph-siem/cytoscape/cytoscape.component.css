@@ -20,25 +20,3 @@
     list-style: none;
   }
 
-::ng-deep .vertical-menu {
-    width: 200px;
-    height: 150px;
-    overflow-y: auto;
-  }
-  
-::ng-deep  .vertical-menu a {
-    background-color: #eee;
-    color: black;
-    display: block;
-    padding: 12px;
-    text-decoration: none;
-  }
-  
-::ng-deep  .vertical-menu a:hover {
-    background-color: #ccc;
-  }
-  
-::ng-deep  .vertical-menu a.active {
-    background-color: #04AA6D;
-    color: white;
-  }

@@ -12,12 +12,9 @@
             <app-cytoscape #cygraph (parentFun)="parentFun($event)"></app-cytoscape>
           </tr>
           <tr>
-            <hr>
-          </tr>
-          <tr>
             <div fxLayout="row" fxLayoutGap="10px" class="parent">
     
-              <div fxFlex="35%" class="left">
+              <div fxFlex="30%" class="left">
                 <select (change)="selectChangeHandler($event)">
                   <option value="snort">Snort Graph</option>
                   <option value="windows">Windows Graph</option>
@@ -27,19 +24,22 @@
     
                 <!-- <p><span>You selected: </span><b>{{selectedgraph}}</b></p> -->
     
-                <jqxGrid #nodeGrid (onRowselect)="selectRow($event)" (onRowunselect)="selectRow($event)"
-                  [selectionmode]="'checkbox'" [source]="subgrapSrc" [width]="'100%'" [height]="'290px'"
+                <jqxGrid #nodeGrid (onRowselect)="selectRow($event)"
+                  [source]="subgrapSrc" [width]="'100%'" [height]="'300px'"
                   [theme]="'metrodark'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
                   [columns]="subgrapColumns">
                 </jqxGrid>
     
               </div>
     
-              <div fxFlex="65%" class="right">
-                <jqxGrid [selectionmode]="'checkbox'" [source]="edgesSrc" [width]="'100%'" [theme]="'metrodark'"
-                  [height]="'100%'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
-                  [columns]="edgesWColumns" #grid>
-                </jqxGrid>
+              <div fxFlex="70%" class="right">
+
+                    <jqxGrid  [source]="edgesSrc" [width]="'100%'" [theme]="'metrodark'"
+                    [height]="'100%'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
+                    [columns]="edgesWColumns" #grid>
+                  </jqxGrid>
+
+              
               </div>
     
             </div>

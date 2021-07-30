@@ -17,6 +17,7 @@ export interface NodeData {
   id?: String;
   value?: String;
   name?: String;
+  geo?: String[];
   subgraphs?: String[];
 }
 export interface EdgeData {  
@@ -90,6 +91,14 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       transform: function (node, position) { return position; } // transform a given node position. Useful for changing flow direction in discrete layouts 
     };
 
+    this.selectNode = {
+      id: '',
+      value: '',
+      name:'',
+      geo:[],
+      subgraphs: []
+    };
+
     this.style  = <cytoscape.Stylesheet[]>[
       {
         selector: 'nodes', // default node style
@@ -103,7 +112,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "font-size": "16px",
           "text-valign": "bottom",
           "text-halign": "center",
-          "background-color": "#C8D2C8",
+          "background-color": "#e9c46a",
           "background-opacity": 2,
           "text-outline-color": "#555",
           "text-outline-width": "1px",
@@ -112,64 +121,52 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "overlay-padding": "6px",
           "padding": "0",
           'shape': 'round-rectangle',
+          'background-image': 'assets/images/icons/ip.png',
           //'label': 'data(id)'
         }
       },
       {
-        selector: 'edges', // default edge style
-        style: {
-          // 'label': 'data(relationshipType)',
-          'width': 1,  
-          'curve-style': 'bezier',
-          'target-arrow-shape': 'triangle',
-          "font-size": "8px",
-          "color": "#33FFFC",
-        }
-      },
-
-
-      {   
         selector: 'node:selected',
         style: {
           'label': 'data(id)',
-          "background-color": "#0000FF",
+          "background-color": "#e76f51",
           "border-width": "2px",
-          "border-color": "green",
+          "border-color": "yellow",
           "border-opacity": 0.7,
           "font-size": "8px",
           "text-outline-color": "#0000FF"
           // "background-color": "yellow",
           // "text-outline-color": "yellow",
         }
-      },  
+      },
 
-    {
-      selector:'node[type = "node"]',
-      style:{
-        'width': '60px',
-        'height': '40px',
-        'content': 'data(id)',
-        'font-size': 6,
-        'text-valign': 'center',
-        'text-halign': 'center'
-      }
-    },
-    {
-      selector:'edge[type = "bendPoint" ]',
-      style:{
-        'width': 1,  
-        'target-arrow-shape': 'none',
-        'opacity': 1
-      }
-    },
+      {
+        selector: 'node[type = "other"]',
+        style: {
+          'background-image': 'assets/images/stix/stix2-ttp-icons-png/malware-analysis-noback-dark-300-dpi.png',
+        }
+      },
+
+      {
+        selector: 'edges', // default edge style
+        style: {
+          // 'label': 'data(relationshipType)',
+          'width': 1,
+          'curve-style': 'bezier',
+          'target-arrow-shape': 'triangle',
+          "font-size": "8px",
+          "color": "#0000FF",
+        }
+      },
+      {
+        selector: 'target = "' + this.selectNode['id'] + '"',
+        style: {
+          //"line-color": "#e76f51",
+        }
+      },
     ];
     //
-    this.selectNode = {
-      id: '',
-      value: '',
-      name:'',
-      subgraphs: []
-    };
+
 
     this.selectEdge = {
       source:'',
@@ -415,6 +412,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           id: evtTarget.data('id'),
           value: evtTarget.data('value'),
           name: evtTarget.data('name'),
+          geo:evtTarget.data('geo'),
           subgraphs: evtTarget.data('subgraphs')
           //parent: evtTarget.data('parent')
         };
