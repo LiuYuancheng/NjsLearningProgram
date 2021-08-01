@@ -29,3 +29,10 @@ https://dash.plotly.com/cytoscape/styling
 
 
 jxgrid need to be init after 
+
+
+
+sidebar or dialog box to display the table instead of separate tab.
+
+https://www.primefaces.org/primeng/showcase/#/sidebar
+

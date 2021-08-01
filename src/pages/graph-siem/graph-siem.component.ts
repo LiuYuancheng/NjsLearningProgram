@@ -8,9 +8,10 @@ import networkDataS from './data/data_fortinet.json';
 import networkDataW from './data/data_windows.json';
 import networkDataF from './data/data_fortinet.json';
 
-import {elements as elementsW}  from './data/windows.json' ;
-import {elements as elementsS} from './data/snort.json';
-import {elements as elementsF} from './data/fortinet.json';
+import { elements as elementsW } from './data/windows.json';
+import { elements as elementsS } from './data/snort.json';
+import { elements as elementsF } from './data/fortinet.json';
+import { elements as elementsL } from './data/linked.json';
 
 // 
 interface networkDatas {  
@@ -34,6 +35,15 @@ type subGraphType = Array<{
   consequences: string[]
 }>;
 
+// basic node type
+type nodeType = Array<{
+  id: string,
+  subgraphs: string[],
+  type: string,
+  geo: string[]
+}>;
+
+//
 type nodeRelType = Array<{
   name:string,
   subgraphs: string[]
@@ -93,6 +103,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
   nodesDis = [];
   edgesDis = []; 
 
+  nodesW: nodeType = [];
   edgesW: edgesType = [];
 
 
@@ -108,6 +119,12 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     {text: 'Consequences', datafield: 'consequences'}
   ];
 
+  nodesLColums = [
+    {text: 'ID', datafield: 'id', width:'100px'},
+    {text: 'Type', datafield: 'type'},
+    {text: 'Subgraph', datafield: 'subgraphs'},
+    {text: 'Geo-GPS', datafield: 'geo'},
+  ];
 
   nodesWColumns = [
     {text: 'NodeID', datafield: 'name'},
@@ -129,6 +146,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     {text: 'Key', datafield: 'key',  width:'40px'}
   ];
 
+  nodesSrc: any;
   edgesSrc: any;
 
   nodes = elementsW['nodes'];
@@ -164,10 +182,11 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 		]
 	 });
 
-   selectedgraph: String = 'windows';
+   selectedgraph: string = 'windows';
    selectednodeID: String =''
    //nodeIDlist: String[] = [] // list to store all the nodes ID shown in the graph.
    loadProMode: String = "indeterminate";
+   theCheckbox = false;
 
   constructor() { }
 
@@ -189,9 +208,13 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
       this.nodes = elementsS['nodes'];
       this.edges = elementsS['edges'];
     }
-    else{  
+    else if (this.selectedgraph == 'fortinet'){  
         this.nodes = elementsF['nodes'];
         this.edges = elementsF['edges'];
+    }
+    else {
+      this.nodes = elementsL['nodes'];
+      this.edges = elementsL['edges'];
     }
     // build the subgraph table: 
     this.subgrapsSelected = [];
@@ -330,7 +353,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     //this.cygraph.setCrtGraph(this.selectedgraph);
     //this.cygraph.redraw();
      // clear the previous grid selection. 
-    this.loadProMode = "determinate"; 
+    this.loadProMode = "determinate";
+    this.cygraph.setSubgraphInfo(this.selectedgraph, '', 0, [])
   }
 
   selectRow(event: any){
@@ -341,26 +365,43 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     //let value = this.nodeGridList.getselectedrowindexes();
     //console.log('selectRow', value);
     //var subgraphNames = [];
-    var subgraphNames = [this.nodeGridList.getcelltext(args.rowindex,'name')];  
-    //for(let idx of value){
-    //  subgraphNames.push(this.nodeGridList.getcelltext(idx,'name'));
-    //}
+    var subgraphName = this.nodeGridList.getcelltext(args.rowindex,'name')
+    var subgraphNames = [subgraphName];  
+    var subgrapshScore = Number(this.nodeGridList.getcelltext(args.rowindex,'score'))
+    var subgrapshCons = String(this.nodeGridList.getcelltext(args.rowindex,'consequences')).split(',')
 
     this.buildNodesTable(subgraphNames);
     this.buildEdgesTable(subgraphNames);
+    
+    this.cygraph.setSubgraphInfo(this.selectedgraph, subgraphName, subgrapshScore, subgrapshCons)
+
     this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
+
+
   }
 
   buildNodesTable(subgraphNames: string[]){
     console.log('buildNodesTable', subgraphNames)
     this.nodesDis = [];
+    this.nodesW = [];
     for (let subgName of subgraphNames) {
       for (let obj of this.nodes) {
         if(obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)){
           this.nodesDis.push(obj);
+          if(obj['data'].hasOwnProperty("geo")){
+            this.nodesW.push({"id":obj['data']["id"],
+                              "subgraphs":obj['data']['subgraphs'],
+                              "type":obj['data']['type'],
+                              "geo":obj['data']['geo']});
+          }
         }
       }
     }
+    //
+    this.nodesSrc = new jqx.dataAdapter({
+      localData: this.nodesW
+    });  
+
   }
 
   buildEdgesTable(subgraphNames: string[]){

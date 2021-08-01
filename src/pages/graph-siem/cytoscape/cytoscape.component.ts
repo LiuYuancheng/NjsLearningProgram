@@ -1,13 +1,16 @@
 import { Component, OnInit, ElementRef, ViewChild, Output, EventEmitter, AfterViewInit} from '@angular/core';
 //import { trigger, state, style, transition, animate } from '@angular/animations';
+import { PrimeNGConfig } from 'primeng/api';
+import { SidebarModule } from 'primeng/sidebar';
 
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 import cxtmenu from 'cytoscape-cxtmenu';
 
-import {elements as elementsW}  from '../data/windows.json' ;
-import {elements as elementsS} from '../data/snort.json';
-import {elements as elementsF} from '../data/fortinet.json';
+import { elements as elementsW } from '../data/windows.json';
+import { elements as elementsS } from '../data/snort.json';
+import { elements as elementsF } from '../data/fortinet.json';
+import { elements as elementsL } from '../data/linked.json';
 
 // use fcose layout.
 //cytoscape.use(cxtmenu);
@@ -38,6 +41,11 @@ export interface EdgeData {
 @Component({
   selector: 'app-cytoscape',
   templateUrl: './cytoscape.component.html',
+  styles: [`
+  :host ::ng-deep button {
+      margin-right: .35em;
+  }
+`]
 })
 
 export class CytoscapeComponent implements OnInit, AfterViewInit {
@@ -70,8 +78,16 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   title1 = "N ode info";
   private nativeElement: HTMLElement;
   private options: any;
-  
-  constructor(element: ElementRef) {
+  //primengConfig: PrimeNGConfig
+  visibleSidebar2 = false;
+
+  // data show in the subgrap graph are
+  subGpar:string ='';
+  subGid:string =  '';
+  subGscore:number = 0;
+  subGcon:string[] = [];
+
+  constructor(element: ElementRef, primengConfig: PrimeNGConfig) {
     //super();
     this.nativeElement = element.nativeElement;
     this.subgraphNameArr = [];
@@ -158,12 +174,12 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "color": "#0000FF",
         }
       },
-      {
-        selector: 'target = "' + this.selectNode['id'] + '"',
-        style: {
-          //"line-color": "#e76f51",
-        }
-      },
+      // {
+      //   selector: '[target = "' + this.selectNode['id'] + '"]',
+      //   style: {
+      //     "line-color": "#e76f51",
+      //   }
+      // },
     ];
     //
 
@@ -189,6 +205,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     //this.redraw();
+    //this.primengConfig.ripple = true;
   }
 
   ngAfterViewInit(): void{
@@ -198,6 +215,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   redraw() {
 
     this.buildGraph();
+    this.cy.zoom({level:4});
     this.cy.pan({
       x: 200,
       y: 200 
@@ -247,8 +265,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         content: () => {
           let div = document.createElement('div');
           div.classList.add("popper");
-          div.innerHTML = 'Node : ' + node.id()+'<br>' + 
-          '<small>Parent subgraph : [' + node.data('subgraphs')+']</small>';;
+          div.innerHTML = '<small>Node : ' + node.id() +'</small>';
+          //+'<small>Parent subgraph : [' + node.data('subgraphs')+']</small>';
           document.body.appendChild(div);
           return div;
         },
@@ -362,9 +380,13 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       this.nodes = elementsS['nodes'];
       this.edges = elementsS['edges'];
     }
-    else {
+    else if (ghNmae == 'fortinet') {
       this.nodes = elementsF['nodes'];
       this.edges = elementsF['edges'];
+    }
+    else {
+      this.nodes = elementsL['nodes'];
+      this.edges = elementsL['edges'];
     }
 
     //this.redraw();
@@ -380,25 +402,13 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.nodes = nodesDis;
     this.edges = edgesDis;
     this.buildGraph();
-    
-    /* // use cy.filter function() to remove the nodes.
-    for (let graphName of graphNameArr) {
-      this.cy.nodes().filter(ele => {
-        if (ele.id() != graphName){
-          return false;
-        }
-        if (ele.data('subgraphs') != null)
-        {
-          if(ele.data('subgraphs').includes(graphName)){
-            return false
-          }
-        }
-        return true;
-      } ).remove();
-    }
-    */
-
    this.cy.fit();
+  }
+
+  setSubgraphInfo(subPar:string ,subId:string, subScore:number, subCon:string[]){
+    this.subGpar = subPar + ' [ ' + subId + ' ] '; 
+    this.subGscore = subScore;
+    this.subGcon = subCon;
   }
 
   evtListener() {
@@ -419,6 +429,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         this.showNode = true;
         this.showEdge = false;
         //this.menuState = 'out';
+        this.visibleSidebar2 = true;
       }
       else if (evtTarget.isEdge()) {
         this.selectEdge = {
@@ -437,6 +448,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         };
         this.showNode = false;
         this.showEdge = true;
+        this.visibleSidebar2 = true;
         //this.menuState = 'out';
       }
       else {

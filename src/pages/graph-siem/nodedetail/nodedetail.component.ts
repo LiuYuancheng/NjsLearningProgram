@@ -32,7 +32,7 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
   private options: any;
   nodeName: String;
   selectNode: NodeData; 
-
+  
   constructor(element: ElementRef) {
     this.nativeElement = element.nativeElement;
     this.nodeName = "";
@@ -111,7 +111,7 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           "font-size": "6px",
           "text-valign": "bottom",
           "text-halign": "center",
-          "background-color": "#C8D2C8",
+          "background-color": "#e9c46a",
           "background-opacity": 2,
           "text-outline-color": "#555",
           "text-outline-width": "1px",
@@ -119,7 +119,8 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           "border-color": "#33FFFC",
           "overlay-padding": "6px",
           "padding": "0",
-          'shape': 'round-rectangle',
+          //'shape': 'round-rectangle',
+          'background-image': 'assets/images/icons/ip.png',
           'label': 'data(id)',
         }
       },
@@ -129,7 +130,7 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           'label': 'data(id)',
           "width": "40px",
           "height": "40px",
-          "background-color": "#0000FF",
+          "background-color": "#e76f51",
           "border-width": "2px",
           "border-color": "yellow",
           "border-opacity": 0.7,
@@ -141,9 +142,16 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
       },
 
       {
+        selector: 'node[type = "other"]',
+        style: {
+          'background-image': 'assets/images/stix/stix2-ttp-icons-png/malware-analysis-noback-dark-300-dpi.png',
+        }
+      },
+
+      {
         selector: 'edges', // default edge style
         style: {
-          'label': 'data(final_score)',
+          'label': 'data(signature)',
           'curve-style': 'bezier',
           'target-arrow-shape': 'triangle',
           "font-size": "8px",
@@ -203,7 +211,7 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           //div.innerHTML = 'Node : ' + node.id()+'<br> subgraph : [' + node.data('subgraphs')+']';
           div.innerHTML = '<p style="font-size:14px;">Node ID: ' + node.id()+'</p>'+
                           '<p style="font-size:10px;">Node Name: ' + node.id()+'</p>'+
-                          '<p style="font-size:10px;">Node Value: ' + node.id()+'</p>'+
+                          '<p style="font-size:10px;">Node Geo: ' + node.data('geo')+'</p>'+
                           '<p style="font-size:10px;">Parent subgraph : [' + node.data('subgraphs')+']</p>';
           document.body.appendChild(div);
           return div;

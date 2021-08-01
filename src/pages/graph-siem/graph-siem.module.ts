@@ -9,6 +9,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar'
 // import other modules: 
 import { jqxGridModule } from 'jqwidgets-ng/jqxgrid';
 
+import { ButtonModule } from 'primeng/button';
+import { SidebarModule } from 'primeng/sidebar';
+
+
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { HelloWorld } from './hello-word/hello-world.component';
 import { GraphSiemComponent } from './graph-siem.component';
@@ -34,7 +38,9 @@ import { NodedetailComponent } from './nodedetail/nodedetail.component';
     jqxGridModule,
     MatGridListModule,
     MatProgressBarModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    ButtonModule,
+    SidebarModule
   ]
 })
 export class GraphSiemModule { }
