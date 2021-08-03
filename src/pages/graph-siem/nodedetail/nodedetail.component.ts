@@ -32,10 +32,35 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
   private options: any;
   nodeName: String;
   selectNode: NodeData; 
-  
+  edgelabelStr: string;
+
+  protected layoutOptions: any = {
+    // name: 'dagre',
+    // name: 'breadthfirst',
+    // name: 'cose',
+    name: 'fcose',
+    // name: 'klay',
+    // name: 'cola',
+    // name: 'cose-bilkent',
+    // name: 'concentric',
+    // name: this.layout,
+    // fit: false,
+    // quality: 'proof',
+    nodeDimensionsIncludeLabels: true,
+    nodeRepulsion: 9000,
+    idealEdgeLength: 200,
+    nodeSeparation: 50,
+    nodeSep: 20,
+    fit: true,
+    // flow: { axis: 'y', minSeparation: 80 }
+    // packComponents: false,
+}
+
+
   constructor(element: ElementRef) {
     this.nativeElement = element.nativeElement;
     this.nodeName = "";
+    this.edgelabelStr = "";
     this.options = {
       name: 'fcose',
       positions: undefined, // map of (node id) => (position obj); or function(node){ return somPos; }
@@ -65,17 +90,31 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void{
-   
+    this.redraw();
   }
   
   redraw() {
 
     this.buildGraph();
+    this.cy.zoom({level:1});
     this.cy.pan({
-      x: 300,
-      y: 300 
+      x: 200,
+      y: 200 
     });
     this.cy.fit()
+    let layout = this.cy.elements().layout(this.layoutOptions); 
+    layout.run();
+  }
+
+  setlabelStr(tag:string){
+    if(tag == 'score'){
+      this.edgelabelStr = 'data(final_score)';
+    } else if(tag == 'sig'){
+      this.edgelabelStr = 'data(signature)';
+    } else{
+      this.edgelabelStr = '';
+    }
+    this.redraw();
   }
 
   setCrtSubGraph(subgraphNames: String, nodesDis: any[], edgesDis: any[]): void {
@@ -101,7 +140,7 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
     this.style = <cytoscape.Stylesheet[]>[
       {
         selector: 'nodes', // default node style
-        style: {
+ /*        style: {
           "width": "20px",
           "height": "20px",
           'background-width': '20px',
@@ -122,20 +161,41 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           //'shape': 'round-rectangle',
           'background-image': 'assets/images/icons/ip.png',
           'label': 'data(id)',
+        } */
+        style: {
+          'label': 'data(id)',
+          "width": "40px",
+          "height": "40px",
+          'background-width': '40px',
+          'background-height': '40px',
+          "text-wrap": "ellipsis",
+          "text-max-width": "100px",
+          "font-size": "8px",
+          "text-valign": "bottom",
+          "text-halign": "center",
+          "background-color":"#e9c46a",
+          "background-opacity": 1,
+          // "text-outline-color": "#555",
+          // "text-outline-width": "2px",
+          "color": "#fff",
+          // "overlay-padding": "6px",
+          // "padding": "0",
+          // 'shape': 'round-rectangle',
+          "background-image": 'assets/images/icons/ip.png',
         }
       },
       {
         selector: 'node[id *= "' + this.nodeName + '"]',
         style: {
           'label': 'data(id)',
-          "width": "40px",
-          "height": "40px",
+          "width": "60px",
+          "height": "60px",
           "background-color": "#e76f51",
           "border-width": "2px",
           "border-color": "yellow",
           "border-opacity": 0.7,
           "font-size": "10px",
-          "text-outline-color": "#0000FF"
+          "text-outline-color": "#e76f51"
           // "background-color": "yellow",
           // "text-outline-color": "yellow",
         }
@@ -144,20 +204,21 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
       {
         selector: 'node[type = "other"]',
         style: {
-          'background-image': 'assets/images/stix/stix2-ttp-icons-png/malware-analysis-noback-dark-300-dpi.png',
+          'background-image': 'assets/images/icons/program.png',
         }
       },
 
       {
         selector: 'edges', // default edge style
         style: {
-          'label': 'data(signature)',
+          'label': this.edgelabelStr,
           'curve-style': 'bezier',
           'target-arrow-shape': 'triangle',
           "font-size": "8px",
           "color": "#FFFFFF",
         }
       },
+
       {
         selector: 'node[type= "bendPoint"]',
         style: {
@@ -236,7 +297,7 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
       }
     })
     //this.
-    this.cy.zoom({level:3});
+    this.cy.zoom({level:1});
 
   }
 

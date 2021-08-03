@@ -37,8 +37,10 @@
             </jqxGrid>
             </mat-tab>
             <mat-tab label="Subgraph Edges">
-              <jqxGrid [source]="edgesSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'600px'" [pageable]="true"
-                [altrows]="true" [filterable]="true" [sortable]="true" [columns]="edgesWColumns" #grid>
+              <jqxGrid #edgeGrid [source]="edgesSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'600px'" [pageable]="true"
+                [altrows]="true" [filterable]="true" [sortable]="true" [columns]="edgesWColumns" 
+                [rowdetails]="true" [initrowdetails]="initedgedetails" [rowdetailstemplate]="edgedetailstemplate"
+                >
               </jqxGrid>
             </mat-tab>
 
@@ -66,9 +68,18 @@
                 <h4> Subgraphs Table</h4>
                 <hr>
                 <jqxGrid #subGrid [source]="nodePrtSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'80%'"
-                  [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true" [columns]="subgraphsWColumns">
+                  [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true" [columns]="subgraphsWColumns"
+                  [rowdetails]="true" [initrowdetails]="initrowdetails" [rowdetailstemplate]="rowdetailstemplate"
+                  >
                 </jqxGrid>
-      
+                <p> <b>Edges label : </b> 
+                <select (change)="selectEdgeLabel($event)">
+                  <option value="none">No Label</option>
+                  <option value="sig"> Signature</option>
+                  <option value="score"> Final score</option>
+                </select>
+                </p>
+                
               </div>
             </div>
           </tr>

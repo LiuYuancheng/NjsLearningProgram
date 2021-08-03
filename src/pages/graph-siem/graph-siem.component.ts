@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ViewChildren } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { jqxGridComponent } from 'jqwidgets-ng/jqxgrid';
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
@@ -46,6 +46,7 @@ type nodeType = Array<{
 //
 type nodeRelType = Array<{
   name:string,
+  score: number,
   subgraphs: string[]
 }>;
 
@@ -78,6 +79,7 @@ type edgesType = Array<{
 export class GraphSiemComponent implements AfterViewInit, OnInit{
   @ViewChild('nodeGrid') nodeGridList: jqxGridComponent;
   @ViewChild('subGrid') subGridList: jqxGridComponent;
+  @ViewChild('edgeGrid') edgeGridList: jqxGridComponent; 
   @ViewChild('cygraph') cygraph: CytoscapeComponent;
   @ViewChild('nodegraph') nodegraph: NodedetailComponent;
 
@@ -127,16 +129,17 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
   ];
 
   nodesWColumns = [
-    {text: 'NodeID', datafield: 'name'},
+    {text: 'NodeID', datafield: 'name', width:'80px'},
+    {text: 'Mock score', datafield: 'score', width:'80px'},
     {text: 'Subgraph', datafield: 'subgraphs'}
   ];
 
   edgesWColumns = [
 		{text: 'Source', datafield: 'source', width:'100px'},
 		{text: 'Target', datafield: 'target', width:'100px'},
+    {text: 'Signature', datafield: 'signature', width:'200px'},
     {text: 'Gini_t_port', datafield: 'gini_t_port'},
-    {text: 'Signature', datafield: 'signature'},
-    {text: 'Span', datafield: 'span',  width:'40px'},
+    {text: 'Span', datafield: 'span',  width:'80px'},
     {text: 'Unique_t_port_count', datafield: 'unique_t_port_count',width:'120px'},
     {text: 'Gini_s_port', datafield: 'gini_s_port'},
     {text: 'Signature_id', datafield: 'signature_id'},
@@ -259,6 +262,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     
     this.nodeRelList.push({
       "name":"0",
+      "score": 0 ,
       subgraphs:[]
     })
     this.nodeRelSrc = new jqx.dataAdapter({
@@ -274,7 +278,6 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     // buidl the edges table: 
     this.buildEdgesTable([]);
   }
-
 
   parentFun(nodeID:String):void{
     this.selected.setValue(1);
@@ -305,7 +308,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     for (let obj of this.nodes) {
       if(nodesNames.includes(obj['data']['id'])){
         nodesToNP.push(obj);
-        this.nodeRelList = this.nodeRelList.concat({"name":obj['data']['id'], "subgraphs":obj['data']['subgraphs']})
+        this.nodeRelList = this.nodeRelList.concat({"name":obj['data']['id'], "score":0,"subgraphs":obj['data']['subgraphs']})
       }
     }
 
@@ -360,7 +363,19 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
       rowdetailsheight: 150
   };
 
+  edgedetailstemplate: any =
+  {
+    rowdetails: "<div style='margin: 10px;'></div>",
+    rowdetailsheight: 240
+  };
+
+
   initrowdetails = (index: any, parentElement: any, gridElement: any, datarecord: any): void => {
+    
+    if (parentElement == null){
+      return;
+    }
+    
     let rowdetails = parentElement.children[0];
     console.log("rowdetails", index)
 
@@ -368,18 +383,53 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 
     const createNameValue = (name, value) => {
       let tr = document.createElement("a");
-      tr.appendChild(document.createTextNode( '-' + name))
+      tr.appendChild(document.createTextNode( ' - ' + name))
       return tr;
     }
 
     let container = document.createElement('a');
     //container.appendChild(createNameValue("consquences","")); 
     for(let conStr of conString){
-      container.appendChild(createNameValue(conStr,"")); 
+      container.appendChild(createNameValue(conStr,""));
+      //container.appendChild(document.createTextNode( ' - ' + conStr))
     }
     rowdetails.appendChild(container);
   }
 
+  initedgedetails = (index: any, parentElement: any, gridElement: any, datarecord: any): void => {
+    
+    if (parentElement == null){
+      return;
+    }
+    let rowdetails = parentElement.children[0];
+    // console.log("rowdetails", rowdetails)
+
+    const createNameValue = (name, value) => {
+      let tr = document.createElement("tr");
+      let th = document.createElement("th")
+      th.setAttribute("style","text-align: right;")
+      th.appendChild(document.createTextNode(name))
+      tr.appendChild(th)
+      let td = document.createElement("td")
+      td.setAttribute("style","padding-left: 5px;")
+      td.appendChild(document.createTextNode(value))
+      tr.appendChild(td)
+      return tr;
+    }
+
+    let container = document.createElement('table');
+    container.appendChild(createNameValue('Signature :', String(this.edgeGridList.getcelltext(index,'signature'))));
+    container.appendChild(createNameValue('Gini_t_port :', String(this.edgeGridList.getcelltext(index,'gini_t_port'))));
+    container.appendChild(createNameValue('Span :', String(this.edgeGridList.getcelltext(index,'span'))));
+    container.appendChild(createNameValue('Unique_t_port_count :', String(this.edgeGridList.getcelltext(index,'unique_t_port_count'))));
+    container.appendChild(createNameValue('Gini_s_port :', String(this.edgeGridList.getcelltext(index,'gini_s_port'))));
+    container.appendChild(createNameValue('Signature_id :', String(this.edgeGridList.getcelltext(index,'signature_id'))));
+    container.appendChild(createNameValue('Unique_s_port_count :', String(this.edgeGridList.getcelltext(index,'unique_s_port_count'))));
+    container.appendChild(createNameValue('Dispersion :', String(this.edgeGridList.getcelltext(index,'dispersion'))));
+    container.appendChild(createNameValue('Final_score :', String(this.edgeGridList.getcelltext(index,'final_score'))));
+    container.appendChild(createNameValue('Key :', String(this.edgeGridList.getcelltext(index,'key'))));
+    rowdetails.appendChild(container);
+  }
   selectChangeHandler (event: any) {
     //update the ui
     this.loadProMode = "indeterminate"; 
@@ -394,6 +444,12 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
      // clear the previous grid selection. 
     this.loadProMode = "determinate";
     this.cygraph.setSubgraphInfo(this.selectedgraph, '', 0, [])
+  }
+
+
+  selectEdgeLabel (event:any){
+    let selectedLb = event.target.value;
+    this.nodegraph.setlabelStr(selectedLb);
   }
 
   selectRow(event: any){
@@ -473,6 +529,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
       
       if(nodeIDlist.includes(obj['data']['source']) && nodeIDlist.includes(obj['data']['target']))
       {
+        obj['data']['span'] = obj['data']['span'] * 60 * 60 * 24;
         this.edgesDis.push(obj);
         this.edgesW.push(obj['data']);
       }

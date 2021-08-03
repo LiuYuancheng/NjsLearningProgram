@@ -1,7 +1,7 @@
 <div fxLayout="row" fxLayoutGap="10px" class="parent">
     <div fxFlex="100%" class="left">
         <p-card header="{{subGpar}}" [style]="{'width': '1050', 'height':'1000px'}" styleClass="panel-background">
-            <p> <b>Severity score [0-10] :</b> {{subGscore}} </p>
+            <p> <b>Severity score [0-10] : </b> {{subGscore}} </p>
             <p> <b>Consequences : </b> </p>
             
             <div class="vertical-menu">
@@ -10,42 +10,42 @@
 
             <div *ngIf="showNode">
                 <h4>Node</h4>
-                <p>Node ID : {{selectNode?.id}}</p>
-                <p>Node Name : {{selectNode?.value}}</p>
-                <p>Node Value : {{selectNode?.name}}</p>
-                <div *ngIf= "showContry">
-                    <p>Node Contry : [ {{selectNode?.geo[0]}} ]</p>
-                </div>
-                <p>Subgraphs : </p>
                 <div class="vertical-menu">
-                    <a *ngFor="let subgraph of selectNode?.subgraphs"> {{subgraph}} </a>
+                    <a>Node ID : {{selectNode?.id}}</a>
+                    <a>Mock score : --</a>
+                    <a>Country code: [ {{selectNode?.geo[0]}} ]</a>
+                    <a>Subgraphs : {{selectNode?.subgraphs}} </a>
+                    <!-- <a *ngFor="let subgraph of selectNode?.subgraphs"> {{subgraph}} </a> -->
                 </div>
             </div>
             <div *ngIf="showEdge">
                 <h4>Edge</h4>
-                <p>Edge Source : {{selectEdge?.source}}</p>
-                <p>Edge target : {{selectEdge?.target}}</p>
-                <p>Gini_t_port : {{selectEdge?.gini_t_port}}</p>
+                <div class="vertical-menu" style='height: 450px;' >
+                <a>Source : {{selectEdge?.source}}</a>
+                <a>Target : {{selectEdge?.target}}</a>
+                <a>Gini_t_port : {{selectEdge?.gini_t_port}}</a>
                 
-    
-                <p>Signature : </p>
+                <a>Signature : </a> 
+                <a *ngFor="let sig of selectEdge?.signature"> - {{sig}}</a>
                 
-                <div *ngFor="let sig of selectEdge?.signature">
+                <!-- <div *ngFor="let sig of selectEdge?.signature">
                     <p>- {{sig}} </p>
-                </div>
+                </div> -->
     
-                <p>Unique_t_port_count : {{selectEdge?.unique_t_port_count}}</p>
-                <p>Signature_id : </p>
-                
-                <div *ngFor="let sigID of selectEdge?.signature_id">
+                <a>Unique_t_port_count : {{selectEdge?.unique_t_port_count}}</a>
+                <a>Signature_id:</a> 
+                <a *ngFor="let sigID of selectEdge?.signature_id"> - {{sigID}}</a>
+                <!-- <div *ngFor="let sigID of selectEdge?.signature_id">
                     <p>- {{sigID}} </p>
-                </div>
+                </div> -->
                 
-                <p>Span : {{selectEdge?.span}}</p>
-                <p>Unique_s_port_count : {{selectEdge?.unique_s_port_count}}</p>
-                <p>Dispersion : {{selectEdge?.dispersion}}</p>
-                <p>Final_score : {{selectEdge?.final_score}}</p>
-                <p>Key : {{selectEdge?.key}}</p>
+                <a>Span : {{selectEdge?.span}}</a>
+                <a>Unique_s_port_count : {{selectEdge?.unique_s_port_count}}</a>
+                <a>Dispersion : {{selectEdge?.dispersion}}</a>
+                <a>Final_score : {{selectEdge?.final_score}}</a>
+                <a>Key : {{selectEdge?.key}}</a>
+                </div>
+
             </div>
 
             <div #cyvpn [className]="'cy'" (click)="evtListener()"></div>

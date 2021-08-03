@@ -200,7 +200,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "border-opacity": 0.7,
           "font-size": "10px",
           "text-outline-width": "2px",
-          "text-outline-color": "#0000FF"
+          "text-outline-color": "#e76f51"
           // "background-color": "yellow",
           // "text-outline-color": "yellow",
         }
@@ -209,7 +209,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       {
         selector: 'node[type = "other"]',
         style: {
-          'background-image': 'assets/images/stix/stix2-ttp-icons-png/malware-analysis-noback-dark-300-dpi.png',
+          //'background-image': 'assets/images/stix/stix2-ttp-icons-png/malware-analysis-noback-dark-300-dpi.png',
+          'background-image': 'assets/images/icons/program.png',
         }
       },
 
@@ -224,6 +225,21 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "color": "#fff",
         }
       },
+
+      {
+        selector: 'edge:selected', // default edge style
+        style: {
+          'width': 2,
+          'curve-style': 'bezier',
+          'target-arrow-shape': 'triangle',
+          "font-size": "12px",
+          "color": "yellow",
+          "border-color": "yellow",
+        }
+      },
+      
+
+
       // {
       //   selector: '[target = "' + this.selectNode['id'] + '"]',
       //   style: {
