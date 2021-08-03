@@ -114,8 +114,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
   ];
   
   subgraphsWColumns =[
-    {text: 'Sub-Graph ID', datafield: 'id'},
-    {text: 'Score', datafield: 'score'},
+    {text: 'Subgraph ID', datafield: 'id', width:'70px'},
+    {text: 'Score', datafield: 'score', width:'50px'},
     {text: 'Consequences', datafield: 'consequences'}
   ];
 
@@ -123,7 +123,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     {text: 'ID', datafield: 'id', width:'100px'},
     {text: 'Type', datafield: 'type'},
     {text: 'Subgraph', datafield: 'subgraphs'},
-    {text: 'Geo-GPS', datafield: 'geo'},
+    {text: 'Country', datafield: 'geo'},
   ];
 
   nodesWColumns = [
@@ -188,6 +188,19 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
    loadProMode: String = "indeterminate";
    theCheckbox = false;
 
+   counter: number = 1;
+  //  tooltiprenderer = (element: any): void => {
+  //    let id = <code>toolTipContainer${this.counter}</code>;
+  //    element[0].id = id;
+  //    let content = element[0].innerHTML;
+  //    setTimeout(_ => jqwidgets.createInstance(<code>#${id}</code>, 'jqxTooltip', { position: 'mouse', content: content }))
+  //    this.counter++;
+  //  }
+
+  //  cellhovertooltiprenderer = (element: any, pageX: number, pageY: number): void => {
+	// 	setTimeout(_ => jqwidgets.createInstance('.jqx-item', 'jqxTooltip', { position: 'mouse', content: "Hello!" }));
+	// };
+
   constructor() { }
 
   ngOnInit(): void {
@@ -196,7 +209,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 
   ngAfterViewInit() {
     this.subGridList.refreshdata()
-}
+  }
 
   loadGraphsData():void{
     // load subgraphs data based on user's selection:  
@@ -340,6 +353,32 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 
   }
 
+  rowdetailstemplate: any =
+  {
+      //rowdetails: "<div style='margin: 10px; width:250px; overflow-y: auto;'>Consquences: </div>",
+      rowdetails: "<div class=\"vertical-menu\" style='width:90%; height: 250px;'> Consquences:  </div>" ,
+      rowdetailsheight: 150
+  };
+
+  initrowdetails = (index: any, parentElement: any, gridElement: any, datarecord: any): void => {
+    let rowdetails = parentElement.children[0];
+    console.log("rowdetails", index)
+
+    let conString = String(this.nodeGridList.getcelltext(index,'consequences')).split(',')
+
+    const createNameValue = (name, value) => {
+      let tr = document.createElement("a");
+      tr.appendChild(document.createTextNode( '-' + name))
+      return tr;
+    }
+
+    let container = document.createElement('a');
+    //container.appendChild(createNameValue("consquences","")); 
+    for(let conStr of conString){
+      container.appendChild(createNameValue(conStr,"")); 
+    }
+    rowdetails.appendChild(container);
+  }
 
   selectChangeHandler (event: any) {
     //update the ui
@@ -377,7 +416,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 
     this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
 
-
+    this.cygraph.redraw();
   }
 
   buildNodesTable(subgraphNames: string[]){
@@ -389,10 +428,18 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
         if(obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)){
           this.nodesDis.push(obj);
           if(obj['data'].hasOwnProperty("geo")){
+            let ctString = obj['data']['geo'];
+            if(ctString[0] == 'unknown'){
+              ctString = ['']
+            }else 
+            {
+              ctString.pop();
+            }
+
             this.nodesW.push({"id":obj['data']["id"],
                               "subgraphs":obj['data']['subgraphs'],
                               "type":obj['data']['type'],
-                              "geo":obj['data']['geo']});
+                              "geo":ctString});
           }
         }
       }

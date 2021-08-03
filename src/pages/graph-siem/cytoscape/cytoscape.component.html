@@ -1,61 +1,65 @@
 <div fxLayout="row" fxLayoutGap="10px" class="parent">
     <div fxFlex="100%" class="left">
         <p-card header="{{subGpar}}" [style]="{'width': '1050', 'height':'1000px'}" styleClass="panel-background">
-            <p> <b>Score :</b> {{subGscore}} </p>
-            <p> <b>Consequences:</b> </p>
-            <div *ngFor="let consequences of subGcon">
-                <p>- {{consequences}} </p>
+            <p> <b>Severity score [0-10] :</b> {{subGscore}} </p>
+            <p> <b>Consequences : </b> </p>
+            
+            <div class="vertical-menu">
+                <a *ngFor="let consequences of subGcon"> - {{consequences}} </a>
             </div>
+
+            <div *ngIf="showNode">
+                <h4>Node</h4>
+                <p>Node ID : {{selectNode?.id}}</p>
+                <p>Node Name : {{selectNode?.value}}</p>
+                <p>Node Value : {{selectNode?.name}}</p>
+                <div *ngIf= "showContry">
+                    <p>Node Contry : [ {{selectNode?.geo[0]}} ]</p>
+                </div>
+                <p>Subgraphs : </p>
+                <div class="vertical-menu">
+                    <a *ngFor="let subgraph of selectNode?.subgraphs"> {{subgraph}} </a>
+                </div>
+            </div>
+            <div *ngIf="showEdge">
+                <h4>Edge</h4>
+                <p>Edge Source : {{selectEdge?.source}}</p>
+                <p>Edge target : {{selectEdge?.target}}</p>
+                <p>Gini_t_port : {{selectEdge?.gini_t_port}}</p>
+                
+    
+                <p>Signature : </p>
+                
+                <div *ngFor="let sig of selectEdge?.signature">
+                    <p>- {{sig}} </p>
+                </div>
+    
+                <p>Unique_t_port_count : {{selectEdge?.unique_t_port_count}}</p>
+                <p>Signature_id : </p>
+                
+                <div *ngFor="let sigID of selectEdge?.signature_id">
+                    <p>- {{sigID}} </p>
+                </div>
+                
+                <p>Span : {{selectEdge?.span}}</p>
+                <p>Unique_s_port_count : {{selectEdge?.unique_s_port_count}}</p>
+                <p>Dispersion : {{selectEdge?.dispersion}}</p>
+                <p>Final_score : {{selectEdge?.final_score}}</p>
+                <p>Key : {{selectEdge?.key}}</p>
+            </div>
+
             <div #cyvpn [className]="'cy'" (click)="evtListener()"></div>
         </p-card>
     </div>
 
-    <p-sidebar [(visible)]="visibleSidebar2" position="right" [baseZIndex]="10000">
-        <h2 style="font-weight:normal">Selected Element </h2>
-        <p-button type="button" (click)="visibleSidebar2 = false" label="Back" styleClass="p-button-success"></p-button>
-        <p-button type="button" (click)="visibleSidebar2 = false" label="Cancel" styleClass="p-button-secondary"></p-button>
+    <!-- <p-sidebar [(visible)]="visibleSidebar2" position="left" [baseZIndex]="10000"> -->
+        <!-- <h2 style="font-weight:normal">Selected Element </h2> -->
+        <!-- <p-button type="button" (click)="visibleSidebar2 = false" label="Back" styleClass="p-button-success"></p-button> -->
+        <!-- <p-button type="button" (click)="visibleSidebar2 = false" label="Cancel" styleClass="p-button-secondary"></p-button> -->
     
-        <h4> Selected Element Information </h4>
-        <div *ngIf="showNode">
-            <h5>Node Information</h5>
-            <p>Node ID: {{selectNode?.id}}</p>
-            <p>Node Name: {{selectNode?.value}}</p>
-            <p>Node Value: {{selectNode?.name}}</p>
-            <p>Node Geo: [ {{selectNode?.geo}} ]</p>
-            <p>Subgraphs:</p>
-            <div class="vertical-menu">
-                <a *ngFor="let subgraph of selectNode?.subgraphs"> {{subgraph}} </a>
-            </div>
-            <hr>
-        </div>
-        <div *ngIf="showEdge">
-            <h5>Edge Information:</h5>
-            <p>Edge Source: {{selectEdge?.source}}</p>
-            <p>Edge target: {{selectEdge?.target}}</p>
-            <p>Gini_t_port: {{selectEdge?.gini_t_port}}</p>
-            
+        <!-- <h4> Selected Element Information </h4> -->
+       
 
-            <p>Signature:</p>
-            
-            <div *ngFor="let sig of selectEdge?.signature">
-                <p>- {{sig}} </p>
-            </div>
-
-            <p>Unique_t_port_count: {{selectEdge?.unique_t_port_count}}</p>
-            <p>Signature_id:</p>
-            
-            <div *ngFor="let sigID of selectEdge?.signature_id">
-                <p>- {{sigID}} </p>
-            </div>
-            
-            <p>Span: {{selectEdge?.span}}</p>
-            <p>Unique_s_port_count: {{selectEdge?.unique_s_port_count}}</p>
-            <p>Dispersion: {{selectEdge?.dispersion}}</p>
-            <p>Final_score: {{selectEdge?.final_score}}</p>
-            <p>Key: {{selectEdge?.key}}</p>
-            <hr>
-        </div>
-
-    </p-sidebar>
+    <!-- </p-sidebar> -->
 
 </div>

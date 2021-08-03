@@ -83,14 +83,14 @@ p {
 
 
 ::ng-deep .vertical-menu {
-  width: 200px;
-  height: 400px;
+  width: 180px;
+  height: 300px;
   overflow-y: auto;
 }
 
 ::ng-deep  .vertical-menu a {
-  background-color: #eee;
-  color: black;
+  background-color:#3E3E42;
+  color: white;
   display: block;
   padding: 8px;
   font-size: 12px;
@@ -98,7 +98,7 @@ p {
 }
 
 ::ng-deep  .vertical-menu a:hover {
-  background-color: #ccc;
+  background-color: black;
 }
 
 ::ng-deep  .vertical-menu a.active {

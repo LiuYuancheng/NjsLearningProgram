@@ -4,7 +4,7 @@
 
   <mat-tab-group [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event)">
     
-    <mat-tab label="Sub-Graph Page">
+    <mat-tab label="Subgraph Page">
       <!-- Show the subgraph and group in table -->
         
       <div fxLayout="row" fxLayoutGap="10px" class="parent">
@@ -15,10 +15,10 @@
       
         <div fxFlex="25%" class="right">
           <select (change)="selectChangeHandler($event)">
-            <option value="snort">Snort Graph</option>
-            <option value="windows">Windows Graph</option>
-            <option value="fortinet">Fortinet Graph</option>
-            <option value="linked">Lineked Graph</option>
+            <option value="snort">Snort Subgraphs</option>
+            <option value="windows">Windows Subgraphs</option>
+            <option value="fortinet">Fortinet Subgraphs</option>
+            <option value="linked">Lineked Subgraphs</option>
           </select>
           <mat-progress-bar mode="{{loadProMode}}" value="100"></mat-progress-bar>
       
@@ -26,16 +26,17 @@
       
           <jqxGrid #nodeGrid (onRowselect)="selectRow($event)" [source]="subgrapSrc" [width]="'100%'" [height]="'300px'"
             [theme]="'metrodark'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
-            [columns]="subgrapColumns">
+            [columns]="subgrapColumns" [rowdetails]="true" [initrowdetails]="initrowdetails" [rowdetailstemplate]="rowdetailstemplate"
+            >	
           </jqxGrid>
       
           <mat-tab-group>
-            <mat-tab label="SubGraph Nodes"> 
+            <mat-tab label="Subgraph Nodes"> 
               <jqxGrid [source]="nodesSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'600px'" [pageable]="true"
-              [altrows]="true" [filterable]="true" [sortable]="true" [columns]="nodesLColums" #grid>
+              [altrows]="true" [filterable]="true" [sortable]="true" [columns]="nodesLColums"  #grid>
             </jqxGrid>
             </mat-tab>
-            <mat-tab label="SubGraph Edges">
+            <mat-tab label="Subgraph Edges">
               <jqxGrid [source]="edgesSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'600px'" [pageable]="true"
                 [altrows]="true" [filterable]="true" [sortable]="true" [columns]="edgesWColumns" #grid>
               </jqxGrid>
@@ -47,11 +48,7 @@
       </div>
     </mat-tab>
 
-
-
-
-
-    <mat-tab label="Node detail Information ">
+    <mat-tab label="Node Detail Information ">
       <!-- <hr>
   <hello-world></hello-world>
   <hr> -->
@@ -65,7 +62,8 @@
       
               <div fxFlex="25%" class="right">
                 <hr>
-                <h4> Node [{{selectednodeID}}] Parent Subgraphs Table</h4>
+                <!-- <h4> Node [{{selectednodeID}}] Parent Subgraphs Table</h4> -->
+                <h4> Subgraphs Table</h4>
                 <hr>
                 <jqxGrid #subGrid [source]="nodePrtSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'80%'"
                   [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true" [columns]="subgraphsWColumns">
@@ -98,7 +96,7 @@
       </table>
     </mat-tab>
 
-    <mat-tab label="Snort List"> Snort List Idx = 1
+    <mat-tab label="Snort Data List"> Snort List Idx = 1
       <hr>
       <table class="table table-striped">
         <thead>
@@ -134,7 +132,7 @@
       </table>
     </mat-tab>
 
-    <mat-tab label="Windows List"> Windows List Idx = 1
+    <mat-tab label="Windows Data List"> Windows List Idx = 1
       <hr>
       <table class="table table-striped">
         <thead>
@@ -170,7 +168,7 @@
       </table>
     </mat-tab>
 
-    <mat-tab label="Fortinet List"> Fortinet List Idx = 0
+    <mat-tab label="Fortinet Data List"> Fortinet List Idx = 0
       <hr>
       <table class="table table-striped">
         <thead>

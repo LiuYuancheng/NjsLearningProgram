@@ -2,6 +2,7 @@ import { Component, OnInit, ElementRef, ViewChild, Output, EventEmitter, AfterVi
 //import { trigger, state, style, transition, animate } from '@angular/animations';
 import { PrimeNGConfig } from 'primeng/api';
 import { SidebarModule } from 'primeng/sidebar';
+import { Colors } from 'src/app/core/common/colors';
 
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
@@ -72,6 +73,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   selectNode: NodeData; 
   selectEdge: EdgeData;
   showNode: boolean = false
+  showContry:boolean = false
   showEdge: boolean = false
   //menuState:String = 'out';
 
@@ -86,6 +88,31 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   subGid:string =  '';
   subGscore:number = 0;
   subGcon:string[] = [];
+
+  static MY_COLOR: string = Colors.COLORS[0];
+  static NODE_COLOR: string = Colors.COLORS[3];
+
+  protected layoutOptions: any = {
+    // name: 'dagre',
+    // name: 'breadthfirst',
+    // name: 'cose',
+    name: 'fcose',
+    // name: 'klay',
+    // name: 'cola',
+    // name: 'cose-bilkent',
+    // name: 'concentric',
+    // name: this.layout,
+    // fit: false,
+    // quality: 'proof',
+    nodeDimensionsIncludeLabels: true,
+    nodeRepulsion: 9000,
+    idealEdgeLength: 400,
+    nodeSeparation: 150,
+    nodeSep: 120,
+    fit: true,
+    // flow: { axis: 'y', minSeparation: 80 }
+    // packComponents: false,
+}
 
   constructor(element: ElementRef, primengConfig: PrimeNGConfig) {
     //super();
@@ -118,7 +145,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.style  = <cytoscape.Stylesheet[]>[
       {
         selector: 'nodes', // default node style
-        style: {
+/*         style: {
           "width": "20px",
           "height": "20px",
           'background-width': '20px',
@@ -139,6 +166,28 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           'shape': 'round-rectangle',
           'background-image': 'assets/images/icons/ip.png',
           //'label': 'data(id)'
+        } */
+
+        style: {
+          'label': 'data(id)',
+          "width": "60px",
+          "height": "60px",
+          'background-width': '60px',
+          'background-height': '60px',
+          "text-wrap": "ellipsis",
+          "text-max-width": "100px",
+          "font-size": "8px",
+          "text-valign": "bottom",
+          "text-halign": "center",
+          "background-color": CytoscapeComponent.NODE_COLOR,
+          "background-opacity": 1,
+          // "text-outline-color": "#555",
+          // "text-outline-width": "2px",
+          "color": "#fff",
+          // "overlay-padding": "6px",
+          // "padding": "0",
+          // 'shape': 'round-rectangle',
+          "background-image": 'assets/images/icons/ip.png',
         }
       },
       {
@@ -149,7 +198,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "border-width": "2px",
           "border-color": "yellow",
           "border-opacity": 0.7,
-          "font-size": "8px",
+          "font-size": "10px",
+          "text-outline-width": "2px",
           "text-outline-color": "#0000FF"
           // "background-color": "yellow",
           // "text-outline-color": "yellow",
@@ -170,8 +220,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           'width': 1,
           'curve-style': 'bezier',
           'target-arrow-shape': 'triangle',
-          "font-size": "8px",
-          "color": "#0000FF",
+          "font-size": "12px",
+          "color": "#fff",
         }
       },
       // {
@@ -215,7 +265,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   redraw() {
 
     this.buildGraph();
-    this.cy.zoom({level:4});
+    this.cy.zoom({level:2});
     this.cy.pan({
       x: 200,
       y: 200 
@@ -226,8 +276,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     //var collection = this.cy.elements('node[id == "127.0.0.1"]');
     //this.cy.remove(collection);
     // Get a new layout, which can be used to algorithmically position the nodes in the graph.
-    //let layout = this.cy.layout(this.options); 
-    //layout.run();
+    let layout = this.cy.elements().layout(this.layoutOptions); 
+    layout.run();
 
   }
 
@@ -427,6 +477,9 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           //parent: evtTarget.data('parent')
         };
         this.showNode = true;
+        if (this.selectNode['subgraphs'].includes('unknown')){
+          this.showContry = false;
+        }
         this.showEdge = false;
         //this.menuState = 'out';
         this.visibleSidebar2 = true;
