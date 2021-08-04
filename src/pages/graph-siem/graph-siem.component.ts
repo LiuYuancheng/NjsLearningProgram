@@ -116,7 +116,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
   ];
   
   subgraphsWColumns =[
-    {text: 'Subgraph ID', datafield: 'id', width:'70px'},
+    {text: 'ID', datafield: 'id', width:'70px'},
     {text: 'Score', datafield: 'score', width:'50px'},
     {text: 'Consequences', datafield: 'consequences'}
   ];
@@ -130,7 +130,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 
   nodesWColumns = [
     {text: 'NodeID', datafield: 'name', width:'80px'},
-    {text: 'Mock score', datafield: 'score', width:'80px'},
+    {text: 'Risk score', datafield: 'score', width:'80px'},
     {text: 'Subgraph', datafield: 'subgraphs'}
   ];
 
@@ -529,7 +529,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
       
       if(nodeIDlist.includes(obj['data']['source']) && nodeIDlist.includes(obj['data']['target']))
       {
-        obj['data']['span'] = obj['data']['span'] * 60 * 60 * 24;
+        obj['data']['span'] = obj['data']['span'] / (60 * 60 * 24);
         this.edgesDis.push(obj);
         this.edgesW.push(obj['data']);
       }

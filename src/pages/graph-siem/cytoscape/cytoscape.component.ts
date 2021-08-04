@@ -145,29 +145,6 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.style  = <cytoscape.Stylesheet[]>[
       {
         selector: 'nodes', // default node style
-/*         style: {
-          "width": "20px",
-          "height": "20px",
-          'background-width': '20px',
-          'background-height': '20px',
-          "text-wrap": "ellipsis",
-          "text-max-width": "100px",
-          "font-size": "16px",
-          "text-valign": "bottom",
-          "text-halign": "center",
-          "background-color": "#e9c46a",
-          "background-opacity": 2,
-          "text-outline-color": "#555",
-          "text-outline-width": "1px",
-          "color": "#FFFFFF",
-          "border-color": "#33FFFC",
-          "overlay-padding": "6px",
-          "padding": "0",
-          'shape': 'round-rectangle',
-          'background-image': 'assets/images/icons/ip.png',
-          //'label': 'data(id)'
-        } */
-
         style: {
           'label': 'data(id)',
           "width": "60px",
@@ -210,7 +187,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         selector: 'node[type = "other"]',
         style: {
           //'background-image': 'assets/images/stix/stix2-ttp-icons-png/malware-analysis-noback-dark-300-dpi.png',
-          'background-image': 'assets/images/icons/program.png',
+          'background-image': 'assets/images/icons/ep.png',
         }
       },
 

@@ -204,7 +204,7 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
       {
         selector: 'node[type = "other"]',
         style: {
-          'background-image': 'assets/images/icons/program.png',
+          'background-image': 'assets/images/icons/ep.png',
         }
       },
 
@@ -218,6 +218,20 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           "color": "#FFFFFF",
         }
       },
+
+      {
+        selector: 'edge:selected', // default edge style
+        style: {
+          'label': this.edgelabelStr,
+          'curve-style': 'bezier',
+          'target-arrow-shape': 'triangle',
+          "font-size": "8px",
+          "color": "#FFFFFF",
+          "line-color": "#e76f51",
+        }
+      },
+
+
 
       {
         selector: 'node[type= "bendPoint"]',
