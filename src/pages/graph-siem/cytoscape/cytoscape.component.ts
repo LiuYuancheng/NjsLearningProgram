@@ -1,34 +1,41 @@
 import { Component, OnInit, ElementRef, ViewChild, Output, EventEmitter, AfterViewInit} from '@angular/core';
-//import { trigger, state, style, transition, animate } from '@angular/animations';
+
+// import { SidebarModule } from 'primeng/sidebar';
 import { PrimeNGConfig } from 'primeng/api';
-import { SidebarModule } from 'primeng/sidebar';
 import { Colors } from 'src/app/core/common/colors';
 
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 import cxtmenu from 'cytoscape-cxtmenu';
 
-import { elements as elementsW } from '../data/windows.json';
-import { elements as elementsS } from '../data/snort.json';
-import { elements as elementsF } from '../data/fortinet.json';
-import { elements as elementsL } from '../data/linked.json';
+//-----------------------------------------------------------------------------
+// Name:        cytoscapte.components.ts
+// Purpose:     This module is used to generate a node-edge graph of based on the 
+//              the input data of SIEM experiment. 
+// Author:
+// Created:     2021/07/25
+// Copyright:    n.a    
+// License:      n.a
+//------------------------------------------------------------------------------
 
 // use fcose layout.
-//cytoscape.use(cxtmenu);
 cytoscape.use(fcose);
 
-export interface NodeData {
+// Node data type
+export interface NodeDataType {
   id?: String;
   value?: String;
   name?: String;
   geo?: String[];
   subgraphs?: String[];
 }
-export interface EdgeData {  
-  source?: String;  
+
+//Edge data type 
+export interface EdgeDataType {
+  source?: String;
   target?: String;
   gini_t_port?: Number;
-  signature?: String[];  
+  signature?: String[];
   unique_t_port_count?: Number;
   gini_s_port?: Number;
   signature_id?: String[];
@@ -36,9 +43,10 @@ export interface EdgeData {
   unique_s_port_count?: Number;
   dispersion?: Number;
   final_score?: Number;
-  key?:Number;
+  key?: Number;
 }
 
+//-----------------------------------------------------------------------------
 @Component({
   selector: 'app-cytoscape',
   templateUrl: './cytoscape.component.html',
@@ -49,39 +57,32 @@ export interface EdgeData {
 `]
 })
 
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 export class CytoscapeComponent implements OnInit, AfterViewInit {
   @ViewChild('cyvpn') cyRef: ElementRef;
   @Output("parentFun") parentFun: EventEmitter<any> = new EventEmitter();
-  
-  //@Input() nodes: cytoscape.NodeDefinition[];
-  //@Input() edges: cytoscape.EdgeDefinition[];
-  //@Input() style: cytoscape.Stylesheet[];
-  //@Input() layout: cytoscape.LayoutOptions;
-  
-  // temporary use the simple test data
-  //nodes: cytoscape.NodeDefinition[] = elementsW['nodes'];
-  //edges: cytoscape.EdgeDefinition[] = elementsW['edges'];
-  
-  nodes: cytoscape.NodeDefinition[] = [];
-  edges: cytoscape.EdgeDefinition[] = [];
+  static MY_COLOR: string = Colors.COLORS[0];
+  static NODE_COLOR: string = Colors.COLORS[3];
+
+  // define parameters : 
+  nodes: cytoscape.NodeDefinition[] = []; // nodes data will shown in the graph. 
+  edges: cytoscape.EdgeDefinition[] = []; // edges data will shown in the graph. 
   style: cytoscape.Stylesheet[];
   subgraphNameArr: string[];
-  //cy: cytoscape.Core;
   cy: any = null;
+  
+  selectNode: NodeDataType; 
+  selectEdge: EdgeDataType;
   nodePopperRef: any = null;
 
-  selectNode: NodeData; 
-  selectEdge: EdgeData;
   showNode: boolean = false
   showContry:boolean = false
   showEdge: boolean = false
-  //menuState:String = 'out';
+  //visibleSidebar2:boolean = false;
 
-  title1 = "N ode info";
   private nativeElement: HTMLElement;
   private options: any;
-  //primengConfig: PrimeNGConfig
-  visibleSidebar2 = false;
 
   // data show in the subgrap graph are
   subGpar:string ='';
@@ -89,33 +90,19 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   subGscore:number = 0;
   subGcon:string[] = [];
 
-  static MY_COLOR: string = Colors.COLORS[0];
-  static NODE_COLOR: string = Colors.COLORS[3];
-
   protected layoutOptions: any = {
-    // name: 'dagre',
-    // name: 'breadthfirst',
-    // name: 'cose',
     name: 'fcose',
-    // name: 'klay',
-    // name: 'cola',
-    // name: 'cose-bilkent',
-    // name: 'concentric',
-    // name: this.layout,
-    // fit: false,
-    // quality: 'proof',
     nodeDimensionsIncludeLabels: true,
     nodeRepulsion: 9000,
     idealEdgeLength: 400,
     nodeSeparation: 150,
     nodeSep: 120,
     fit: true,
-    // flow: { axis: 'y', minSeparation: 80 }
-    // packComponents: false,
 }
 
+//-----------------------------------------------------------------------------
   constructor(element: ElementRef, primengConfig: PrimeNGConfig) {
-    //super();
+    // Init all parameters
     this.nativeElement = element.nativeElement;
     this.subgraphNameArr = [];
     this.options = {
@@ -137,8 +124,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.selectNode = {
       id: '',
       value: '',
-      name:'',
-      geo:[],
+      name: '',
+      geo: [],
       subgraphs: []
     };
 
@@ -178,19 +165,14 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "font-size": "10px",
           "text-outline-width": "2px",
           "text-outline-color": "#e76f51"
-          // "background-color": "yellow",
-          // "text-outline-color": "yellow",
         }
       },
-
       {
         selector: 'node[type = "other"]',
         style: {
-          //'background-image': 'assets/images/stix/stix2-ttp-icons-png/malware-analysis-noback-dark-300-dpi.png',
           'background-image': 'assets/images/icons/ep.png',
         }
       },
-
       {
         selector: 'edges', // default edge style
         style: {
@@ -214,9 +196,6 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "border-color": "yellow",
         }
       },
-      
-
-
       // {
       //   selector: '[target = "' + this.selectNode['id'] + '"]',
       //   style: {
@@ -224,39 +203,40 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       //   }
       // },
     ];
-    //
-
 
     this.selectEdge = {
-      source:'',
-      target:'',
-      gini_t_port:0,
+      source: '',
+      target: '',
+      gini_t_port: 0,
       signature: [],
-      unique_t_port_count:0,
-      gini_s_port:0,
-      signature_id:[],
-      span:0,
-      unique_s_port_count:0,
-      dispersion:0,
-      final_score:0,
-      key:0
+      unique_t_port_count: 0,
+      gini_s_port: 0,
+      signature_id: [],
+      span: 0,
+      unique_s_port_count: 0,
+      dispersion: 0,
+      final_score: 0,
+      key: 0
     };
 
     this.nodePopperRef = null;
 
   }
 
+  //-----------------------------------------------------------------------------
   ngOnInit(): void {
     //this.redraw();
     //this.primengConfig.ripple = true;
   }
 
-  ngAfterViewInit(): void{
+  //-----------------------------------------------------------------------------
+  ngAfterViewInit(): void {
     //this.redraw()
   }
 
-  redraw() {
-
+  //-----------------------------------------------------------------------------
+  redraw(): void {
+    // Redraw the graph.
     this.buildGraph();
     this.cy.zoom({level:2});
     this.cy.pan({
@@ -264,36 +244,28 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       y: 200 
     });
     this.cy.fit()
-
-
-    //var collection = this.cy.elements('node[id == "127.0.0.1"]');
-    //this.cy.remove(collection);
-    // Get a new layout, which can be used to algorithmically position the nodes in the graph.
     let layout = this.cy.elements().layout(this.layoutOptions); 
     layout.run();
-
   }
 
-  clearGraph() {
+  //-----------------------------------------------------------------------------
+  clearGraph() : void {
     // clear the graph for redrow.
     if (this.cy != null) {
       this.cy.destroy();
     }
   }
 
-
-
-  buildGraph(){
+  //-----------------------------------------------------------------------------
+  buildGraph() : void {
+    // Create the cytoscape graph. 
     this.cy = cytoscape({
       container: this.cyRef.nativeElement,
       boxSelectionEnabled: false,
-      //container:document.getElementById('cy'),
       elements: {
         nodes: this.nodes,
         edges: this.edges
       },
-      //elements: this.graph,
-
       style: this.style,
       layout: this.options,
       autoungrabify: true,
@@ -308,7 +280,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         content: () => {
           let div = document.createElement('div');
           div.classList.add("popper");
-          div.innerHTML = '<small>Node : ' + node.id() +'</small>';
+          div.innerHTML = '<small>Node : ' + node.id() + '</small>';
           //+'<small>Parent subgraph : [' + node.data('subgraphs')+']</small>';
           document.body.appendChild(div);
           return div;
@@ -316,12 +288,12 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         popper: {} // my popper options here
       });
       // below section is added for remove the popper remaining on the page bug.
-      if(this.nodePopperRef){
+      if (this.nodePopperRef) {
         this.nodePopperRef.destroy();
         this.nodePopperRef = null
-      }else{
+      } else {
         this.nodePopperRef = node.popperRef;
-      }    
+      }
     });
 
     this.cy.on('mouseout', 'node', evt => {
@@ -342,30 +314,16 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       }
     })
 
-    //this.createContextMenu();
     let defaults = {
       menuRadius: function(ele){ return 60; }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
       selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
       commands: [ // an array of commands to list in the menu or a function that returns the array
-  
-        // { // example command
-        //   fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-        //   content: 'View Node Deail', // html/text content to be displayed in the menu
-        //   contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-        //   select: function(ele){ // a function to execute when the command is selected
-        //     console.log( ele.id() ); // `ele` holds the reference to the active element
-        //     window.open(`/#/abstraction-layer-domain?domain=${ele.id()}`, '_blank');
-        //   },
-        //   enabled: true // whether the command is selectable
-        // },
-
+        
         { 
           fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-          content: 'View Node Deail', // html/text content to be displayed in the menu
+          content: 'View Node Detail', // html/text content to be displayed in the menu
           contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-          select: ele => {
-            this.chileFunction(ele.id());
-          },
+          select: ele => { this.showNodeDetail(ele.id()); },
           enabled: true // whether the command is selectablele
         },
 
@@ -373,15 +331,12 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           content: 'Zoom To',
           select: ele => {
             // console.log("Zoom", ele.id())
-            // let pos = ele.position();
             let cy = ele.cy();
             cy.zoom({ level: 1 });
             cy.center(ele);
-            //this.chileFunction(ele.id());
           },
           enabled: true // whether the command is selectable
         }
-
 
       ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
       fillColor: 'rgba(0, 0, 0, 0.75)', // the background colour of the menu
@@ -398,45 +353,44 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       itemTextShadowColor: 'transparent', // the text shadow colour of the command's content
       zIndex: 9999, // the z-index of the ui div
       atMouse: false, // draw menu at mouse position
-      outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given 
+      outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given
     };
 
-
-
     this.cy.cxtmenu( defaults );
-
-    //-------------------
   }
 
-  chileFunction(nodeID:String){
-    console.log('test', "123");
+  //-----------------------------------------------------------------------------  
+  showNodeDetail(nodeID:String) : void {
+    // Call the parent function
+    //console.log('call parent function', nodeID);
     this.parentFun.emit(nodeID);
   }
 
+//-----------------------------------------------------------------------------  
+  // setCrtGraph(ghNmae: String) {
+  // // Currently not used. 
+  //   if (ghNmae == 'windows') {
+  //     this.nodes = elementsW['nodes'];
+  //     this.edges = elementsW['edges'];
+  //   }
+  //   else if (ghNmae == 'snort') {
+  //     this.nodes = elementsS['nodes'];
+  //     this.edges = elementsS['edges'];
+  //   }
+  //   else if (ghNmae == 'fortinet') {
+  //     this.nodes = elementsF['nodes'];
+  //     this.edges = elementsF['edges'];
+  //   }
+  //   else {
+  //     this.nodes = elementsL['nodes'];
+  //     this.edges = elementsL['edges'];
+  //   }
+  // }
 
-  setCrtGraph(ghNmae: String) {
-    if (ghNmae == 'windows') {
-      this.nodes = elementsW['nodes'];
-      this.edges = elementsW['edges'];
-    }
-    else if (ghNmae == 'snort') {
-      this.nodes = elementsS['nodes'];
-      this.edges = elementsS['edges'];
-    }
-    else if (ghNmae == 'fortinet') {
-      this.nodes = elementsF['nodes'];
-      this.edges = elementsF['edges'];
-    }
-    else {
-      this.nodes = elementsL['nodes'];
-      this.edges = elementsL['edges'];
-    }
-
-    //this.redraw();
-  }
-
-  setCrtSubGraph(subgraphNames:string[], nodesDis:any[], edgesDis:any[]):void{
-    if(nodesDis.length == 0 || edgesDis.length ==0){
+  //----------------------------------------------------------------------------- 
+  setCrtSubGraph(subgraphNames: string[], nodesDis: any[], edgesDis: any[]): void {
+    // update the current displayed subgraph
+    if (nodesDis.length == 0 || edgesDis.length == 0) {
       this.subgraphNameArr = [];
       this.clearGraph();
       return
@@ -444,22 +398,23 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.subgraphNameArr = subgraphNames;
     this.nodes = nodesDis;
     this.edges = edgesDis;
-    this.buildGraph();
-   this.cy.fit();
+    this.redraw();
   }
 
-  setSubgraphInfo(subPar:string ,subId:string, subScore:number, subCon:string[]){
-    this.subGpar = subPar + ' [ ' + subId + ' ] '; 
+  //----------------------------------------------------------------------------- 
+  setSubgraphInfo(subPar: string, subId: string, subScore: number, subCon: string[]): void {
+    // Set the subgraph info on the left side. 
+    this.subGpar = subPar + ' [ ' + subId + ' ] ';
     this.subGscore = subScore;
     this.subGcon = subCon;
   }
 
-  evtListener() {
+  //----------------------------------------------------------------------------- 
+  evtListener() : void {
+    // Handle the node and edge click event. 
     this.cy.one('tap', (event) => {
       var evtTarget = event.target;
-      if(evtTarget==null){
-        return;
-      }
+      if(evtTarget==null){ return;}
       if (evtTarget.isNode()) {
         this.selectNode = {
           id: evtTarget.data('id'),
@@ -467,15 +422,13 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           name: evtTarget.data('name'),
           geo:evtTarget.data('geo'),
           subgraphs: evtTarget.data('subgraphs')
-          //parent: evtTarget.data('parent')
         };
         this.showNode = true;
         if (this.selectNode['subgraphs'].includes('unknown')){
           this.showContry = false;
         }
         this.showEdge = false;
-        //this.menuState = 'out';
-        this.visibleSidebar2 = true;
+        //this.visibleSidebar2 = true;
       }
       else if (evtTarget.isEdge()) {
         this.selectEdge = {
@@ -494,30 +447,11 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         };
         this.showNode = false;
         this.showEdge = true;
-        this.visibleSidebar2 = true;
-        //this.menuState = 'out';
+        //this.visibleSidebar2 = true;
       }
       else {
         console.log('this is the background');
-        //this.menuState = 'in';
       }
     });
-    
-
-    /*this.cy.on('mousedown', (event) => {
-      var evtTarget = event.target;
-      console.log('here now');
-      this.cy.edgehandles('drawon');
-    });
-
-    this.cy.on('mouseup', (event) =>{
-      var evtTarget = event.target;
-      console.log('quit now');
-      this.cy.edgehandles('drawoff');
-    });*/
   }
-
-
-
-
 }

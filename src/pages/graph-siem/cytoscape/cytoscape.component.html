@@ -1,13 +1,13 @@
 <div fxLayout="row" fxLayoutGap="10px" class="parent">
     <div fxFlex="100%" class="left">
         <p-card header="{{subGpar}}" [style]="{'width': '1050', 'height':'1000px'}" styleClass="panel-background">
+            <!-- #Show subgraph information  -->
             <p> <b>Severity score [0-10] : </b> {{subGscore}} </p>
             <p> <b>Consequences : </b> </p>
-            
             <div class="vertical-menu">
                 <a *ngFor="let consequences of subGcon"> - {{consequences}} </a>
             </div>
-
+            <!-- #Show selected element information -->
             <div *ngIf="showNode">
                 <h4>Node</h4>
                 <div class="vertical-menu">
@@ -20,46 +20,29 @@
             </div>
             <div *ngIf="showEdge">
                 <h4>Edge</h4>
-                <div class="vertical-menu" style='height: 450px;' >
-                <a>Source : {{selectEdge?.source}}</a>
-                <a>Target : {{selectEdge?.target}}</a>
-                <a>Gini_t_port : {{selectEdge?.gini_t_port}}</a>
-                
-                <a>Signature : </a> 
-                <a *ngFor="let sig of selectEdge?.signature"> - {{sig}}</a>
-                
-                <!-- <div *ngFor="let sig of selectEdge?.signature">
-                    <p>- {{sig}} </p>
-                </div> -->
-    
-                <a>Unique_t_port_count : {{selectEdge?.unique_t_port_count}}</a>
-                <a>Signature_id:</a> 
-                <a *ngFor="let sigID of selectEdge?.signature_id"> - {{sigID}}</a>
-                <!-- <div *ngFor="let sigID of selectEdge?.signature_id">
-                    <p>- {{sigID}} </p>
-                </div> -->
-                
-                <a>Span : {{selectEdge?.span}}</a>
-                <a>Unique_s_port_count : {{selectEdge?.unique_s_port_count}}</a>
-                <a>Dispersion : {{selectEdge?.dispersion}}</a>
-                <a>Final_score : {{selectEdge?.final_score}}</a>
-                <a>Key : {{selectEdge?.key}}</a>
+                <div class="vertical-menu" style='height: 450px;'>
+                    <a>Source : {{selectEdge?.source}}</a>
+                    <a>Target : {{selectEdge?.target}}</a>
+                    <a>Gini_t_port : {{selectEdge?.gini_t_port}}</a>
+                    <a>Signature : </a>
+                    <a *ngFor="let sig of selectEdge?.signature"> - {{sig}}</a>
+                    <a>Unique_t_port_count : {{selectEdge?.unique_t_port_count}}</a>
+                    <a>Signature_id:</a>
+                    <a *ngFor="let sigID of selectEdge?.signature_id"> - {{sigID}}</a>
+                    <a>Span : {{selectEdge?.span}}</a>
+                    <a>Unique_s_port_count : {{selectEdge?.unique_s_port_count}}</a>
+                    <a>Dispersion : {{selectEdge?.dispersion}}</a>
+                    <a>Final_score : {{selectEdge?.final_score}}</a>
+                    <a>Key : {{selectEdge?.key}}</a>
                 </div>
-
             </div>
-
             <div #cyvpn [className]="'cy'" (click)="evtListener()"></div>
         </p-card>
     </div>
-
+    <!-- # Slider bar to show the information (https://www.primefaces.org/primeng/showcase/#/sidebar) -->
     <!-- <p-sidebar [(visible)]="visibleSidebar2" position="left" [baseZIndex]="10000"> -->
-        <!-- <h2 style="font-weight:normal">Selected Element </h2> -->
-        <!-- <p-button type="button" (click)="visibleSidebar2 = false" label="Back" styleClass="p-button-success"></p-button> -->
-        <!-- <p-button type="button" (click)="visibleSidebar2 = false" label="Cancel" styleClass="p-button-secondary"></p-button> -->
-    
-        <!-- <h4> Selected Element Information </h4> -->
-       
-
+    <!-- <h2 style="font-weight:normal">Selected Element </h2> -->
+    <!-- <p-button type="button" (click)="visibleSidebar2 = false" label="Back" styleClass="p-button-success"></p-button> -->
+    <!-- <p-button type="button" (click)="visibleSidebar2 = false" label="Cancel" styleClass="p-button-secondary"></p-button> -->
     <!-- </p-sidebar> -->
-
 </div>
