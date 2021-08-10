@@ -31,30 +31,28 @@
   margin: auto;
 }
 
-table {
-    border-spacing: 12px;
-    height: 100%;
-    width: 100%;
-}
-table thead {
-    /* head takes the height it requires, 
-    and it's not scaled when table is resized */
-    //flex: 0 0 auto;
-    width: 50%;
-}
-table tbody {
-    /* body takes all the remaining available space */
-    display: block;
-    //overflow-y: scroll;
-}
-table tbody tr {
-    width: 100%;
-}
+ table {
+     border-spacing: 12px;
+ }
+// table thead {
+//     /* head takes the height it requires, 
+//     and it's not scaled when table is resized */
+//     //flex: 0 0 auto;
+//     width: 50%;
+// }
+// table tbody {
+//     /* body takes all the remaining available space */
+//     display: block;
+//     //overflow-y: scroll;
+// }
+// table tbody tr {
+//     width: 100%;
+// }
 
-table thead, table tbody tr {
-    display: table;
-    table-layout: fixed;
-}
+// table thead, table tbody tr {
+//     display: table;
+//     table-layout: fixed;
+// }
 
 ::ng-deep .cy {
     width: 1250px;
@@ -104,4 +102,13 @@ p {
 ::ng-deep  .vertical-menu a.active {
   background-color: #04AA6D;
   color: white;
+}
+
+
+::ng-deep .mat-tab-label {
+  min-width: 25px !important;
+  padding: 5px;
+  background-color: transparent;
+  //color: red;
+  font-weight: 700;
 }

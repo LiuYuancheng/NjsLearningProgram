@@ -6,6 +6,10 @@ import { HttpModule } from '@angular/http';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatProgressBarModule } from '@angular/material/progress-bar'
+import {MatInputModule} from '@angular/material/input';
+
+
+
 // import other modules: 
 import { jqxGridModule } from 'jqwidgets-ng/jqxgrid';
 
@@ -34,6 +38,8 @@ import { NodedetailComponent } from './nodedetail/nodedetail.component';
   imports: [
     CommonModule,
     MatTabsModule,
+    FormsModule,
+    MatInputModule,
     CardModule,
     jqxGridModule,
     MatGridListModule,

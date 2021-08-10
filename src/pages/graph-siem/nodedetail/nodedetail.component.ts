@@ -1,16 +1,19 @@
 import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
-
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 
+//-----------------------------------------------------------------------------
+// Name:        nodedetail.components.ts
+// Purpose:     This module is used to generate a graph to show the nodes and edges
+//              connected to teh selected node. 
+// Author:
+// Created:     2021/07/28
+// Copyright:    n.a    
+// License:      n.a
+//------------------------------------------------------------------------------
+
 cytoscape.use(fcose);
 
-export interface NodeData {
-  id?: String;
-  value?: String;
-  name?: String;
-  subgraphs?: String[];
-}
 
 @Component({
   selector: 'app-nodedetail',
@@ -18,50 +21,38 @@ export interface NodeData {
   //styleUrls: ['./nodedetail.component.scss']
 })
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 export class NodedetailComponent implements OnInit, AfterViewInit {
-  @ViewChild('cyvpn') cyRef: ElementRef;
+  @ViewChild('cygraph') cyRef: ElementRef;
 
-  // temporary use the simple test data
   nodes: cytoscape.NodeDefinition[] = [];
   edges: cytoscape.EdgeDefinition[] = [];
   style: cytoscape.Stylesheet[];
-  //cy: cytoscape.Core;
   cy: any = null;
 
+  private defaultoptions: any; // default layout option.
   private nativeElement: HTMLElement;
-  private options: any;
-  nodeName: String;
-  selectNode: NodeData; 
-  edgelabelStr: string;
+
+  nodeName: String;     // Selected node's name. 
+  edgelabelStr: string; // displayed edge label tamplet in the graph
 
   protected layoutOptions: any = {
-    // name: 'dagre',
-    // name: 'breadthfirst',
-    // name: 'cose',
     name: 'fcose',
-    // name: 'klay',
-    // name: 'cola',
-    // name: 'cose-bilkent',
-    // name: 'concentric',
-    // name: this.layout,
-    // fit: false,
-    // quality: 'proof',
     nodeDimensionsIncludeLabels: true,
     nodeRepulsion: 9000,
     idealEdgeLength: 200,
     nodeSeparation: 50,
     nodeSep: 20,
     fit: true,
-    // flow: { axis: 'y', minSeparation: 80 }
-    // packComponents: false,
-}
+  }
 
-
+  //------------------------------------------------------------------------------
   constructor(element: ElementRef) {
     this.nativeElement = element.nativeElement;
     this.nodeName = "";
     this.edgelabelStr = "";
-    this.options = {
+    this.defaultoptions = {
       name: 'fcose',
       positions: undefined, // map of (node id) => (position obj); or function(node){ return somPos; }
       zoom: 1, // the zoom level to set (prob want fit = false if set)
@@ -76,118 +67,45 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
       stop: undefined, // callback on layoutstop
       transform: function (node, position) { return position; } // transform a given node position. Useful for changing flow direction in discrete layouts 
     };
-
-    this.selectNode = {
-      id: '',
-      value: '',
-      name:'',
-      subgraphs: []
-    };
-
   }
 
+  //------------------------------------------------------------------------------
   ngOnInit(): void {
   }
 
-  ngAfterViewInit(): void{
-    this.redraw();
-  }
-  
-  redraw() {
-
-    this.buildGraph();
-    this.cy.zoom({level:1});
-    this.cy.pan({
-      x: 200,
-      y: 200 
-    });
-    this.cy.fit()
-    let layout = this.cy.elements().layout(this.layoutOptions); 
-    layout.run();
+  //------------------------------------------------------------------------------
+  ngAfterViewInit(): void {
+    //this.redraw();
   }
 
-  setlabelStr(tag:string){
-    if(tag == 'score'){
-      this.edgelabelStr = 'data(final_score)';
-    } else if(tag == 'sig'){
-      this.edgelabelStr = 'data(signature)';
-    } else{
-      this.edgelabelStr = '';
-    }
-    this.redraw();
-  }
-
-  setCrtSubGraph(subgraphNames: String, nodesDis: any[], edgesDis: any[]): void {
-    if (nodesDis.length == 0 || edgesDis.length == 0) {
-      this.nodeName = null;
-      //this.clearGraph();
-      return
-    }
-  
-    this.nodeName = subgraphNames;
-    this.nodes = nodesDis;
-    this.edges = edgesDis;
-
-    this.redraw();
-
-    //this.buildGraph();
-    //this.cy.fit();
-  }
-
-
-  buildGraph(){
-
+  // All detail function methods (name sorted by alphabet):
+  //------------------------------------------------------------------------------
+  buildGraph(): void {
+    // Re-init the style build the graph. 
     this.style = <cytoscape.Stylesheet[]>[
       {
-        selector: 'nodes', // default node style
- /*        style: {
-          "width": "20px",
-          "height": "20px",
-          'background-width': '20px',
-          'background-height': '20px',
-          "text-wrap": "ellipsis",
-          "text-max-width": "100px",
-          "font-size": "6px",
-          "text-valign": "bottom",
-          "text-halign": "center",
-          "background-color": "#e9c46a",
-          "background-opacity": 2,
-          "text-outline-color": "#555",
-          "text-outline-width": "1px",
-          "color": "#FFFFFF",
-          "border-color": "#33FFFC",
-          "overlay-padding": "6px",
-          "padding": "0",
-          //'shape': 'round-rectangle',
-          'background-image': 'assets/images/icons/ip.png',
-          'label': 'data(id)',
-        } */
+        selector: 'nodes',
         style: {
-          'label': 'data(id)',
+          "label": 'data(id)',
           "width": "40px",
           "height": "40px",
-          'background-width': '40px',
-          'background-height': '40px',
+          "background-widt": '40px',
+          "background-height": '40px',
           "text-wrap": "ellipsis",
           "text-max-width": "100px",
           "font-size": "8px",
           "text-valign": "bottom",
           "text-halign": "center",
-          "background-color":"#e9c46a",
+          "background-color": "#e9c46a",
           "background-opacity": 1,
-          // "text-outline-color": "#555",
-          // "text-outline-width": "2px",
           "color": "#fff",
-          // "overlay-padding": "6px",
-          // "padding": "0",
-          // 'shape': 'round-rectangle',
           "background-image": 'assets/images/icons/ip.png',
         }
       },
       {
         selector: 'node[id *= "' + this.nodeName + '"]',
         style: {
-          'label': 'data(id)',
+          "label": 'data(id)',
           "width": "60px",
           "height": "60px",
           "background-color": "#e76f51",
@@ -230,53 +148,23 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           "line-color": "#e76f51",
         }
       },
-
-
-
-      {
-        selector: 'node[type= "bendPoint"]',
-        style: {
-          'width': '1.00001px',
-          'height': '1.00001px'
-        }
-      },
-      {
-        selector: 'node[type = "node"]',
-        style: {
-          'width': '60px',
-          'height': '40px',
-          'content': 'data(id)',
-          'font-size': 6,
-          'text-valign': 'center',
-          'text-halign': 'center'
-        }
-      },
-      {
-        selector: 'edge[type = "bendPoint" ]',
-        style: {
-          'width': 1,
-          'target-arrow-shape': 'none',
-          'opacity': 1
-        }
-      },
     ];
 
     this.cy = cytoscape({
       container: this.cyRef.nativeElement,
       boxSelectionEnabled: false,
-      //container:document.getElementById('cy'),
       elements: {
         nodes: this.nodes,
         edges: this.edges,
       },
       style: this.style,
-      layout: this.options,
+      layout: this.defaultoptions,
       autoungrabify: true,
       wheelSensitivity: 0.25,
       minZoom: 0.1,
       maxZoom: 5,
     });
-
+    // pop up detail information when mouse over. 
     this.cy.on('mouseover', 'node', evt => {
       let node = evt.target;
       node.popperRef = node.popper({
@@ -284,10 +172,10 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           let div = document.createElement('div');
           div.classList.add("popper");
           //div.innerHTML = 'Node : ' + node.id()+'<br> subgraph : [' + node.data('subgraphs')+']';
-          div.innerHTML = '<p style="font-size:14px;">Node ID: ' + node.id()+'</p>'+
-                          '<p style="font-size:10px;">Node Name: ' + node.id()+'</p>'+
-                          '<p style="font-size:10px;">Node Geo: ' + node.data('geo')+'</p>'+
-                          '<p style="font-size:10px;">Parent subgraph : [' + node.data('subgraphs')+']</p>';
+          div.innerHTML = '<p style="font-size:14px;">Node ID: ' + node.id() + '</p>' +
+            '<p style="font-size:10px;">Node Name: ' + node.name() + '</p>' +
+            '<p style="font-size:10px;">Node Geo: ' + node.data('geo') + '</p>' +
+            '<p style="font-size:10px;">Parent subgraph : [' + node.data('subgraphs') + ']</p>';
           document.body.appendChild(div);
           return div;
         },
@@ -310,23 +198,21 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
         node.popperRef = null;
       }
     })
-    //this.
-    this.cy.zoom({level:1});
 
+    this.cy.zoom({ level: 1 });
   }
 
-
-  evtListener() {
+  //------------------------------------------------------------------------------
+  evtListener(): void {
     this.cy.one('tap', (event) => {
       var evtTarget = event.target;
-      if(evtTarget==null){
+      if (evtTarget == null) {
         return;
       }
       if (evtTarget.isNode()) {
         //this.menuState = 'out';
       }
       else if (evtTarget.isEdge()) {
-  
         //this.menuState = 'out';
       }
       else {
@@ -334,23 +220,43 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
         //this.menuState = 'in';
       }
     });
-    
-
-    /*this.cy.on('mousedown', (event) => {
-      var evtTarget = event.target;
-      console.log('here now');
-      this.cy.edgehandles('drawon');
-    });
-
-    this.cy.on('mouseup', (event) =>{
-      var evtTarget = event.target;
-      console.log('quit now');
-      this.cy.edgehandles('drawoff');
-    });*/
   }
 
+  //------------------------------------------------------------------------------
+  setEdgeLabelStr(tag: string) {
+    if (tag == 'score') {
+      this.edgelabelStr = 'data(final_score)';
+    } else if (tag == 'sig') {
+      this.edgelabelStr = 'data(signature)';
+    } else {
+      this.edgelabelStr = '';
+    }
+    this.redraw();
+  }
 
+  //------------------------------------------------------------------------------
+  setCrtSubGraph(subgraphNames: String, nodesDis: any[], edgesDis: any[]): void {
+    // Create the subgraph current shown in the display area.
+    if (nodesDis.length == 0 || edgesDis.length == 0) {
+      this.nodeName = null;
+      //this.clearGraph();
+      return
+    }
+    this.nodeName = subgraphNames;
+    this.nodes = nodesDis;
+    this.edges = edgesDis;
+    this.redraw();
+  }
 
-
+  //------------------------------------------------------------------------------
+  redraw(): void {
+    // redraw the graph
+    this.buildGraph();
+    this.cy.zoom({ level: 1 });
+    this.cy.pan({ x: 200, y: 200 });
+    this.cy.fit()
+    let layout = this.cy.elements().layout(this.layoutOptions);
+    layout.run();
+  }
 
 }

@@ -60,7 +60,7 @@ export interface EdgeDataType {
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 export class CytoscapeComponent implements OnInit, AfterViewInit {
-  @ViewChild('cyvpn') cyRef: ElementRef;
+  @ViewChild('cygraph') cyRef: ElementRef;
   @Output("parentFun") parentFun: EventEmitter<any> = new EventEmitter();
   static MY_COLOR: string = Colors.COLORS[0];
   static NODE_COLOR: string = Colors.COLORS[3];
@@ -88,6 +88,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   subGpar:string ='';
   subGid:string =  '';
   subGscore:number = 0;
+  selectEdgeIdx:Number = -1;
   subGcon:string[] = [];
 
   protected layoutOptions: any = {
@@ -154,6 +155,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "background-image": 'assets/images/icons/ip.png',
         }
       },
+
       {
         selector: 'node:selected',
         style: {
@@ -167,12 +169,14 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "text-outline-color": "#e76f51"
         }
       },
+
       {
         selector: 'node[type = "other"]',
         style: {
           'background-image': 'assets/images/icons/ep.png',
         }
       },
+
       {
         selector: 'edges', // default edge style
         style: {
@@ -195,6 +199,19 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           "color": "yellow",
           "border-color": "yellow",
         }
+      },
+
+       {
+         selector: 'edge[idx='+this.selectEdgeIdx+']', // default edge style
+         style: {
+           'select':true,
+           'width': 2,
+          'curve-style': 'bezier',
+          'target-arrow-shape': 'triangle',
+          "font-size": "12px",
+           "color": "yellow",
+           "line-color": "yellow",
+         }
       },
       // {
       //   selector: '[target = "' + this.selectNode['id'] + '"]',
@@ -220,13 +237,11 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     };
 
     this.nodePopperRef = null;
-
   }
 
   //-----------------------------------------------------------------------------
   ngOnInit(): void {
     //this.redraw();
-    //this.primengConfig.ripple = true;
   }
 
   //-----------------------------------------------------------------------------
@@ -234,28 +249,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     //this.redraw()
   }
 
-  //-----------------------------------------------------------------------------
-  redraw(): void {
-    // Redraw the graph.
-    this.buildGraph();
-    this.cy.zoom({level:2});
-    this.cy.pan({
-      x: 200,
-      y: 200 
-    });
-    this.cy.fit()
-    let layout = this.cy.elements().layout(this.layoutOptions); 
-    layout.run();
-  }
-
-  //-----------------------------------------------------------------------------
-  clearGraph() : void {
-    // clear the graph for redrow.
-    if (this.cy != null) {
-      this.cy.destroy();
-    }
-  }
-
+  // All detail function methods (name sorted by alphabet):
   //-----------------------------------------------------------------------------
   buildGraph() : void {
     // Create the cytoscape graph. 
@@ -359,54 +353,10 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.cy.cxtmenu( defaults );
   }
 
-  //-----------------------------------------------------------------------------  
-  showNodeDetail(nodeID:String) : void {
-    // Call the parent function
-    //console.log('call parent function', nodeID);
-    this.parentFun.emit(nodeID);
-  }
-
-//-----------------------------------------------------------------------------  
-  // setCrtGraph(ghNmae: String) {
-  // // Currently not used. 
-  //   if (ghNmae == 'windows') {
-  //     this.nodes = elementsW['nodes'];
-  //     this.edges = elementsW['edges'];
-  //   }
-  //   else if (ghNmae == 'snort') {
-  //     this.nodes = elementsS['nodes'];
-  //     this.edges = elementsS['edges'];
-  //   }
-  //   else if (ghNmae == 'fortinet') {
-  //     this.nodes = elementsF['nodes'];
-  //     this.edges = elementsF['edges'];
-  //   }
-  //   else {
-  //     this.nodes = elementsL['nodes'];
-  //     this.edges = elementsL['edges'];
-  //   }
-  // }
-
-  //----------------------------------------------------------------------------- 
-  setCrtSubGraph(subgraphNames: string[], nodesDis: any[], edgesDis: any[]): void {
-    // update the current displayed subgraph
-    if (nodesDis.length == 0 || edgesDis.length == 0) {
-      this.subgraphNameArr = [];
-      this.clearGraph();
-      return
-    }
-    this.subgraphNameArr = subgraphNames;
-    this.nodes = nodesDis;
-    this.edges = edgesDis;
-    this.redraw();
-  }
-
-  //----------------------------------------------------------------------------- 
-  setSubgraphInfo(subPar: string, subId: string, subScore: number, subCon: string[]): void {
-    // Set the subgraph info on the left side. 
-    this.subGpar = subPar + ' [ ' + subId + ' ] ';
-    this.subGscore = subScore;
-    this.subGcon = subCon;
+  //-----------------------------------------------------------------------------
+  clearGraph() : void {
+    // clear the current graph for redraw.
+    if (this.cy != null) { this.cy.destroy(); }
   }
 
   //----------------------------------------------------------------------------- 
@@ -454,4 +404,75 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  //----------------------------------------------------------------------------- 
+  setCrtSelect(eleIdx:Number){
+    // set the current selected element. 
+    this.selectEdgeIdx = eleIdx;
+    //this.cy.edges.styles 
+    //this.cy.;
+  }
+
+  //----------------------------------------------------------------------------- 
+  setCrtSubGraph(subgraphNames: string[], nodesDis: any[], edgesDis: any[]): void {
+    // update the current displayed subgraph
+    if (nodesDis.length == 0 || edgesDis.length == 0) {
+      this.subgraphNameArr = [];
+      this.clearGraph();
+      return
+    }
+    this.subgraphNameArr = subgraphNames;
+    this.nodes = nodesDis;
+    this.edges = edgesDis;
+    this.redraw();
+  }
+
+  //----------------------------------------------------------------------------- 
+  setSubgraphInfo(subPar: string, subId: string, subScore: number, subCon: string[]): void {
+    // Set the subgraph info on the left side. 
+    this.subGpar = subPar + ' [ ' + subId + ' ] ';
+    this.subGscore = subScore;
+    this.subGcon = subCon;
+  }  
+
+  //-----------------------------------------------------------------------------  
+  showNodeDetail(nodeID:String) : void {
+    // Call the parent function
+    //console.log('call parent function', nodeID);
+    this.parentFun.emit(nodeID);
+  }
+
+  //-----------------------------------------------------------------------------
+  redraw(): void {
+    // Redraw the graph.
+    this.buildGraph();
+    this.cy.zoom({ level: 2 });
+    this.cy.pan({ x: 200, y: 200 });
+    this.cy.fit()
+    let layout = this.cy.elements().layout(this.layoutOptions); 
+    layout.run();
+  }
+
+
+//-----------------------------------------------------------------------------  
+  // setCrtGraph(ghNmae: String) {
+  // // Currently not used. 
+  //   if (ghNmae == 'windows') {
+  //     this.nodes = elementsW['nodes'];
+  //     this.edges = elementsW['edges'];
+  //   }
+  //   else if (ghNmae == 'snort') {
+  //     this.nodes = elementsS['nodes'];
+  //     this.edges = elementsS['edges'];
+  //   }
+  //   else if (ghNmae == 'fortinet') {
+  //     this.nodes = elementsF['nodes'];
+  //     this.edges = elementsF['edges'];
+  //   }
+  //   else {
+  //     this.nodes = elementsL['nodes'];
+  //     this.edges = elementsL['edges'];
+  //   }
+  // }
+
 }

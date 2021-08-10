@@ -69,6 +69,7 @@ type edgesType = Array<{
   dispersion: Number,
   final_score: Number,
   key: Number,
+  idx: Number,
 }>;
 
 @Component({
@@ -146,7 +147,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     {text: 'Unique_s_port_count', datafield: 'unique_s_port_count', width:'120px'},
     {text: 'Dispersion', datafield: 'dispersion'},
     {text: 'Final_score', datafield: 'final_score'},
-    {text: 'Key', datafield: 'key',  width:'40px'}
+    {text: 'Key', datafield: 'key',  width:'40px'},
+    {text: 'Idx', datafield: 'idx'}
   ];
 
   nodesSrc: any;
@@ -186,7 +188,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 	 });
 
    selectedgraph: string = 'windows';
-   selectednodeID: String =''
+   selectednodeID: String ='';
+   selectedfilter: String = '';
    //nodeIDlist: String[] = [] // list to store all the nodes ID shown in the graph.
    loadProMode: String = "indeterminate";
    theCheckbox = false;
@@ -333,8 +336,6 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 
     console.log("Data to node page", this.nodePrtList);
     
-
-    
     //set the node page sub graph
     this.nodegraph.setCrtSubGraph(nodeID, nodesToNP, edgesToNP);
     
@@ -430,6 +431,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     container.appendChild(createNameValue('Key :', String(this.edgeGridList.getcelltext(index,'key'))));
     rowdetails.appendChild(container);
   }
+
   selectChangeHandler (event: any) {
     //update the ui
     this.loadProMode = "indeterminate"; 
@@ -446,10 +448,15 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     this.cygraph.setSubgraphInfo(this.selectedgraph, '', 0, [])
   }
 
+  filterSelHandler(event: any) {
+    this.selectedfilter = event.target.value;
+    console.log('filterSelHandler', this.selectedfilter);
+  }
 
+  
   selectEdgeLabel (event:any){
     let selectedLb = event.target.value;
-    this.nodegraph.setlabelStr(selectedLb);
+    this.nodegraph.setEdgeLabelStr(selectedLb);
   }
 
   selectRow(event: any){
@@ -474,6 +481,15 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 
     this.cygraph.redraw();
   }
+
+  selectEdgeRow(event: any){
+    let args = event.args;
+    console.log("row selected", args.rowindex)
+    var selectEdgeIdx = this.edgeGridList.getcelltext(args.rowindex,'idx')
+    this.cygraph.setCrtSelect(Number(selectEdgeIdx));
+  }
+
+
 
   buildNodesTable(subgraphNames: string[]){
     console.log('buildNodesTable', subgraphNames)
