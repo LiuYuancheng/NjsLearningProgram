@@ -416,7 +416,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   //----------------------------------------------------------------------------- 
   setCrtSubGraph(subgraphNames: string[], nodesDis: any[], edgesDis: any[]): void {
     // update the current displayed subgraph
-    if (nodesDis.length == 0 || edgesDis.length == 0) {
+    //if (nodesDis.length == 0 || edgesDis.length == 0) {
+    if (nodesDis.length == 0) {
       this.subgraphNameArr = [];
       this.clearGraph();
       return

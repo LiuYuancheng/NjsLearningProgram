@@ -83,6 +83,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
   @ViewChild('edgeGrid') edgeGridList: jqxGridComponent; 
   @ViewChild('cygraph') cygraph: CytoscapeComponent;
   @ViewChild('nodegraph') nodegraph: NodedetailComponent;
+  @ViewChild('filterValue', {read: ElementRef}) filterValue: ElementRef<HTMLElement>;
 
   title = "Graph table";
   selectedIndex = false;
@@ -190,6 +191,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
    selectedgraph: string = 'windows';
    selectednodeID: String ='';
    selectedfilter: String = '';
+   selectedCat: String = 'null';
    //nodeIDlist: String[] = [] // list to store all the nodes ID shown in the graph.
    loadProMode: String = "indeterminate";
    theCheckbox = false;
@@ -452,8 +454,101 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     this.selectedfilter = event.target.value;
     console.log('filterSelHandler', this.selectedfilter);
   }
-
   
+  filterCatHandler(event: any){
+    this.selectedCat = event.target.value;
+  }
+
+  onRebuild(value:string){
+    var subgraphNames = ['filtered'];
+    if (this.selectedfilter == 'nodes') {
+      this.edgesDis = [];
+      this.nodesDis = [];
+      let NodeArr = [];
+      if (this.selectedCat == 'type') {
+        // filter the edge list and build the node name list
+        for (let obj of this.nodes) {
+          if (obj['data'].hasOwnProperty('type')) {
+            if (obj['data']['type'].toString() == value) {
+              this.nodesDis.push(obj);
+              NodeArr.push(obj['data']['id'].toString());
+            }
+          }
+        }
+
+        console.log("node ID:",  NodeArr);
+
+        for (let obj of this.edges) {
+          if (NodeArr.includes((obj['data']['source'])) && NodeArr.includes((obj['data']['target']))) {
+            this.edgesDis.push(obj);
+          }
+        }
+      }else if (this.selectedCat == 'country') {
+        // filter the edge list and build the node name list
+        for (let obj of this.nodes) {
+          if (obj['data'].hasOwnProperty('geo')) {
+            if (obj['data']['geo'][0].toString() == value) {
+              this.nodesDis.push(obj);
+              NodeArr.push(obj['data']['id'].toString());
+            }
+          }
+        }
+
+        console.log("node ID:",  NodeArr);
+
+        for (let obj of this.edges) {
+          if (NodeArr.includes((obj['data']['source'])) && NodeArr.includes((obj['data']['target']))) {
+            this.edgesDis.push(obj);
+          }
+        }
+      }
+    }
+    else if(this.selectedfilter == 'edges') {
+      this.edgesDis = [];
+      this.nodesDis = [];
+      let NodeArr = [value];
+      if(this.selectedCat == 'source'){
+        // filter the edge list and build the node name list
+        for (let obj of this.edges) {
+          if(obj['data']['source'].toString() == value)
+          {
+            this.edgesDis.push(obj);
+            NodeArr.push(obj['data']['target'].toString())
+          }
+        }
+
+        for (let obj of this.nodes) {
+          if(NodeArr.includes(obj['data']['id']) )
+          {
+            this.nodesDis.push(obj);
+          }
+        }
+        
+
+      }
+      else if(this.selectedCat == 'target'){
+        for (let obj of this.edges) {
+          if(obj['data']['target'].toString() == value)
+          {
+            this.edgesDis.push(obj);
+            NodeArr.push(obj['data']['source'].toString())
+          }
+        }
+
+        for (let obj of this.nodes) {
+          if(NodeArr.includes(obj['data']['id']) )
+          {
+            this.nodesDis.push(obj);
+          }
+        }
+        
+      }
+    }
+    // rebuild the graph 
+    this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
+    //this.cygraph.redraw();
+  }
+
   selectEdgeLabel (event:any){
     let selectedLb = event.target.value;
     this.nodegraph.setEdgeLabelStr(selectedLb);

@@ -17,7 +17,7 @@
             <option value="snort">Snort Subgraphs</option>
             <option value="windows">Windows Subgraphs</option>
             <option value="fortinet">Fortinet Subgraphs</option>
-            <option value="linked">Lineked Subgraphs</option>
+            <option value="linked">Linked Subgraphs</option>
           </select>
           <mat-progress-bar mode="{{loadProMode}}" value="100"></mat-progress-bar>
           <!-- <p><span>You selected: </span><b>{{selectedgraph}}</b></p> -->
@@ -42,12 +42,25 @@
           
             <mat-tab label="Filter Config" style="min-width: 50px;">
               <table> 
+
+                <tr> 
+                  <td>
+                    Search Range:
+                  </td>
+                    <select>
+                      <option value="nodes">All Subgraphs</option>
+                      <option value="edges">Subgraph[G0]</option>
+                    </select>
+                </tr>
+
+
                 <tr>
                   <td>
                     Filter target:
                   </td>
                   <td>
                     <select (change)="filterSelHandler($event)">
+                      <option value="null">  </option>
                       <option value="nodes">Nodes</option>
                       <option value="edges">Edges</option>
                     </select>
@@ -60,7 +73,8 @@
                   </td>
                   <td>
                     <div *ngIf="selectedfilter==='nodes'">
-                      <select (change)="filterSelHandler($event)">
+                      <select (change)="filterCatHandler($event)">
+                        <option value="null"> </option>
                         <option value="id">Node ID</option>
                         <option value="type">Type</option>
                         <option value="country">Country Code</option>
@@ -68,7 +82,8 @@
                     </div>
 
                     <div *ngIf="selectedfilter==='edges'">
-                      <select (change)="filterSelHandler($event)">
+                      <select (change)="filterCatHandler($event)">
+                        <option value="null"> </option>
                         <option value="source">Source</option>
                         <option value="target">Target</option>
                         <option value="signature">Signature</option>
@@ -82,22 +97,17 @@
                     Filter value:
                   </td>
                   <td>
-                    <mat-form-field appearance="fill">
-                      <mat-label>Autosize textarea</mat-label>
-                      <textarea matInput
-                                cdkTextareaAutosize
-                                #autosize="cdkTextareaAutosize"
-                                cdkAutosizeMinRows="1"
-                                cdkAutosizeMaxRows="5"></textarea>
-                    </mat-form-field>
-
-
-
+                      <input type="text" #filterValue>
                   </td>
                 </tr>
 
-
-
+                <tr>
+                  <td>
+                    <div *ngIf="selectedCat!=='null'">
+                      <button (click)="onRebuild(filterValue.value)"> rebuild graph</button>
+                    </div>
+                  </td>
+                </tr>
               </table>
         
             </mat-tab>
