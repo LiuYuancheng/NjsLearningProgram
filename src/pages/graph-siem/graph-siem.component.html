@@ -13,12 +13,25 @@
         </div>
       
         <div fxFlex="25%" class="right">
-          <select (change)="selectChangeHandler($event)">
-            <option value="snort">Snort Subgraphs</option>
-            <option value="windows">Windows Subgraphs</option>
-            <option value="fortinet">Fortinet Subgraphs</option>
-            <option value="linked">Linked Subgraphs</option>
-          </select>
+
+          
+          <table style="border-spacing: 1px;">
+            <tr>
+              <td>
+                <select (change)="selectChangeHandler($event)">
+                  <option value="snort">Snort Subgraphs</option>
+                  <option value="windows">Windows Subgraphs</option>
+                  <option value="fortinet">Fortinet Subgraphs</option>
+                  <option value="linked">Linked Subgraphs</option>
+                </select>
+              </td>
+              <td> Filter IP : </td>
+              <td> <input type="text" #subgraphIPfilter> </td>
+              <td> <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> set </button></td>
+            </tr>
+          </table>
+
+
           <mat-progress-bar mode="{{loadProMode}}" value="100"></mat-progress-bar>
           <!-- <p><span>You selected: </span><b>{{selectedgraph}}</b></p> -->
           <jqxGrid #nodeGrid (onRowselect)="selectRow($event)" [source]="subgrapSrc" [width]="'100%'" [height]="'300px'"
@@ -26,15 +39,17 @@
             [columns]="subgrapColumns" [rowdetails]="true" [initrowdetails]="initrowdetails"
             [rowdetailstemplate]="rowdetailstemplate">
           </jqxGrid>
+
+
           <mat-tab-group>
             <mat-tab label="Graph Nodes" style="width: 50px;">
-              <jqxGrid [source]="nodesSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'600px'" [pageable]="true"
+              <jqxGrid [source]="nodesSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'560px'" [pageable]="true"
                 [altrows]="true" [filterable]="true" [sortable]="true" [columns]="nodesLColums" #grid>
               </jqxGrid>
             </mat-tab>
             <mat-tab label="Graph Edges" style="min-width: 50px;">
               <jqxGrid #edgeGrid (onRowselect)="selectEdgeRow($event)" [source]="edgesSrc" [width]="'100%'" [theme]="'metrodark'"
-                [height]="'600px'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
+                [height]="'560px'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
                 [columns]="edgesWColumns" [rowdetails]="true" [initrowdetails]="initedgedetails"
                 [rowdetailstemplate]="edgedetailstemplate">
               </jqxGrid>
@@ -45,12 +60,12 @@
 
                 <tr> 
                   <td>
-                    Search Range:
+                    Search Range: {{subGpar}}
                   </td>
-                    <select>
+                    <!-- <select>
                       <option value="nodes">All Subgraphs</option>
                       <option value="edges">Subgraph[G0]</option>
-                    </select>
+                    </select> -->
                 </tr>
 
 

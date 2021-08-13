@@ -102,7 +102,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
   nodePrtSrc: any;
   nodeRelSrc: any;
   edgeRelSrc: any;
-
+  subGpar:String = '';
 
   nodesDis = [];
   edgesDis = []; 
@@ -549,6 +549,34 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     //this.cygraph.redraw();
   }
 
+
+  onSubGraphFilter(value:string){
+    let nameList = [];
+    for (let obj of this.nodes) {
+      if(obj['data']['id'] == value)
+      {
+        nameList = obj['data']['subgraphs'];
+      }
+    }
+
+    let SubgraphList = [];
+    for(let obj of this.subgrapsSelected){
+      if(nameList.includes(obj['name'])){
+        SubgraphList.push(obj);
+      }
+    }
+
+    console.log("SubgraphList", SubgraphList.toString);
+
+    // set up the node list which sort by score
+    this.subgrapSrc = new jqx.dataAdapter({
+      localData: SubgraphList,
+      sortcolumn: 'score',
+      sortdirection: 'dsc',
+    });
+
+  }
+
   selectEdgeLabel (event:any){
     let selectedLb = event.target.value;
     this.nodegraph.setEdgeLabelStr(selectedLb);
@@ -572,6 +600,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     
     this.cygraph.setSubgraphInfo(this.selectedgraph, subgraphName, subgrapshScore, subgrapshCons)
 
+    this.subGpar = this.selectedgraph + '[' + subgraphName + ']';
     this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
 
     this.cygraph.redraw();
