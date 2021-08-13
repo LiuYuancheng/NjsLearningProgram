@@ -201,17 +201,17 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         }
       },
 
-       {
-         selector: 'edge[idx='+this.selectEdgeIdx+']', // default edge style
-         style: {
-           'select':true,
-           'width': 2,
+      {
+        selector: 'edge[idx=' + this.selectEdgeIdx + ']', // marked edge style
+        style: {
+          'select': true,
+          'width': 2,
           'curve-style': 'bezier',
           'target-arrow-shape': 'triangle',
           "font-size": "12px",
-           "color": "yellow",
-           "line-color": "yellow",
-         }
+          "color": "e76f51",
+          "line-color": "e76f51",
+        }
       },
       // {
       //   selector: '[target = "' + this.selectNode['id'] + '"]',
@@ -409,8 +409,21 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   setCrtSelect(eleIdx:Number){
     // set the current selected element. 
     this.selectEdgeIdx = eleIdx;
-    //this.cy.edges.styles 
-    //this.cy.;
+    console.log("selected edge:", this.selectEdgeIdx)
+    this.style.pop();
+    this.style.push({
+      selector: 'edge[idx=' + this.selectEdgeIdx + ']', // marked edge style
+      style: {
+        'width': 2,
+        'curve-style': 'bezier',
+        'target-arrow-shape': 'triangle',
+        "font-size": "12px",
+        "color": "e76f51",
+        "line-color": "e76f51",
+
+      }
+    });
+    this.redraw();
   }
 
   //----------------------------------------------------------------------------- 
@@ -453,7 +466,6 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     let layout = this.cy.elements().layout(this.layoutOptions); 
     layout.run();
   }
-
 
 //-----------------------------------------------------------------------------  
   // setCrtGraph(ghNmae: String) {

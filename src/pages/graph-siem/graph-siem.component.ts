@@ -109,7 +109,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 
   nodesW: nodeType = [];
   edgesW: edgesType = [];
-
+  graphFilter: String = 'none';
+  filterStrExpl: String = ' ';
 
   subgrapColumns = [
 		{text: 'ID', datafield: 'name', width:'50px' },
@@ -450,6 +451,36 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
     this.cygraph.setSubgraphInfo(this.selectedgraph, '', 0, [])
   }
 
+  selectFilterHandler(event: any){
+    //let sel = 
+    this.graphFilter = event.target.value;
+    switch(this.graphFilter){
+      case 'nodeIP': {
+        this.filterStrExpl = 'Example:127.0.0.1';
+        break;
+      }
+      case 'score': {
+        this.filterStrExpl = 'Example:<=6.0';
+        break;
+      }
+      case 'consquences':{
+        this.filterStrExpl = 'Example:Read Data';
+        break;
+      }
+      default: {
+        // reset the filter
+        this.filterStrExpl = '';
+        this.subgrapSrc = new jqx.dataAdapter({
+          localData: this.subgrapsSelected,
+          sortcolumn: 'score',
+          sortdirection: 'dsc',
+        });
+        break;
+      }
+    }
+  }
+  
+
   filterSelHandler(event: any) {
     this.selectedfilter = event.target.value;
     console.log('filterSelHandler', this.selectedfilter);
@@ -551,22 +582,43 @@ export class GraphSiemComponent implements AfterViewInit, OnInit{
 
 
   onSubGraphFilter(value:string){
-    let nameList = [];
-    for (let obj of this.nodes) {
-      if(obj['data']['id'] == value)
-      {
-        nameList = obj['data']['subgraphs'];
-      }
+    if(value.includes(':')){
+      this.filterStrExpl = value.split(':')[1];
+    }
+    else{
+      this.filterStrExpl = value;
     }
 
+    //console.log("onSubGraphFilter", this.filterStrExpl);
+
+    // filter By Node ID
     let SubgraphList = [];
-    for(let obj of this.subgrapsSelected){
-      if(nameList.includes(obj['name'])){
-        SubgraphList.push(obj);
+    switch (this.graphFilter) {
+      case "nodeIP": {
+        let nameList = [];
+        for (let obj of this.nodes) {
+          if (obj['data']['id'] == this.filterStrExpl)
+            nameList = obj['data']['subgraphs'];
+        }
+        for (let obj of this.subgrapsSelected) {
+          if (nameList.includes(obj['name']))
+            SubgraphList.push(obj);
+        }
+        console.log("SubgraphList", SubgraphList.toString);
+        break;
+      }
+
+      case 'score':{
+        let numReg = '/[+-]?\d+(\.\d+)?/g';
+        let found = this.filterStrExpl.match(numReg);
+        if(found.length == 0) break;
+          if(this.filterStrExpl.includes('<')){
+            
+        }
+      }
+      default:{
       }
     }
-
-    console.log("SubgraphList", SubgraphList.toString);
 
     // set up the node list which sort by score
     this.subgrapSrc = new jqx.dataAdapter({

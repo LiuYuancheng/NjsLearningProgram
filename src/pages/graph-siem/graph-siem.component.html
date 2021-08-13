@@ -13,26 +13,31 @@
         </div>
       
         <div fxFlex="25%" class="right">
-
-          
+          <select (change)="selectChangeHandler($event)">
+            <option value="snort">Snort Subgraphs</option>
+            <option value="windows">Windows Subgraphs</option>
+            <option value="fortinet">Fortinet Subgraphs</option>
+            <option value="linked">Linked Subgraphs</option>
+          </select>
+          <p> </p>
           <table style="border-spacing: 1px;">
             <tr>
-              <td>
-                <select (change)="selectChangeHandler($event)">
-                  <option value="snort">Snort Subgraphs</option>
-                  <option value="windows">Windows Subgraphs</option>
-                  <option value="fortinet">Fortinet Subgraphs</option>
-                  <option value="linked">Linked Subgraphs</option>
+              <td> Graphs Filter : </td>
+              <td> 
+                <select (change)="selectFilterHandler($event)">
+                  <option value="none"> </option>
+                  <option value="nodeIP">Node IP</option>
+                  <option value="score">Score</option>
+                  <option value="consquences">Consquence</option>
                 </select>
               </td>
-              <td> Filter IP : </td>
-              <td> <input type="text" #subgraphIPfilter> </td>
-              <td> <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> set </button></td>
+              <td> <input [value]="filterStrExpl" type="text" #subgraphIPfilter> </td>
+              <td> <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> Query </button></td>
             </tr>
           </table>
 
 
-          <mat-progress-bar mode="{{loadProMode}}" value="100"></mat-progress-bar>
+          <!-- <mat-progress-bar mode="{{loadProMode}}" value="100"></mat-progress-bar> -->
           <!-- <p><span>You selected: </span><b>{{selectedgraph}}</b></p> -->
           <jqxGrid #nodeGrid (onRowselect)="selectRow($event)" [source]="subgrapSrc" [width]="'100%'" [height]="'300px'"
             [theme]="'metrodark'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
