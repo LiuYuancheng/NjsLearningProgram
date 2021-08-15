@@ -86,11 +86,12 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
       {
         selector: 'nodes',
         style: {
-          "label": 'data(id)',
-          "width": "40px",
-          "height": "40px",
-          "background-widt": '40px',
-          "background-height": '40px',
+
+          'label': 'data(id)',
+          "width": "60px",
+          "height": "60px",
+          'background-width': '60px',
+          'background-height': '60px',
           "text-wrap": "ellipsis",
           "text-max-width": "100px",
           "font-size": "8px",
@@ -98,7 +99,12 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           "text-halign": "center",
           "background-color": "#e9c46a",
           "background-opacity": 1,
+          // "text-outline-color": "#555",
+          // "text-outline-width": "2px",
           "color": "#fff",
+          // "overlay-padding": "6px",
+          // "padding": "0",
+          // 'shape': 'round-rectangle',
           "background-image": 'assets/images/icons/ip.png',
         }
       },

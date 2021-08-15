@@ -204,13 +204,14 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       {
         selector: 'edge[idx=' + this.selectEdgeIdx + ']', // marked edge style
         style: {
-          'select': true,
+          //'select': true,
           'width': 2,
           'curve-style': 'bezier',
           'target-arrow-shape': 'triangle',
           "font-size": "12px",
           "color": "e76f51",
           "line-color": "e76f51",
+          
         }
       },
       // {
@@ -406,24 +407,58 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   }
 
   //----------------------------------------------------------------------------- 
-  setCrtSelect(eleIdx:Number){
+  setCrtSelectEdge(eleIdx:Number){
     // set the current selected element. 
     this.selectEdgeIdx = eleIdx;
     console.log("selected edge:", this.selectEdgeIdx)
-    this.style.pop();
-    this.style.push({
-      selector: 'edge[idx=' + this.selectEdgeIdx + ']', // marked edge style
-      style: {
-        'width': 2,
-        'curve-style': 'bezier',
-        'target-arrow-shape': 'triangle',
-        "font-size": "12px",
-        "color": "e76f51",
-        "line-color": "e76f51",
-
+    let edges = this.cy.$('edges');
+    for(let edge of edges){
+      if(edge.selected())
+        edge.unselect();
+      if( edge.data('idx') == this.selectEdgeIdx){
+        edge.select();
+        this.selectEdge = {
+          source: edge.data('source'),
+          target: edge.data('target'),
+          signature_id: edge.data('signature_id'),
+          signature: edge.data('signature'),
+          dispersion: edge.data('dispersion'),
+          span: edge.data('span'),
+          unique_s_port_count: edge.data('unique_s_port_count'),
+          gini_s_port: edge.data('gini_s_port'),
+          unique_t_port_count: edge.data('unique_t_port_count'),
+          gini_t_port: edge.data('gini_t_port'),
+          final_score: edge.data('final_score'),
+          key: edge.data('key')
+        };
+        this.showNode = false;
+        this.showEdge = true;
       }
-    });
-    this.redraw();
+    }
+  }
+
+  setCrtSelectNode(nodeId:String){
+    let nodes = this.cy.$('nodes');
+    for(let node of nodes){
+      if(node.selected())
+      node.unselect();
+      if( node.data('id') == nodeId){
+        node.select();
+        this.selectNode = {
+          id: node.data('id'),
+          value: node.data('value'),
+          name: node.data('name'),
+          geo:node.data('geo'),
+          subgraphs: node.data('subgraphs')
+        };
+        this.showNode = true;
+        if (this.selectNode['subgraphs'].includes('unknown')){
+          this.showContry = false;
+        }
+        this.showEdge = false;
+      }
+    }
+
   }
 
   //----------------------------------------------------------------------------- 

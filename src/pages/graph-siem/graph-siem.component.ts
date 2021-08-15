@@ -81,6 +81,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   @ViewChild('nodeGrid') nodeGridList: jqxGridComponent;
   @ViewChild('subGrid') subGridList: jqxGridComponent;
   @ViewChild('edgeGrid') edgeGridList: jqxGridComponent;
+  @ViewChild('ndGrid') ndGridList: jqxGridComponent;
   @ViewChild('cygraph') cygraph: CytoscapeComponent;
   @ViewChild('nodegraph') nodegraph: NodedetailComponent;
   @ViewChild('filterValue', { read: ElementRef }) filterValue: ElementRef<HTMLElement>;
@@ -284,7 +285,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
 
 
     // buidl the edges table: 
-    this.buildEdgesTable([]);
+    this.buildEdgesTable('');
   }
 
   parentFun(nodeID: String): void {
@@ -556,8 +557,6 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
           });
         }
       }
-
-
     }
 
     this.nodesSrc = new jqx.dataAdapter({
@@ -566,10 +565,9 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.edgesSrc = new jqx.dataAdapter({
       localData: edegsFilW
     });
+
     this.cygraph.setCrtSubGraph(subgraphNames, nodesFilDis, edgesFilDis);
     this.cygraph.redraw();
-
-
 
   }
 
@@ -767,9 +765,16 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
 
   selectEdgeRow(event: any) {
     let args = event.args;
-    console.log("row selected", args.rowindex)
+    console.log("Edge row selected", args.rowindex)
     var selectEdgeIdx = this.edgeGridList.getcelltext(args.rowindex, 'idx')
-    this.cygraph.setCrtSelect(Number(selectEdgeIdx));
+    this.cygraph.setCrtSelectEdge(Number(selectEdgeIdx));
+  }
+
+  selectNodeRow(event:any){
+    let args = event.args;
+    console.log("Node row selected", args.rowindex)
+    var selectNodeIdx = this.ndGridList.getcelltext(args.rowindex, 'id')
+    this.cygraph.setCrtSelectNode(selectNodeIdx);
   }
 
   buildNodesTable(subgName: string) {

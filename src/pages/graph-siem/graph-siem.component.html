@@ -48,8 +48,9 @@
 
           <mat-tab-group>
             <mat-tab label="Graph Nodes" style="width: 50px;">
-              <jqxGrid [source]="nodesSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'560px'" [pageable]="true"
-                [altrows]="true" [filterable]="true" [sortable]="true" [columns]="nodesLColums" #grid>
+              <jqxGrid #ndGrid (onRowselect)="selectNodeRow($event)" [source]="nodesSrc" [width]="'100%'" [theme]="'metrodark'" 
+                [height]="'560px'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true" 
+                [columns]="nodesLColums" #grid>
               </jqxGrid>
             </mat-tab>
             <mat-tab label="Graph Edges" style="min-width: 50px;">
