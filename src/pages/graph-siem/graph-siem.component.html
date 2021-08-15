@@ -22,13 +22,13 @@
           <p> </p>
           <table style="border-spacing: 1px;">
             <tr>
-              <td> Graphs Filter : </td>
+              <td>Graph Filter:</td>
               <td> 
                 <select (change)="selectFilterHandler($event)">
                   <option value="none"> </option>
                   <option value="nodeIP">Node IP</option>
                   <option value="score">Score</option>
-                  <option value="consquences">Consquence</option>
+                  <option value="consequences">Consequences</option>
                 </select>
               </td>
               <td> <input [value]="filterStrExpl" type="text" #subgraphIPfilter> </td>
@@ -65,14 +65,16 @@
 
                 <tr> 
                   <td>
-                    Search Range: {{subGpar}}
+                    Search Range: 
                   </td>
                     <!-- <select>
                       <option value="nodes">All Subgraphs</option>
                       <option value="edges">Subgraph[G0]</option>
                     </select> -->
+                    <td>
+                      {{subGpar}}
+                    </td>
                 </tr>
-
 
                 <tr>
                   <td>
@@ -81,13 +83,14 @@
                   <td>
                     <select (change)="filterSelHandler($event)">
                       <option value="null">  </option>
-                      <option value="nodes">Nodes</option>
-                      <option value="edges">Edges</option>
+                      <option value="nodes">Node ID</option>
+                      <option value="edges">Edges Signature</option>
                     </select>
                   </td>
 
                 </tr>
-                <tr>
+                
+<!--                 <tr>
                   <td>
                     Filter field:
                   </td>
@@ -110,7 +113,7 @@
                       </select>
                     </div>
                   </td>
-                </tr>
+                </tr> -->
 
                 <tr>
                   <td>
@@ -119,19 +122,16 @@
                   <td>
                       <input type="text" #filterValue>
                   </td>
-                </tr>
-
-                <tr>
+                  
                   <td>
-                    <div *ngIf="selectedCat!=='null'">
-                      <button (click)="onRebuild(filterValue.value)"> rebuild graph</button>
+                    <div *ngIf="selectedfilter!=='null'">
+                      <!-- <button (click)="onRebuild(filterValue.value)"> Query</button> -->
+                      <button (click)="rebuildFiltergraph(filterValue.value)"> Query</button>
                     </div>
                   </td>
                 </tr>
               </table>
-        
             </mat-tab>
-
           </mat-tab-group>
         </div>
       </div>
