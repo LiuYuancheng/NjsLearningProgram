@@ -26,13 +26,17 @@
               <td> 
                 <select (change)="selectFilterHandler($event)">
                   <option value="none"> </option>
-                  <option value="nodeIP">Node IP</option>
+                  <option value="nodeIP">Node ID</option>
                   <option value="score">Score</option>
                   <option value="consequences">Consequences</option>
                 </select>
               </td>
               <td> <input [value]="filterStrExpl" type="text" #subgraphIPfilter> </td>
-              <td> <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> Query </button></td>
+              <td> <!-- <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> Query </button> -->
+                <div *ngIf="graphFilter!=='none'">
+                  <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> Query </button>
+                </div>
+              </td>
             </tr>
           </table>
 

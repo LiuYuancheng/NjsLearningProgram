@@ -144,11 +144,16 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     { text: 'Target', datafield: 'target', width: '100px' },
     { text: 'Signature', datafield: 'signature', width: '200px' },
     { text: 'Gini_t_port', datafield: 'gini_t_port' },
+    { text: 'Logtype', datafield: 'logtype', width: '80px' },
+    { text: 'Start_timestamp', datafield: 'start_timestamp' },
     { text: 'Span', datafield: 'span', width: '80px' },
+    { text: 'NumOfEvents', datafield: 'NumOfEvents' },
     { text: 'Unique_t_port_count', datafield: 'unique_t_port_count', width: '120px' },
+    { text: 'T_port_values', datafield: 't_port_values' },
     { text: 'Gini_s_port', datafield: 'gini_s_port' },
     { text: 'Signature_id', datafield: 'signature_id' },
     { text: 'Unique_s_port_count', datafield: 'unique_s_port_count', width: '120px' },
+    { text: 'S_port_values', datafield: 's_port_values' },
     { text: 'Dispersion', datafield: 'dispersion' },
     { text: 'Final_score', datafield: 'final_score' },
     { text: 'Key', datafield: 'key', width: '40px' },
@@ -165,31 +170,6 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     { text: 'Id', datafield: 'id' },
     { text: 'Name', datafield: 'name' }
   ];
-
-  source = new jqx.dataAdapter({
-    localData: [
-      { id: 1, name: 'Hydrogen' },
-      { id: 2, name: 'Helium' },
-      { id: 3, name: 'Lithium' },
-      { id: 4, name: 'Beryllium' },
-      { id: 5, name: 'Boron' },
-      { id: 6, name: 'Carbon' },
-      { id: 7, name: 'Nitrogen' },
-      { id: 8, name: 'Oxygen' },
-      { id: 9, name: 'Fluorine' },
-      { id: 10, name: 'Neon' },
-      { id: 11, name: 'Sodium' },
-      { id: 12, name: 'Magnesium' },
-      { id: 13, name: 'Aluminum' },
-      { id: 14, name: 'Silicon' },
-      { id: 15, name: 'Phosphorus' },
-      { id: 16, name: 'Sulfur' },
-      { id: 17, name: 'Chlorine' },
-      { id: 18, name: 'Argon' },
-      { id: 19, name: 'Potassium' },
-      { id: 20, name: 'Calcium' }
-    ]
-  });
 
   selectedgraph: string = 'windows';
   selectednodeID: String = '';
@@ -268,7 +248,6 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
       localData: this.nodePrtList,
     });
 
-
     this.nodeRelList.push({
       "name": "0",
       "score": 0,
@@ -281,8 +260,6 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.edgeRelSrc = new jqx.dataAdapter({
       localData: [],
     });
-
-
 
     // buidl the edges table: 
     this.buildEdgesTable('');

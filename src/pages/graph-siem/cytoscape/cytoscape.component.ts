@@ -36,7 +36,12 @@ export interface EdgeDataType {
   target?: String;
   gini_t_port?: Number;
   signature?: String[];
+  NumOfEvents?: Number;
+  logtype?:String;
   unique_t_port_count?: Number;
+  t_port_values?: String[];
+  s_port_values?: String[];
+  start_timestamp: String;
   gini_s_port?: Number;
   signature_id?: String[];
   span?: Number;
@@ -227,7 +232,12 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       target: '',
       gini_t_port: 0,
       signature: [],
+      NumOfEvents: 0,
+      logtype:'',
       unique_t_port_count: 0,
+      t_port_values: [],
+      s_port_values: [],
+      start_timestamp: '',
       gini_s_port: 0,
       signature_id: [],
       span: 0,
@@ -365,40 +375,13 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     // Handle the node and edge click event. 
     this.cy.one('tap', (event) => {
       var evtTarget = event.target;
-      if(evtTarget==null){ return;}
+      if (evtTarget == null) { return; }
       if (evtTarget.isNode()) {
-        this.selectNode = {
-          id: evtTarget.data('id'),
-          value: evtTarget.data('value'),
-          name: evtTarget.data('name'),
-          geo:evtTarget.data('geo'),
-          subgraphs: evtTarget.data('subgraphs')
-        };
-        this.showNode = true;
-        if (this.selectNode['subgraphs'].includes('unknown')){
-          this.showContry = false;
-        }
-        this.showEdge = false;
+        this.setElementInfo('node', evtTarget);
         //this.visibleSidebar2 = true;
       }
       else if (evtTarget.isEdge()) {
-        this.selectEdge = {
-          source: evtTarget.data('source'),
-          target: evtTarget.data('target'),
-          signature_id: evtTarget.data('signature_id'),
-          signature: evtTarget.data('signature'),
-          dispersion: evtTarget.data('dispersion'),
-          span: evtTarget.data('span'),
-          unique_s_port_count: evtTarget.data('unique_s_port_count'),
-          gini_s_port: evtTarget.data('gini_s_port'),
-          unique_t_port_count: evtTarget.data('unique_t_port_count'),
-          gini_t_port: evtTarget.data('gini_t_port'),
-          final_score: evtTarget.data('final_score'),
-          key: evtTarget.data('key')
-        };
-        this.showNode = false;
-        this.showEdge = true;
-        //this.visibleSidebar2 = true;
+        this.setElementInfo('edge', evtTarget);
       }
       else {
         console.log('this is the background');
@@ -407,36 +390,22 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   }
 
   //----------------------------------------------------------------------------- 
-  setCrtSelectEdge(eleIdx:Number){
+  setCrtSelectEdge(eleIdx: Number) {
     // set the current selected element. 
     this.selectEdgeIdx = eleIdx;
     console.log("selected edge:", this.selectEdgeIdx)
     let edges = this.cy.$('edges');
-    for(let edge of edges){
-      if(edge.selected())
+    for (let edge of edges) {
+      if (edge.selected())
         edge.unselect();
-      if( edge.data('idx') == this.selectEdgeIdx){
+      if (edge.data('idx') == this.selectEdgeIdx) {
         edge.select();
-        this.selectEdge = {
-          source: edge.data('source'),
-          target: edge.data('target'),
-          signature_id: edge.data('signature_id'),
-          signature: edge.data('signature'),
-          dispersion: edge.data('dispersion'),
-          span: edge.data('span'),
-          unique_s_port_count: edge.data('unique_s_port_count'),
-          gini_s_port: edge.data('gini_s_port'),
-          unique_t_port_count: edge.data('unique_t_port_count'),
-          gini_t_port: edge.data('gini_t_port'),
-          final_score: edge.data('final_score'),
-          key: edge.data('key')
-        };
-        this.showNode = false;
-        this.showEdge = true;
+        this.setElementInfo('edge', edge);
       }
     }
   }
 
+  //-----------------------------------------------------------------------------
   setCrtSelectNode(nodeId:String){
     let nodes = this.cy.$('nodes');
     for(let node of nodes){
@@ -444,18 +413,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       node.unselect();
       if( node.data('id') == nodeId){
         node.select();
-        this.selectNode = {
-          id: node.data('id'),
-          value: node.data('value'),
-          name: node.data('name'),
-          geo:node.data('geo'),
-          subgraphs: node.data('subgraphs')
-        };
-        this.showNode = true;
-        if (this.selectNode['subgraphs'].includes('unknown')){
-          this.showContry = false;
-        }
-        this.showEdge = false;
+        this.setElementInfo('node', node);
       }
     }
 
@@ -483,6 +441,51 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.subGscore = subScore;
     this.subGcon = subCon;
   }  
+
+  //----------------------------------------------------------------------------- 
+  setElementInfo(eleType:string, eleData:any){
+    // set the element tag display information. 
+    if (eleType == 'node') {
+      this.selectNode = {
+        id: eleData.data('id'),
+        value: eleData.data('value'),
+        name: eleData.data('name'),
+        geo: eleData.data('geo'),
+        subgraphs: eleData.data('subgraphs')
+      };
+      this.showNode = true;
+      if (this.selectNode['subgraphs'].includes('unknown')) {
+        this.showContry = false;
+      }
+      this.showEdge = false;
+    }
+    else if (eleType == 'edge') {
+      this.selectEdge = {
+        source: eleData.data('source'),
+        target: eleData.data('target'),
+        signature_id: eleData.data('signature_id'),
+        signature: eleData.data('signature'),
+        NumOfEvents:eleData.data('NumOfEvents'),
+        logtype:eleData.data('logtype'),
+        dispersion: eleData.data('dispersion'),
+        span: eleData.data('span'),
+        unique_s_port_count: eleData.data('unique_s_port_count'),
+        t_port_values:eleData.data('t_port_values'),
+        s_port_values:eleData.data('s_port_values'),
+        start_timestamp:eleData.data('start_timestamp'),
+        gini_s_port: eleData.data('gini_s_port'),
+        unique_t_port_count: eleData.data('unique_t_port_count'),
+        gini_t_port: eleData.data('gini_t_port'),
+        final_score: eleData.data('final_score'),
+        key: eleData.data('key')
+      };
+      this.showNode = false;
+      this.showEdge = true;
+    }
+    else {
+      console.log("Un-supported element type:", eleType)
+    }
+  }
 
   //-----------------------------------------------------------------------------  
   showNodeDetail(nodeID:String) : void {

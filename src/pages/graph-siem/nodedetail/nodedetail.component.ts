@@ -178,10 +178,10 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           let div = document.createElement('div');
           div.classList.add("popper");
           //div.innerHTML = 'Node : ' + node.id()+'<br> subgraph : [' + node.data('subgraphs')+']';
-          div.innerHTML = '<p style="font-size:14px;">Node ID: ' + node.id() + '</p>' +
-            '<p style="font-size:10px;">Node Name: ' + node.name() + '</p>' +
-            '<p style="font-size:10px;">Node Geo: ' + node.data('geo') + '</p>' +
-            '<p style="font-size:10px;">Parent subgraph : [' + node.data('subgraphs') + ']</p>';
+          div.innerHTML = '<p style="font-size:14px;">Node ID: ' + node.id() + '</p>'; //+
+            //'<p style="font-size:10px;">Node Name: ' + node.name() + '</p>' +
+            //'<p style="font-size:10px;">Node Geo: ' + node.data('geo') + '</p>' +
+            //'<p style="font-size:10px;">Parent subgraph : [' + node.data('subgraphs') + ']</p>';
           document.body.appendChild(div);
           return div;
         },

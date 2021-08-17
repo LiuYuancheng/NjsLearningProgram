@@ -4,7 +4,7 @@
             <!-- #Show subgraph information  -->
             <p> <b>Severity score [0-10] : </b> {{subGscore}} </p>
             <p> <b>Consequences : </b> </p>
-            <div class="vertical-menu">
+            <div class="vertical-menu" style='height: 300px;'>
                 <a *ngFor="let consequences of subGcon"> - {{consequences}} </a>
             </div>
             <!-- #Show selected element information -->
@@ -20,13 +20,18 @@
             </div>
             <div *ngIf="showEdge">
                 <h4>Edge</h4>
-                <div class="vertical-menu" style='height: 450px;'>
+                <div class="vertical-menu" style='height: 550px;'>
                     <a>Source : {{selectEdge?.source}}</a>
                     <a>Target : {{selectEdge?.target}}</a>
                     <a>Gini_t_port : {{selectEdge?.gini_t_port}}</a>
+                    <a>NumOfEvents : {{selectEdge?.NumOfEvents}}</a>
+                    <a>Logtype : {{selectEdge?.logtype}}</a> 
                     <a>Signature : </a>
                     <a *ngFor="let sig of selectEdge?.signature"> - {{sig}}</a>
                     <a>Unique_t_port_count : {{selectEdge?.unique_t_port_count}}</a>
+                    <a>T_port_values : {{selectEdge?.t_port_values}}</a>
+                    <a>S_port_values : {{selectEdge?.s_port_values}}</a>
+                    <a>Start_timestamp : {{selectEdge?.start_timestamp}}</a>
                     <a>Signature_id:</a>
                     <a *ngFor="let sigID of selectEdge?.signature_id"> - {{sigID}}</a>
                     <a>Span : {{selectEdge?.span}}</a>
@@ -36,6 +41,7 @@
                     <a>Key : {{selectEdge?.key}}</a>
                 </div>
             </div>
+            <!-- #Show the cytoscape graph -->
             <div #cygraph [className]="'cy'" (click)="evtListener()"></div>
         </p-card>
     </div>
