@@ -44,7 +44,8 @@ export interface EdgeDataType {
   start_timestamp: String;
   gini_s_port?: Number;
   signature_id?: String[];
-  span?: Number;
+  //span?: Number;
+  spanStr?: String;
   unique_s_port_count?: Number;
   dispersion?: Number;
   final_score?: Number;
@@ -76,6 +77,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   style: cytoscape.Stylesheet[];
   subgraphNameArr: string[];
   cy: any = null;
+  customEdgeStyle: any = [];
   
   selectNode: NodeDataType; 
   selectEdge: EdgeDataType;
@@ -95,6 +97,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   subGscore:number = 0;
   selectEdgeIdx:Number = -1;
   subGcon:string[] = [];
+  edgelabelStr: string; 
+
 
   protected layoutOptions: any = {
     name: 'fcose',
@@ -111,6 +115,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     // Init all parameters
     this.nativeElement = element.nativeElement;
     this.subgraphNameArr = [];
+    this.edgelabelStr = "";
     this.options = {
       name: 'fcose',
       positions: undefined, // map of (node id) => (position obj); or function(node){ return somPos; }
@@ -135,6 +140,43 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       subgraphs: []
     };
 
+    this.selectEdge = {
+      source: '',
+      target: '',
+      gini_t_port: 0,
+      signature: [],
+      NumOfEvents: 0,
+      logtype:'',
+      unique_t_port_count: 0,
+      t_port_values: [],
+      s_port_values: [],
+      start_timestamp: '',
+      gini_s_port: 0,
+      signature_id: [],
+      spanStr: '',
+      unique_s_port_count: 0,
+      dispersion: 0,
+      final_score: 0,
+      key: 0
+    };
+
+    this.nodePopperRef = null;
+  }
+
+  //-----------------------------------------------------------------------------
+  ngOnInit(): void {
+    //this.redraw();
+  }
+
+  //-----------------------------------------------------------------------------
+  ngAfterViewInit(): void {
+    //this.redraw()
+  }
+
+  // All detail function methods (name sorted by alphabet):
+  //-----------------------------------------------------------------------------
+  buildGraph() : void {
+    // Create the cytoscape graph. 
     this.style  = <cytoscape.Stylesheet[]>[
       {
         selector: 'nodes', // default node style
@@ -185,7 +227,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       {
         selector: 'edges', // default edge style
         style: {
-          // 'label': 'data(relationshipType)',
+          'label': this.edgelabelStr,
           'width': 1,
           'curve-style': 'bezier',
           'target-arrow-shape': 'triangle',
@@ -194,31 +236,38 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         }
       },
 
+      // {
+      //   selector: 'edge[idx=0]', // marked edge style
+      //   style: {
+      //     "target-arrow-color": "#e76f51",
+      //     "line-color": "#e76f51",       
+      //   }
+      // },
+      ...this.customEdgeStyle,
       {
         selector: 'edge:selected', // default edge style
         style: {
+          'label': this.edgelabelStr,
           'width': 2,
-          'curve-style': 'bezier',
-          'target-arrow-shape': 'triangle',
           "font-size": "12px",
-          "color": "yellow",
-          "border-color": "yellow",
+          "target-arrow-color": "blue",
+          "line-color": "blue",
         }
       },
 
-      {
-        selector: 'edge[idx=' + this.selectEdgeIdx + ']', // marked edge style
-        style: {
-          //'select': true,
-          'width': 2,
-          'curve-style': 'bezier',
-          'target-arrow-shape': 'triangle',
-          "font-size": "12px",
-          "color": "e76f51",
-          "line-color": "e76f51",
-          
-        }
-      },
+
+      // {
+      //   selector: 'edge[idx=' + this.selectEdgeIdx + ']', // marked edge style
+      //   style: {
+      //     //'select': true,
+      //     'width': 2,
+      //     'curve-style': 'bezier',
+      //     'target-arrow-shape': 'triangle',
+      //     "font-size": "12px",
+      //     "color": "#e76f51",
+      //     "line-color": "#e76f51",          
+      //   }
+      // },
       // {
       //   selector: '[target = "' + this.selectNode['id'] + '"]',
       //   style: {
@@ -226,44 +275,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       //   }
       // },
     ];
-
-    this.selectEdge = {
-      source: '',
-      target: '',
-      gini_t_port: 0,
-      signature: [],
-      NumOfEvents: 0,
-      logtype:'',
-      unique_t_port_count: 0,
-      t_port_values: [],
-      s_port_values: [],
-      start_timestamp: '',
-      gini_s_port: 0,
-      signature_id: [],
-      span: 0,
-      unique_s_port_count: 0,
-      dispersion: 0,
-      final_score: 0,
-      key: 0
-    };
-
-    this.nodePopperRef = null;
-  }
-
-  //-----------------------------------------------------------------------------
-  ngOnInit(): void {
-    //this.redraw();
-  }
-
-  //-----------------------------------------------------------------------------
-  ngAfterViewInit(): void {
-    //this.redraw()
-  }
-
-  // All detail function methods (name sorted by alphabet):
-  //-----------------------------------------------------------------------------
-  buildGraph() : void {
-    // Create the cytoscape graph. 
+    
     this.cy = cytoscape({
       container: this.cyRef.nativeElement,
       boxSelectionEnabled: false,
@@ -395,12 +407,14 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.selectEdgeIdx = eleIdx;
     console.log("selected edge:", this.selectEdgeIdx)
     let edges = this.cy.$('edges');
+    let check = true;
     for (let edge of edges) {
       if (edge.selected())
         edge.unselect();
-      if (edge.data('idx') == this.selectEdgeIdx) {
+      if (edge.data('idx') == this.selectEdgeIdx && check) {
         edge.select();
         this.setElementInfo('edge', edge);
+        check = false;
       }
     }
   }
@@ -468,7 +482,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         NumOfEvents:eleData.data('NumOfEvents'),
         logtype:eleData.data('logtype'),
         dispersion: eleData.data('dispersion'),
-        span: eleData.data('span'),
+        spanStr: eleData.data('spanStr'),
         unique_s_port_count: eleData.data('unique_s_port_count'),
         t_port_values:eleData.data('t_port_values'),
         s_port_values:eleData.data('s_port_values'),
@@ -503,6 +517,64 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.cy.fit()
     let layout = this.cy.elements().layout(this.layoutOptions); 
     layout.run();
+  }
+
+  setEdgeLabelStr(tag: string) {
+
+    if (tag == 'logtype') {
+      this.edgelabelStr = 'data(logtype)';
+    } else if (tag == 'signature') {
+      this.edgelabelStr = 'data(signature)';
+    }
+    else if (tag == 'span') {
+      this.edgelabelStr = 'data(spanStr)';
+    }
+    else if (tag == 'port_values') {
+      this.edgelabelStr = 'data(t_port_values)';
+    }
+    else if (tag == 'start_timestamp') {
+      this.edgelabelStr = 'data(start_timestamp)';
+    }
+    else {
+      this.edgelabelStr = '';
+    }
+    this.redraw();
+  }
+
+  setEdgeColor(tag: string) {
+
+    if (tag == 'color') {
+      this.customEdgeStyle = [
+        {
+          selector: 'edge[logtype="windows"]', // marked edge style
+          style: {
+            "target-arrow-color": "#f4f1de",
+            "line-color": "#f4f1de",
+          }
+        },
+
+        {
+          selector: 'edge[logtype="snort"]', // marked edge style
+          style: {
+            "target-arrow-color": "#2a9d8f",
+            "line-color": "#2a9d8f",
+          }
+        },
+
+        {
+          selector: 'edge[logtype="fortinet"]', // marked edge style
+          style: {
+            "target-arrow-color": "#e9c46a",
+            "line-color": "#e9c46a",
+          }
+        },
+      ];
+    }
+    else{
+      this.customEdgeStyle = [];
+    }
+    this.redraw();
+    
   }
 
 //-----------------------------------------------------------------------------  

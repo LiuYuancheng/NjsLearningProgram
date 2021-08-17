@@ -65,9 +65,9 @@
               </jqxGrid>
             </mat-tab>
           
-            <mat-tab label="Filter Config" style="min-width: 50px;">
+            <mat-tab label="Graph Config" style="min-width: 50px;">
+              <h4>Graph Filter Config </h4>
               <table> 
-
                 <tr> 
                   <td>
                     Search Range: 
@@ -94,32 +94,6 @@
                   </td>
 
                 </tr>
-                
-<!--                 <tr>
-                  <td>
-                    Filter field:
-                  </td>
-                  <td>
-                    <div *ngIf="selectedfilter==='nodes'">
-                      <select (change)="filterCatHandler($event)">
-                        <option value="null"> </option>
-                        <option value="id">Node ID</option>
-                        <option value="type">Type</option>
-                        <option value="country">Country Code</option>
-                      </select>
-                    </div>
-
-                    <div *ngIf="selectedfilter==='edges'">
-                      <select (change)="filterCatHandler($event)">
-                        <option value="null"> </option>
-                        <option value="source">Source</option>
-                        <option value="target">Target</option>
-                        <option value="signature">Signature</option>
-                      </select>
-                    </div>
-                  </td>
-                </tr> -->
-
                 <tr>
                   <td>
                     Filter value:
@@ -136,6 +110,31 @@
                   </td>
                 </tr>
               </table>
+
+              <h4>Graph Display Config</h4>
+                <table>
+                  <tr>
+                  <td> Edges Label:</td>
+                  <td>
+                    <select (change)="setGraphEdgeLable($event)">
+                      <option value="none">No Label</option>
+                      <option value="signature"> Signature</option>
+                      <option value="logtype"> Log type</option>
+                      <option value="port_values"> Port_values [T, S]</option>
+                      <option value="start_timestamp"> Start_timestamp</option>
+                      <option value="span"> Span Value</option>
+                    </select>
+                  </td>
+                  </tr>
+
+                  <tr>
+                    <td> Edges Color:</td>
+                      <select (change)="setGraphEdgeColor($event)">
+                        <option value="gray">Default[gray]</option>
+                        <option value="color">Customized[color]</option>
+                      </select>
+                  </tr>
+                </table>
             </mat-tab>
           </mat-tab-group>
         </div>

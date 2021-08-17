@@ -20,7 +20,9 @@ how to pass value in parent funcion:
 
  <app-cytoscape #cygraph (parentFun)="parentFun($event)"></app-cytoscape>
 
+color set: 
 
+https://coolors.co/palettes/trending
 
 Node selector setup: 
 

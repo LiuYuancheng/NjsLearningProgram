@@ -347,8 +347,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
 
   edgedetailstemplate: any =
     {
-      rowdetails: "<div style='margin: 10px;'></div>",
-      rowdetailsheight: 240
+      rowdetails: "<div style='margin: 10px; height: 330px;'></div>",
+      rowdetailsheight: 330
     };
 
 
@@ -401,9 +401,14 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
 
     let container = document.createElement('table');
     container.appendChild(createNameValue('Signature :', String(this.edgeGridList.getcelltext(index, 'signature'))));
+    container.appendChild(createNameValue('NumOfEvents:', String(this.edgeGridList.getcelltext(index, 'NumOfEvents'))));
+    container.appendChild(createNameValue('Logtype:', String(this.edgeGridList.getcelltext(index, 'logtype'))));
     container.appendChild(createNameValue('Gini_t_port :', String(this.edgeGridList.getcelltext(index, 'gini_t_port'))));
     container.appendChild(createNameValue('Span :', String(this.edgeGridList.getcelltext(index, 'span'))));
     container.appendChild(createNameValue('Unique_t_port_count :', String(this.edgeGridList.getcelltext(index, 'unique_t_port_count'))));
+    container.appendChild(createNameValue('T_port_values :', String(this.edgeGridList.getcelltext(index, 't_port_values'))));
+    container.appendChild(createNameValue('S_port_values :', String(this.edgeGridList.getcelltext(index, 's_port_values'))));
+    container.appendChild(createNameValue('Start_timestamp :', String(this.edgeGridList.getcelltext(index, 'start_timestamp'))));
     container.appendChild(createNameValue('Gini_s_port :', String(this.edgeGridList.getcelltext(index, 'gini_s_port'))));
     container.appendChild(createNameValue('Signature_id :', String(this.edgeGridList.getcelltext(index, 'signature_id'))));
     container.appendChild(createNameValue('Unique_s_port_count :', String(this.edgeGridList.getcelltext(index, 'unique_s_port_count'))));
@@ -709,6 +714,18 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.nodegraph.setEdgeLabelStr(selectedLb);
   }
 
+  setGraphEdgeLable(event: any){
+    let selectedLb = event.target.value;
+    this.cygraph.setEdgeLabelStr(selectedLb);
+  }
+
+  setGraphEdgeColor(event: any){
+    let selectedLb = event.target.value;
+    this.cygraph.setEdgeColor(selectedLb);
+  }
+
+
+
   selectRow(event: any) {
 
     let args = event.args;
@@ -798,7 +815,18 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     for (let obj of this.edges) {
       //if(this.nodeIDlist.indexOf(obj['data']['source']) !== -1 || this.nodeIDlist.indexOf(obj['data']['target']) !== -1)
       if (nodeIDlist.includes(obj['data']['source']) && nodeIDlist.includes(obj['data']['target'])) {
-        obj['data']['span'] = obj['data']['span'] / (60 * 60 * 24);
+        
+        //obj['data']['span'] = obj['data']['span'] / (60 * 60 * 24);
+        //converspan: 
+        if (obj['data']['span']< 3600){
+          obj['data']['spanStr'] = ""+ Number(obj['data']['span']/60).toFixed(1) + "m"; 
+        }
+        else if (obj['data']['span']< 3600*24){
+          obj['data']['spanStr'] = ""+ Number(obj['data']['span']/3600).toFixed(2) + "h"; 
+        }
+        else{
+          obj['data']['spanStr'] = ""+ Number(obj['data']['span']/(3600*24)).toFixed(3) + "d"; 
+        }
         this.edgesDis.push(obj);
         this.edgesW.push(obj['data']);
       }
