@@ -138,5 +138,13 @@ Display control
 
 ##### TODO (04/08/2021): 
 
+1. Introduce the function of each area of the dashboard. 
 
+2. Show the log data set selection area. 
+3. Show "snort" data subgraph G1. 
+4. (optional) Show 'snort' data subgraph G13 and filter by node ID "172.16.0.110"
+5. Show Fortinet data G2. 
+6. Show Fortinet data G0 -> focus  column Signarure -> column Num of Events - > column "Dispersion" 
+7. Switch to snort data -> show subgraph filter with IP 172.16.0.116
+8. Switch to linked data -> show subgraph G2. 
 

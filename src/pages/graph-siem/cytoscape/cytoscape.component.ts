@@ -373,6 +373,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given
     };
 
+    this.showNode = false; 
+    this.showEdge = false;
     this.cy.cxtmenu( defaults );
   }
 
@@ -380,6 +382,8 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   clearGraph() : void {
     // clear the current graph for redraw.
     if (this.cy != null) { this.cy.destroy(); }
+    this.showNode = false; 
+    this.showEdge = false;
   }
 
   //----------------------------------------------------------------------------- 
@@ -388,11 +392,11 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     this.cy.one('tap', (event) => {
       var evtTarget = event.target;
       if (evtTarget == null) { return; }
-      if (evtTarget.isNode()) {
+      if ( typeof evtTarget.isNode === "function" && evtTarget.isNode()) {
         this.setElementInfo('node', evtTarget);
         //this.visibleSidebar2 = true;
       }
-      else if (evtTarget.isEdge()) {
+      else if (typeof evtTarget.isEdge === "function" && evtTarget.isEdge()) {
         this.setElementInfo('edge', evtTarget);
       }
       else {
@@ -513,6 +517,14 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     // Redraw the graph.
     this.buildGraph();
     this.cy.zoom({ level: 2 });
+    this.cy.pan({ x: 200, y: 200 });
+    this.cy.fit()
+    let layout = this.cy.elements().layout(this.layoutOptions); 
+    layout.run();
+  }
+
+  resetLayout(): void{
+    this.cy.zoom({ level: 1 });
     this.cy.pan({ x: 200, y: 200 });
     this.cy.fit()
     let layout = this.cy.elements().layout(this.layoutOptions); 

@@ -78,10 +78,10 @@ type edgesType = Array<{
   styleUrls: ['./graph-siem.component.scss']
 })
 export class GraphSiemComponent implements AfterViewInit, OnInit {
-  @ViewChild('nodeGrid') nodeGridList: jqxGridComponent;
+  @ViewChild('graphGrid') graphGridList: jqxGridComponent;
   @ViewChild('subGrid') subGridList: jqxGridComponent;
   @ViewChild('edgeGrid') edgeGridList: jqxGridComponent;
-  @ViewChild('ndGrid') ndGridList: jqxGridComponent;
+  @ViewChild('nodedGrid') nodeGridList: jqxGridComponent;
   @ViewChild('cygraph') cygraph: CytoscapeComponent;
   @ViewChild('nodegraph') nodegraph: NodedetailComponent;
   @ViewChild('filterValue', { read: ElementRef }) filterValue: ElementRef<HTMLElement>;
@@ -113,6 +113,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   edgesW: edgesType = [];
   graphFilter: String = 'none';
   filterStrExpl: String = ' ';
+  edgesColor:string = 'gray';
 
   subgrapColumns = [
     { text: 'ID', datafield: 'name', width: '50px' },
@@ -146,7 +147,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     { text: 'Gini_t_port', datafield: 'gini_t_port' },
     { text: 'Logtype', datafield: 'logtype', width: '80px' },
     { text: 'Start_timestamp', datafield: 'start_timestamp' },
-    { text: 'Span', datafield: 'span', width: '80px' },
+    { text: 'Span', datafield: 'spanStr', width: '80px' },
     { text: 'NumOfEvents', datafield: 'NumOfEvents' },
     { text: 'Unique_t_port_count', datafield: 'unique_t_port_count', width: '120px' },
     { text: 'T_port_values', datafield: 't_port_values' },
@@ -361,7 +362,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     let rowdetails = parentElement.children[0];
     console.log("rowdetails", index)
 
-    let conString = String(this.nodeGridList.getcelltext(index, 'consequences')).split(',')
+    let conString = String(this.graphGridList.getcelltext(index, 'consequences')).split(',')
 
     const createNameValue = (name, value) => {
       let tr = document.createElement("a");
@@ -404,7 +405,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     container.appendChild(createNameValue('NumOfEvents:', String(this.edgeGridList.getcelltext(index, 'NumOfEvents'))));
     container.appendChild(createNameValue('Logtype:', String(this.edgeGridList.getcelltext(index, 'logtype'))));
     container.appendChild(createNameValue('Gini_t_port :', String(this.edgeGridList.getcelltext(index, 'gini_t_port'))));
-    container.appendChild(createNameValue('Span :', String(this.edgeGridList.getcelltext(index, 'span'))));
+    container.appendChild(createNameValue('Span :', String(this.edgeGridList.getcelltext(index, 'spanStr'))));
     container.appendChild(createNameValue('Unique_t_port_count :', String(this.edgeGridList.getcelltext(index, 'unique_t_port_count'))));
     container.appendChild(createNameValue('T_port_values :', String(this.edgeGridList.getcelltext(index, 't_port_values'))));
     container.appendChild(createNameValue('S_port_values :', String(this.edgeGridList.getcelltext(index, 's_port_values'))));
@@ -720,21 +721,19 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   }
 
   setGraphEdgeColor(event: any){
-    let selectedLb = event.target.value;
-    this.cygraph.setEdgeColor(selectedLb);
+    this.edgesColor = event.target.value;
+    this.cygraph.setEdgeColor(this.edgesColor);
   }
-
-
 
   selectRow(event: any) {
 
     let args = event.args;
     console.log("row selected", args.rowindex)
 
-    this.subgraphName = this.nodeGridList.getcelltext(args.rowindex, 'name')
+    this.subgraphName = this.graphGridList.getcelltext(args.rowindex, 'name')
     var subgraphNames = [this.subgraphName];
-    var subgrapshScore = Number(this.nodeGridList.getcelltext(args.rowindex, 'score'))
-    var subgrapshCons = String(this.nodeGridList.getcelltext(args.rowindex, 'consequences')).split(',')
+    var subgrapshScore = Number(this.graphGridList.getcelltext(args.rowindex, 'score'))
+    var subgrapshCons = String(this.graphGridList.getcelltext(args.rowindex, 'consequences')).split(',')
 
     this.buildNodesTable(this.subgraphName);
     this.buildEdgesTable(this.subgraphName);
@@ -757,6 +756,11 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.cygraph.redraw();
   }
 
+  reLayoutgraph(event: any){
+    this.cygraph.resetLayout();
+  }
+
+
   selectEdgeRow(event: any) {
     let args = event.args;
     console.log("Edge row selected", args.rowindex)
@@ -767,7 +771,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   selectNodeRow(event:any){
     let args = event.args;
     console.log("Node row selected", args.rowindex)
-    var selectNodeIdx = this.ndGridList.getcelltext(args.rowindex, 'id')
+    var selectNodeIdx = this.nodeGridList.getcelltext(args.rowindex, 'id')
     this.cygraph.setCrtSelectNode(selectNodeIdx);
   }
 
@@ -818,14 +822,17 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
         
         //obj['data']['span'] = obj['data']['span'] / (60 * 60 * 24);
         //converspan: 
-        if (obj['data']['span']< 3600){
-          obj['data']['spanStr'] = ""+ Number(obj['data']['span']/60).toFixed(1) + "m"; 
+        if (obj['data']['span'] < 1) {
+          obj['data']['spanStr'] = "" + Number(obj['data']['span']).toFixed(1) + "s";
         }
-        else if (obj['data']['span']< 3600*24){
-          obj['data']['spanStr'] = ""+ Number(obj['data']['span']/3600).toFixed(2) + "h"; 
+        else if (obj['data']['span'] < 3600) {
+          obj['data']['spanStr'] = "" + Number(obj['data']['span'] / 60).toFixed(1) + "m";
         }
-        else{
-          obj['data']['spanStr'] = ""+ Number(obj['data']['span']/(3600*24)).toFixed(3) + "d"; 
+        else if (obj['data']['span'] < 3600 * 24) {
+          obj['data']['spanStr'] = "" + Number(obj['data']['span'] / 3600).toFixed(2) + "h";
+        }
+        else {
+          obj['data']['spanStr'] = "" + Number(obj['data']['span'] / (3600 * 24)).toFixed(3) + "d";
         }
         this.edgesDis.push(obj);
         this.edgesW.push(obj['data']);

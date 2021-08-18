@@ -43,7 +43,7 @@
 
           <!-- <mat-progress-bar mode="{{loadProMode}}" value="100"></mat-progress-bar> -->
           <!-- <p><span>You selected: </span><b>{{selectedgraph}}</b></p> -->
-          <jqxGrid #nodeGrid (onRowselect)="selectRow($event)" [source]="subgrapSrc" [width]="'100%'" [height]="'300px'"
+          <jqxGrid #graphGrid (onRowselect)="selectRow($event)" [source]="subgrapSrc" [width]="'100%'" [height]="'300px'"
             [theme]="'metrodark'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
             [columns]="subgrapColumns" [rowdetails]="true" [initrowdetails]="initrowdetails"
             [rowdetailstemplate]="rowdetailstemplate">
@@ -52,7 +52,7 @@
 
           <mat-tab-group>
             <mat-tab label="Graph Nodes" style="width: 50px;">
-              <jqxGrid #ndGrid (onRowselect)="selectNodeRow($event)" [source]="nodesSrc" [width]="'100%'" [theme]="'metrodark'" 
+              <jqxGrid #nodedGrid (onRowselect)="selectNodeRow($event)" [source]="nodesSrc" [width]="'100%'" [theme]="'metrodark'" 
                 [height]="'560px'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true" 
                 [columns]="nodesLColums" #grid>
               </jqxGrid>
@@ -120,7 +120,7 @@
                       <option value="none">No Label</option>
                       <option value="signature"> Signature</option>
                       <option value="logtype"> Log type</option>
-                      <option value="port_values"> Port_values [T, S]</option>
+                      <option value="port_values"> Port_values</option>
                       <option value="start_timestamp"> Start_timestamp</option>
                       <option value="span"> Span Value</option>
                     </select>
@@ -129,12 +129,42 @@
 
                   <tr>
                     <td> Edges Color:</td>
+                    <td>
                       <select (change)="setGraphEdgeColor($event)">
                         <option value="gray">Default[gray]</option>
                         <option value="color">Customized[color]</option>
                       </select>
+                    </td>
+                    <td> 
+                      <button (click)="reLayoutgraph($event)">Reset Graph Layout</button>
+                    </td>
                   </tr>
+                  
                 </table>
+
+                <div *ngIf="edgesColor=='color'">
+                  <table>
+                    <tr>
+                      <td>Windows type edges color: </td>
+                      <td>
+                        <div style=" width:12px;height:12px;background:#f4f1de; border:solid 1px white;"> </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Snort type edges color: </td>
+                      <td>
+                        <div style=" width:12px;height:12px;background:#2a9d8f; border:solid 1px white;"> </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Fortinet type edges color: </td>
+                      <td>
+                        <div style=" width:12px;height:12px;background:#e9c46a; border:solid 1px white;"> </div>
+                      </td>
+                    </tr>
+                  </table>
+                
+                </div>
             </mat-tab>
           </mat-tab-group>
         </div>
@@ -197,7 +227,7 @@
       </table>
     </mat-tab>
 
-    <mat-tab label="Snort Data List"> Snort List Idx = 1
+<!--     <mat-tab label="Snort Data List"> Snort List Idx = 1
       <hr>
       <table class="table table-striped">
         <thead>
@@ -231,8 +261,8 @@
           </tr>
         </tbody>
       </table>
-    </mat-tab>
-
+    </mat-tab> -->
+<!-- 
     <mat-tab label="Windows Data List"> Windows List Idx = 1
       <hr>
       <table class="table table-striped">
@@ -267,9 +297,9 @@
           </tr>
         </tbody>
       </table>
-    </mat-tab>
+    </mat-tab> -->
 
-    <mat-tab label="Fortinet Data List"> Fortinet List Idx = 0
+ <!--    <mat-tab label="Fortinet Data List"> Fortinet List Idx = 0
       <hr>
       <table class="table table-striped">
         <thead>
@@ -304,7 +334,7 @@
         </tbody>
       </table>
 
-    </mat-tab>
+    </mat-tab> -->
 
   </mat-tab-group>
 
