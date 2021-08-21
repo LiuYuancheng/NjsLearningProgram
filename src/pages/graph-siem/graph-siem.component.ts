@@ -1,41 +1,31 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ViewChildren } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { jqxGridComponent } from 'jqwidgets-ng/jqxgrid';
+// import function components
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
 import { NodedetailComponent } from './nodedetail/nodedetail.component';
-
-import networkDataS from './data/data_fortinet.json';
-import networkDataW from './data/data_windows.json';
-import networkDataF from './data/data_fortinet.json';
-
+// import data.
 import { elements as elementsW } from './data/windows.json';
 import { elements as elementsS } from './data/snort.json';
 import { elements as elementsF } from './data/fortinet.json';
 import { elements as elementsL } from './data/linked.json';
 
-// 
-interface networkDatas {
-  source: String;
-  target: String;
-  gini_t_port: Number;
-  signature: String[];
-  unique_t_port_count: Number;
-  gini_s_port: Number;
-  signature_id: String[];
-  span: Number;
-  unique_s_port_count: Number;
-  dispersion: Number;
-  final_score: Number;
-};
+//-----------------------------------------------------------------------------
+// Name:        cytoscapte.components.ts
+// Purpose:     
+// Author:
+// Created:     2021/07/29
+// Copyright:    n.a    
+// License:      n.a
+//------------------------------------------------------------------------------
 
 // Define the data type used in jqxGrid table: 
-type subGraphType = Array<{
+type subgraphType = Array<{
   name: string,
   score: number,
   consequences: string[]
-}>;
+}>; 
 
-// basic node type
 type nodeType = Array<{
   id: string,
   subgraphs: string[],
@@ -43,18 +33,11 @@ type nodeType = Array<{
   geo: string[]
 }>;
 
-//
 type nodeRelType = Array<{
   name: string,
   score: number,
   subgraphs: string[]
-}>;
-
-type nodePrtType = Array<{
-  id: string,
-  score: number,
-  consequences: string[]
-}>;
+}>; // node relationship datatyple (under editing)
 
 type edgesType = Array<{
   source: String,
@@ -72,73 +55,60 @@ type edgesType = Array<{
   idx: Number,
 }>;
 
+//------------------------------------------------------------------------------
 @Component({
   selector: 'app-graph-siem',
   templateUrl: './graph-siem.component.html',
   styleUrls: ['./graph-siem.component.scss']
 })
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 export class GraphSiemComponent implements AfterViewInit, OnInit {
-  @ViewChild('graphGrid') graphGridList: jqxGridComponent;
-  @ViewChild('subGrid') subGridList: jqxGridComponent;
-  @ViewChild('edgeGrid') edgeGridList: jqxGridComponent;
-  @ViewChild('nodedGrid') nodeGridList: jqxGridComponent;
-  @ViewChild('cygraph') cygraph: CytoscapeComponent;
-  @ViewChild('nodegraph') nodegraph: NodedetailComponent;
+  @ViewChild('graphGrid') graphGridList: jqxGridComponent; // landing page subgraph table
+  @ViewChild('edgeGrid') edgeGridList: jqxGridComponent; // landing page edges table
+  @ViewChild('nodedGrid') nodeGridList: jqxGridComponent; // landing page nodes table
+  @ViewChild('cygraph') cygraph: CytoscapeComponent;  // landing page subgraoh cytoscapte graph
+  @ViewChild('subGrid') subGridList: jqxGridComponent;  // node detail page subgrapsh table 
+  @ViewChild('nodegraph') nodegraph: NodedetailComponent; // node detail page cytoscapte graph 
   @ViewChild('filterValue', { read: ElementRef }) filterValue: ElementRef<HTMLElement>;
-
-  title = "Graph table";
-  selectedIndex = false;
-  selected = new FormControl(0);
-
-  networkdatas: networkDatas[] = networkDataS;
-  networkdataw: networkDatas[] = networkDataW;
-  networkdataf: networkDatas[] = networkDataF;
-
-  subgrapsSelected: subGraphType = [];
-  nodePrtList: nodePrtType = [];
-  nodeRelList: nodeRelType = [];
-  edgeRelList: edgesType = [];
-
+  // def tag/page switch parameters
+  landPageSelected = false; 
+  selectedTag = new FormControl(0);
+  
+  // def data source for the tables
+  subgrapsSelected: subgraphType = []; // landing page subgraph table data src
   subgrapSrc: any;
+  nodesW: nodeType = []; // landing page node table data src
+  nodesSrc: any;
+  edgesW: edgesType = []; // landing page edge table data src
+  edgesSrc: any;
+  nodePrtList: subgraphType = []; // node detail page subgraph table data src
   nodePrtSrc: any;
+  nodeRelList: nodeRelType = []; // node detail page nodes table data src 
   nodeRelSrc: any;
+  edgeRelList: edgesType = [];  // node detail page edges data src 
   edgeRelSrc: any;
-  subGpar: String = '';
-  subgraphName:string = '';
-
-  nodesDis = [];
-  edgesDis = [];
-
-  nodesW: nodeType = [];
-  edgesW: edgesType = [];
-  graphFilter: String = 'none';
-  filterStrExpl: String = ' ';
-  edgesColor:string = 'gray';
-
-  subgrapColumns = [
+  
+  // def column tag for the tables: 
+  subgraphColumns = [
     { text: 'ID', datafield: 'name', width: '50px' },
     { text: 'Score', datafield: 'score', width: '60px' },
     { text: 'Consequences', datafield: 'consequences' },
-  ];
-
-  subgraphsWColumns = [
-    { text: 'ID', datafield: 'id', width: '70px' },
-    { text: 'Score', datafield: 'score', width: '50px' },
-    { text: 'Consequences', datafield: 'consequences' }
-  ];
+  ]; // landing page subgraph table
 
   nodesLColums = [
     { text: 'ID', datafield: 'id', width: '100px' },
     { text: 'Type', datafield: 'type' },
     { text: 'Subgraph', datafield: 'subgraphs' },
     { text: 'Country', datafield: 'geo' },
-  ];
+  ]; // landing page node table
 
   nodesWColumns = [
     { text: 'NodeID', datafield: 'name', width: '80px' },
     { text: 'Risk score', datafield: 'score', width: '80px' },
     { text: 'Subgraph', datafield: 'subgraphs' }
-  ];
+  ]; // node detail page nodes table
 
   edgesWColumns = [
     { text: 'Source', datafield: 'source', width: '100px' },
@@ -160,68 +130,220 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     { text: 'Key', datafield: 'key', width: '40px' },
     { text: 'Idx', datafield: 'idx' }
   ];
+  
+  // def data set parameters
+  selectedDataSet: string; // selected data set name
+  nodes:any;  // store all the nodes data in the selected data set. 
+  edges:any;  // store all the edges data in the selected data set.
 
-  nodesSrc: any;
-  edgesSrc: any;
+  // def displayed graph paramters
+  subgraphName:string = '';
+  nodesDis = []; // nodes show in the graph.
+  edgesDis = []; // edges show in the graph.
+  
+  // def data set filter tab parameter
+  subgraphTitle: String = ''; // filter subgraph title show in the config page.
+  graphFilterKey: String = '';  
+  filterStrExpl: String = ' ';
+  edgesColor:string = '';
 
-  nodes = elementsW['nodes'];
-  edges = elementsW['edges'];
-
-  columns = [
-    { text: 'Id', datafield: 'id' },
-    { text: 'Name', datafield: 'name' }
-  ];
-
-  selectedgraph: string = 'windows';
+  // def Node detail page parameters
   selectednodeID: String = '';
+  
+  // def subgraph fileter parameter:
   selectedfilter: String = '';
-  selectedCat: String = 'null';
-  //nodeIDlist: String[] = [] // list to store all the nodes ID shown in the graph.
-  loadProMode: String = "indeterminate";
-  theCheckbox = false;
+  selectedCat: String = '';
 
-  counter: number = 1;
-  //  tooltiprenderer = (element: any): void => {
-  //    let id = <code>toolTipContainer${this.counter}</code>;
-  //    element[0].id = id;
-  //    let content = element[0].innerHTML;
-  //    setTimeout(_ => jqwidgets.createInstance(<code>#${id}</code>, 'jqxTooltip', { position: 'mouse', content: content }))
-  //    this.counter++;
-  //  }
+  // def subgraph table drop down detail template: show consequence 
+  sugbraphdetailstemplate: any =
+    {
+      rowdetails: "<div class=\"vertical-menu\" style='width:90%; height: 250px;'> Consquences:  </div>",
+      rowdetailsheight: 150
+    };
 
-  //  cellhovertooltiprenderer = (element: any, pageX: number, pageY: number): void => {
-  // 	setTimeout(_ => jqwidgets.createInstance('.jqx-item', 'jqxTooltip', { position: 'mouse', content: "Hello!" }));
-  // };
+  initconqdetails = (index: any, parentElement: any, gridElement: any, datarecord: any): void => {
+    if (parentElement == null) return;
+    let rowdetails = parentElement.children[0];
+    //console.log("rowdetails", index)
+    let conString = String(this.graphGridList.getcelltext(index, 'consequences')).split(',');
+    const createNameValue = (name) => {
+      let tr = document.createElement("a");
+      tr.appendChild(document.createTextNode(' - ' + name));
+      return tr;
+    }
+    let container = document.createElement('a');
+    for (let conStr of conString) {
+      container.appendChild(createNameValue(conStr));
+    }
+    rowdetails.appendChild(container);
+  };
 
-  constructor() { }
+  // def edges table drop down detail template: show all the information except src and tgt.
+  edgedetailstemplate: any =
+    {
+      rowdetails: "<div style='margin: 10px; height: 330px;'></div>",
+      rowdetailsheight: 330
+    };
+  initedgedetails = (index: any, parentElement: any, gridElement: any, datarecord: any): void => {
+    if (parentElement == null) return;
+    let rowdetails = parentElement.children[0];
+    // console.log("rowdetails", rowdetails)
+    const createNameValue = (name, value) => {
+      let tr = document.createElement("tr");
+      let th = document.createElement("th")
+      th.setAttribute("style", "text-align: right;")
+      th.appendChild(document.createTextNode(name))
+      tr.appendChild(th)
+      let td = document.createElement("td")
+      td.setAttribute("style", "padding-left: 5px;")
+      td.appendChild(document.createTextNode(value))
+      tr.appendChild(td)
+      return tr;
+    }
 
+    let container = document.createElement('table');
+    container.appendChild(createNameValue('Signature :', String(this.edgeGridList.getcelltext(index, 'signature'))));
+    container.appendChild(createNameValue('NumOfEvents:', String(this.edgeGridList.getcelltext(index, 'NumOfEvents'))));
+    container.appendChild(createNameValue('Logtype:', String(this.edgeGridList.getcelltext(index, 'logtype'))));
+    container.appendChild(createNameValue('Gini_t_port :', String(this.edgeGridList.getcelltext(index, 'gini_t_port'))));
+    container.appendChild(createNameValue('Span :', String(this.edgeGridList.getcelltext(index, 'spanStr'))));
+    container.appendChild(createNameValue('Unique_t_port_count :', String(this.edgeGridList.getcelltext(index, 'unique_t_port_count'))));
+    container.appendChild(createNameValue('T_port_values :', String(this.edgeGridList.getcelltext(index, 't_port_values'))));
+    container.appendChild(createNameValue('S_port_values :', String(this.edgeGridList.getcelltext(index, 's_port_values'))));
+    container.appendChild(createNameValue('Start_timestamp :', String(this.edgeGridList.getcelltext(index, 'start_timestamp'))));
+    container.appendChild(createNameValue('Gini_s_port :', String(this.edgeGridList.getcelltext(index, 'gini_s_port'))));
+    container.appendChild(createNameValue('Signature_id :', String(this.edgeGridList.getcelltext(index, 'signature_id'))));
+    container.appendChild(createNameValue('Unique_s_port_count :', String(this.edgeGridList.getcelltext(index, 'unique_s_port_count'))));
+    container.appendChild(createNameValue('Dispersion :', String(this.edgeGridList.getcelltext(index, 'dispersion'))));
+    container.appendChild(createNameValue('Final_score :', String(this.edgeGridList.getcelltext(index, 'final_score'))));
+    container.appendChild(createNameValue('Key :', String(this.edgeGridList.getcelltext(index, 'key'))));
+    rowdetails.appendChild(container);
+  };
+
+  //-----------------------------------------------------------------------------
+  constructor() {
+    this.selectedDataSet = 'windows';
+    this.nodes = elementsW['nodes'];
+    this.edges = elementsW['edges'];
+    this.graphFilterKey = 'none';
+    this.edgesColor = 'gray';
+    this.selectedCat = 'null';
+    // build the subgraphs table in node detail page
+    this.nodePrtSrc = new jqx.dataAdapter({ localData: this.nodePrtList, });
+    //  build the related nodes table in node detail page
+    this.nodeRelSrc = new jqx.dataAdapter({ localData: this.nodeRelList, });
+    // build the related edges table in the node detail page
+    this.edgeRelSrc = new jqx.dataAdapter({ localData: this.edgeRelSrc, });
+  }
+
+  //-----------------------------------------------------------------------------
   ngOnInit(): void {
     this.loadGraphsData();
   }
 
+  //-----------------------------------------------------------------------------
   ngAfterViewInit() {
     this.subGridList.refreshdata()
   }
 
+  // All detail function methods (name sorted by alphabet):
+  //-----------------------------------------------------------------------------
+  buildEdgesTable(subgName: string) {
+    // update the edges table based on the input subgraph name/ID
+    // find all nodes's id belongs to the sub graph list: 
+    let nodeIDlist = []; 
+    for (let obj of this.nodes) {
+      if (obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)) nodeIDlist.push(obj['data']['id']);
+    }
+
+    // find all edges src+tgt nodes are all in the subgraph list.
+    this.edgesDis = [];
+    this.edgesW = [];
+    for (let obj of this.edges) {
+      if (nodeIDlist.includes(obj['data']['source']) && nodeIDlist.includes(obj['data']['target'])) {
+        // convert the span value to string with unit.
+        if (obj['data']['span'] < 1) {
+          obj['data']['spanStr'] = "" + Number(obj['data']['span']).toFixed(1) + "s";
+        }
+        else if (obj['data']['span'] < 3600) {
+          obj['data']['spanStr'] = "" + Number(obj['data']['span'] / 60).toFixed(1) + "m";
+        }
+        else if (obj['data']['span'] < 3600 * 24) {
+          obj['data']['spanStr'] = "" + Number(obj['data']['span'] / 3600).toFixed(2) + "h";
+        }
+        else {
+          obj['data']['spanStr'] = "" + Number(obj['data']['span'] / (3600 * 24)).toFixed(3) + "d";
+        }
+        this.edgesDis.push(obj); // update the graph edges
+        this.edgesW.push(obj['data']);
+      }
+    }
+    // build the Edges table
+    this.edgesSrc = new jqx.dataAdapter({ localData: this.edgesW });
+  }
+
+  //-----------------------------------------------------------------------------
+  buildNodesTable(subgName: string) {
+    // update the nodes table based on the input subgraph name/ID
+    console.log('buildNodesTable', subgName)
+    this.nodesDis = [];
+    this.nodesW = [];
+    for (let obj of this.nodes) {
+      if (obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)) {
+        this.nodesDis.push(obj); // update the graph data.
+        if (obj['data'].hasOwnProperty("geo")) {
+          // remove the GPS postion as currently we are not using it.
+          let ctString = obj['data']['geo'];
+          if (ctString[0] == 'unknown') {
+            ctString = [''];
+          } else {
+            ctString.pop();
+          }
+          this.nodesW.push({
+            "id": obj['data']["id"],
+            "subgraphs": obj['data']['subgraphs'],
+            "type": obj['data']['type'],
+            "geo": ctString
+          });
+        }
+      }
+    }
+    // udpate the table data source.
+    this.nodesSrc = new jqx.dataAdapter({localData: this.nodesW});
+  }
+
+//-----------------------------------------------------------------------------
+  filterSelHandler(event: any) {
+    // handle the subgraph filter catergory selection.
+    this.selectedfilter = event.target.value;
+    if (this.selectedfilter == 'null') this.rebuildSubgraph(); // clear the rebuild if user select <blanl>
+  }
+
+//-----------------------------------------------------------------------------
   loadGraphsData(): void {
     // load subgraphs data based on user's selection:  
-    if (this.selectedgraph == 'windows') {
-      this.nodes = elementsW['nodes'];
-      this.edges = elementsW['edges'];
+    switch(this.selectedDataSet) {
+      case 'windows': {
+        this.nodes = elementsW['nodes'];
+        this.edges = elementsW['edges'];
+        break;
+      }
+      case 'snort': {
+        this.nodes = elementsS['nodes'];
+        this.edges = elementsS['edges'];
+        break;
+      }
+      case 'fortinet':{
+        this.nodes = elementsF['nodes'];
+        this.edges = elementsF['edges'];
+        break;
+      }
+      default: {
+        this.nodes = elementsL['nodes'];
+        this.edges = elementsL['edges'];
+      }
     }
-    else if (this.selectedgraph == 'snort') {
-      this.nodes = elementsS['nodes'];
-      this.edges = elementsS['edges'];
-    }
-    else if (this.selectedgraph == 'fortinet') {
-      this.nodes = elementsF['nodes'];
-      this.edges = elementsF['edges'];
-    }
-    else {
-      this.nodes = elementsL['nodes'];
-      this.edges = elementsL['edges'];
-    }
-    // build the subgraph table: 
+    // build the subgraphs table in landing page: 
     this.subgrapsSelected = [];
     for (let obj of this.nodes) {
       if (!obj['data'].hasOwnProperty('subgraphs')) {
@@ -232,42 +354,154 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
         });
       }
     }
-    // set up the node list which sort by score
     this.subgrapSrc = new jqx.dataAdapter({
       localData: this.subgrapsSelected,
       sortcolumn: 'score',
       sortdirection: 'dsc',
     });
-
-    this.nodePrtList.push({
-      "id": "0",
-      "score": 6,
-      "consequences": []
-    });
-    //this.nodePrtList = [];
-    this.nodePrtSrc = new jqx.dataAdapter({
-      localData: this.nodePrtList,
-    });
-
-    this.nodeRelList.push({
-      "name": "0",
-      "score": 0,
-      subgraphs: []
-    })
-    this.nodeRelSrc = new jqx.dataAdapter({
-      localData: this.nodeRelList,
-    });
-
-    this.edgeRelSrc = new jqx.dataAdapter({
-      localData: [],
-    });
-
-    // buidl the edges table: 
-    this.buildEdgesTable('');
   }
 
+  //-----------------------------------------------------------------------------
+  onRebuild(value: string) {
+    // filter all the subgraphs and rebuild the tables and graph ( current this function is 
+    // not used), this function was replaced by onSubGraphFilter(value: string).
+    var subgraphNames = ['filtered'];
+    if (this.selectedfilter == 'nodes') {
+      this.edgesDis = [];
+      this.nodesDis = [];
+      let NodeArr = [];
+      if (this.selectedCat == 'type') {
+        // filter the edge list and build the node name list
+        for (let obj of this.nodes) {
+          if (obj['data'].hasOwnProperty('type')) {
+            if (obj['data']['type'].toString() == value) {
+              this.nodesDis.push(obj);
+              NodeArr.push(obj['data']['id'].toString());
+            }
+          }
+        }
+        //console.log("node ID:", NodeArr);
+        for (let obj of this.edges) {
+          if (NodeArr.includes((obj['data']['source'])) && NodeArr.includes((obj['data']['target']))) this.edgesDis.push(obj);
+        }
+      } else if (this.selectedCat == 'country') {
+        // filter the edge list and build the node name list
+        for (let obj of this.nodes) {
+          if (obj['data'].hasOwnProperty('geo')) {
+            if (obj['data']['geo'][0].toString() == value) {
+              this.nodesDis.push(obj);
+              NodeArr.push(obj['data']['id'].toString());
+            }
+          }
+        }
+        //console.log("node ID:", NodeArr);
+        for (let obj of this.edges) {
+          if (NodeArr.includes((obj['data']['source'])) && NodeArr.includes((obj['data']['target']))) this.edgesDis.push(obj);
+        }
+      }
+    } else if (this.selectedfilter == 'edges') {
+      this.edgesDis = [];
+      this.nodesDis = [];
+      let NodeArr = [value];
+      if (this.selectedCat == 'source') {
+        // filter the edge list and build the node name list
+        for (let obj of this.edges) {
+          if (obj['data']['source'].toString() == value) {
+            this.edgesDis.push(obj);
+            NodeArr.push(obj['data']['target'].toString())
+          }
+        }
+        for (let obj of this.nodes) {
+          if (NodeArr.includes(obj['data']['id'])) this.nodesDis.push(obj);
+        }
+      } else if (this.selectedCat == 'target') {
+        for (let obj of this.edges) {
+          if (obj['data']['target'].toString() == value) {
+            this.edgesDis.push(obj);
+            NodeArr.push(obj['data']['source'].toString())
+          }
+        }
+        for (let obj of this.nodes) {
+          if (NodeArr.includes(obj['data']['id'])) this.nodesDis.push(obj);
+        }
+      }
+    }
+    // rebuild the graph 
+    this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
+  }
+
+
+//-----------------------------------------------------------------------------
+  onSubGraphFilter(value: string) {
+    // filter the subgraphs based on the input value.
+    this.filterStrExpl = value;
+    if (value.includes(':')) this.filterStrExpl = value.split(':')[1];
+    let SubgraphList = [];
+    switch (this.graphFilterKey) {
+      // filter By Node ID (subgraph who contents the node)
+      case "nodeIP": {
+        let nameList = [];
+        for (let obj of this.nodes) {
+          if (obj['data']['id'] == this.filterStrExpl) nameList = obj['data']['subgraphs'];
+        }
+        for (let obj of this.subgrapsSelected) {
+          if (nameList.includes(obj['name'])) SubgraphList.push(obj);
+        }
+        console.log("SubgraphList", SubgraphList.toString);
+        break;
+      }
+      // filter by subgraph score. 
+      case 'score': {
+        let foundNum = this.filterStrExpl.match(/[+-]?\d+(\.\d+)?/g); // get the float number from the string.
+        if (foundNum == null || foundNum.length == 0) break;
+        let filterScore = parseFloat(''+foundNum[0]);
+        console.log("Score fileter: ",filterScore);
+        // compare the score
+        if (this.filterStrExpl.includes('<=')) {
+          for (let obj of this.subgrapsSelected) {
+            if (Number(obj['score']) <= filterScore) SubgraphList.push(obj);
+          }
+        } else if (this.filterStrExpl.includes('<')) {
+          for (let obj of this.subgrapsSelected) {
+            if (Number(obj['score']) < filterScore) SubgraphList.push(obj);
+          }
+        } else if (this.filterStrExpl.includes('==')) {
+          for (let obj of this.subgrapsSelected) {
+            if (Number(obj['score']) == filterScore) SubgraphList.push(obj);
+          }
+        } else if (this.filterStrExpl.includes('>=')) {
+          for (let obj of this.subgrapsSelected) {
+            if (Number(obj['score']) >= filterScore) SubgraphList.push(obj);
+          }
+        }
+        else {
+          for (let obj of this.subgrapsSelected) {
+            if (Number(obj['score']) > filterScore) SubgraphList.push(obj);
+          }
+        }
+      }
+      // contents the input consquence string.
+      case 'consequences': {
+        for (let obj of this.subgrapsSelected) {
+          console.log('consequences loop:', obj["consequences"]);
+          if (obj["consequences"].includes(''+this.filterStrExpl)) SubgraphList.push(obj);
+        }
+      }
+      default: {
+        console.log('onSubGraphFilter', 'unsupported graph filter type.')
+      }
+    }
+    // set up the node list which sort by score
+    this.subgrapSrc = new jqx.dataAdapter({
+      localData: SubgraphList,
+      sortcolumn: 'score',
+      sortdirection: 'dsc',
+    });
+  }
+
+  //-----------------------------------------------------------------------------
   parentFun(nodeID: String): void {
-    this.selected.setValue(1);
+    this.selectedTag.setValue(1);
     //alert("parent component function.:"+nodeID.toString());
     this.selectednodeID = nodeID;
     let nodesToNP = []; // nodes shown in the 
@@ -312,7 +546,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.nodePrtList = [];
     for (let obj of this.nodes) {
       if (parentNames.includes(obj['data']['id'])) {
-        this.nodePrtList.push({ "id": obj['data']['id'], "score": obj['data']['score'], "consequences": obj['data']['consequences'] });
+        this.nodePrtList.push({ "name": obj['data']['id'], "score": obj['data']['score'], "consequences": obj['data']['consequences'] });
       }
     }
 
@@ -339,106 +573,27 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
 
   }
 
-  rowdetailstemplate: any =
-    {
-      //rowdetails: "<div style='margin: 10px; width:250px; overflow-y: auto;'>Consquences: </div>",
-      rowdetails: "<div class=\"vertical-menu\" style='width:90%; height: 250px;'> Consquences:  </div>",
-      rowdetailsheight: 150
-    };
-
-  edgedetailstemplate: any =
-    {
-      rowdetails: "<div style='margin: 10px; height: 330px;'></div>",
-      rowdetailsheight: 330
-    };
 
 
-  initrowdetails = (index: any, parentElement: any, gridElement: any, datarecord: any): void => {
-
-    if (parentElement == null) {
-      return;
-    }
-
-    let rowdetails = parentElement.children[0];
-    console.log("rowdetails", index)
-
-    let conString = String(this.graphGridList.getcelltext(index, 'consequences')).split(',')
-
-    const createNameValue = (name, value) => {
-      let tr = document.createElement("a");
-      tr.appendChild(document.createTextNode(' - ' + name))
-      return tr;
-    }
-
-    let container = document.createElement('a');
-    //container.appendChild(createNameValue("consquences","")); 
-    for (let conStr of conString) {
-      container.appendChild(createNameValue(conStr, ""));
-      //container.appendChild(document.createTextNode( ' - ' + conStr))
-    }
-    rowdetails.appendChild(container);
-  }
-
-  initedgedetails = (index: any, parentElement: any, gridElement: any, datarecord: any): void => {
-
-    if (parentElement == null) {
-      return;
-    }
-    let rowdetails = parentElement.children[0];
-    // console.log("rowdetails", rowdetails)
-
-    const createNameValue = (name, value) => {
-      let tr = document.createElement("tr");
-      let th = document.createElement("th")
-      th.setAttribute("style", "text-align: right;")
-      th.appendChild(document.createTextNode(name))
-      tr.appendChild(th)
-      let td = document.createElement("td")
-      td.setAttribute("style", "padding-left: 5px;")
-      td.appendChild(document.createTextNode(value))
-      tr.appendChild(td)
-      return tr;
-    }
-
-    let container = document.createElement('table');
-    container.appendChild(createNameValue('Signature :', String(this.edgeGridList.getcelltext(index, 'signature'))));
-    container.appendChild(createNameValue('NumOfEvents:', String(this.edgeGridList.getcelltext(index, 'NumOfEvents'))));
-    container.appendChild(createNameValue('Logtype:', String(this.edgeGridList.getcelltext(index, 'logtype'))));
-    container.appendChild(createNameValue('Gini_t_port :', String(this.edgeGridList.getcelltext(index, 'gini_t_port'))));
-    container.appendChild(createNameValue('Span :', String(this.edgeGridList.getcelltext(index, 'spanStr'))));
-    container.appendChild(createNameValue('Unique_t_port_count :', String(this.edgeGridList.getcelltext(index, 'unique_t_port_count'))));
-    container.appendChild(createNameValue('T_port_values :', String(this.edgeGridList.getcelltext(index, 't_port_values'))));
-    container.appendChild(createNameValue('S_port_values :', String(this.edgeGridList.getcelltext(index, 's_port_values'))));
-    container.appendChild(createNameValue('Start_timestamp :', String(this.edgeGridList.getcelltext(index, 'start_timestamp'))));
-    container.appendChild(createNameValue('Gini_s_port :', String(this.edgeGridList.getcelltext(index, 'gini_s_port'))));
-    container.appendChild(createNameValue('Signature_id :', String(this.edgeGridList.getcelltext(index, 'signature_id'))));
-    container.appendChild(createNameValue('Unique_s_port_count :', String(this.edgeGridList.getcelltext(index, 'unique_s_port_count'))));
-    container.appendChild(createNameValue('Dispersion :', String(this.edgeGridList.getcelltext(index, 'dispersion'))));
-    container.appendChild(createNameValue('Final_score :', String(this.edgeGridList.getcelltext(index, 'final_score'))));
-    container.appendChild(createNameValue('Key :', String(this.edgeGridList.getcelltext(index, 'key'))));
-    rowdetails.appendChild(container);
-  }
 
   selectChangeHandler(event: any) {
     //update the ui
-    this.loadProMode = "indeterminate";
-    this.selectedgraph = event.target.value;
+    this.selectedDataSet = event.target.value;
     this.loadGraphsData();
 
     //this.loadEdgesData();
     // update the siem graph.
     this.cygraph.clearGraph();
-    //this.cygraph.setCrtGraph(this.selectedgraph);
+    //this.cygraph.setCrtGraph(this.selectedDataSet);
     //this.cygraph.redraw();
     // clear the previous grid selection. 
-    this.loadProMode = "determinate";
-    this.cygraph.setSubgraphInfo(this.selectedgraph, '', 0, [])
+    this.cygraph.setSubgraphInfo(this.selectedDataSet, '', 0, [])
   }
 
   selectFilterHandler(event: any) {
     //let sel = 
-    this.graphFilter = event.target.value;
-    switch (this.graphFilter) {
+    this.graphFilterKey = event.target.value;
+    switch (this.graphFilterKey) {
       case 'nodeIP': {
         this.filterStrExpl = 'Example:127.0.0.1';
         break;
@@ -465,12 +620,10 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   }
 
 
-  filterSelHandler(event: any) {
-    this.selectedfilter = event.target.value;
-    if (this.selectedfilter == 'null') {
-      this.rebuildSubgraph();
-    }
-  }
+
+
+
+
 
   rebuildFiltergraph(value: string){
     var subgraphNames = ['filtered'];
@@ -554,161 +707,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
 
   }
 
-  onRebuild(value: string) {
-    var subgraphNames = ['filtered'];
-    if (this.selectedfilter == 'nodes') {
-      this.edgesDis = [];
-      this.nodesDis = [];
-      let NodeArr = [];
-      if (this.selectedCat == 'type') {
-        // filter the edge list and build the node name list
-        for (let obj of this.nodes) {
-          if (obj['data'].hasOwnProperty('type')) {
-            if (obj['data']['type'].toString() == value) {
-              this.nodesDis.push(obj);
-              NodeArr.push(obj['data']['id'].toString());
-            }
-          }
-        }
 
-        console.log("node ID:", NodeArr);
-
-        for (let obj of this.edges) {
-          if (NodeArr.includes((obj['data']['source'])) && NodeArr.includes((obj['data']['target']))) {
-            this.edgesDis.push(obj);
-          }
-        }
-      } else if (this.selectedCat == 'country') {
-        // filter the edge list and build the node name list
-        for (let obj of this.nodes) {
-          if (obj['data'].hasOwnProperty('geo')) {
-            if (obj['data']['geo'][0].toString() == value) {
-              this.nodesDis.push(obj);
-              NodeArr.push(obj['data']['id'].toString());
-            }
-          }
-        }
-
-        console.log("node ID:", NodeArr);
-
-        for (let obj of this.edges) {
-          if (NodeArr.includes((obj['data']['source'])) && NodeArr.includes((obj['data']['target']))) {
-            this.edgesDis.push(obj);
-          }
-        }
-      }
-    }
-    else if (this.selectedfilter == 'edges') {
-      this.edgesDis = [];
-      this.nodesDis = [];
-      let NodeArr = [value];
-      if (this.selectedCat == 'source') {
-        // filter the edge list and build the node name list
-        for (let obj of this.edges) {
-          if (obj['data']['source'].toString() == value) {
-            this.edgesDis.push(obj);
-            NodeArr.push(obj['data']['target'].toString())
-          }
-        }
-
-        for (let obj of this.nodes) {
-          if (NodeArr.includes(obj['data']['id'])) {
-            this.nodesDis.push(obj);
-          }
-        }
-
-
-      }
-      else if (this.selectedCat == 'target') {
-        for (let obj of this.edges) {
-          if (obj['data']['target'].toString() == value) {
-            this.edgesDis.push(obj);
-            NodeArr.push(obj['data']['source'].toString())
-          }
-        }
-
-        for (let obj of this.nodes) {
-          if (NodeArr.includes(obj['data']['id'])) {
-            this.nodesDis.push(obj);
-          }
-        }
-
-      }
-    }
-    // rebuild the graph 
-    this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
-    //this.cygraph.redraw();
-  }
-
-
-  onSubGraphFilter(value: string) {
-    if (value.includes(':')) {
-      this.filterStrExpl = value.split(':')[1];
-    }
-    else {
-      this.filterStrExpl = value;
-    }
-
-    //console.log("onSubGraphFilter", this.filterStrExpl);
-
-    // filter By Node ID
-    let SubgraphList = [];
-    switch (this.graphFilter) {
-      case "nodeIP": {
-        let nameList = [];
-        for (let obj of this.nodes) {
-          if (obj['data']['id'] == this.filterStrExpl)
-            nameList = obj['data']['subgraphs'];
-        }
-        for (let obj of this.subgrapsSelected) {
-          if (nameList.includes(obj['name']))
-            SubgraphList.push(obj);
-        }
-        console.log("SubgraphList", SubgraphList.toString);
-        break;
-      }
-
-      case 'score': {
-        let numReg = /[+-]?\d+(\.\d+)?/g;
-        let found = this.filterStrExpl.match(numReg);
-        if (found == null || found.length == 0) break;
-        let filterScore = parseFloat(''+found[0]);
-        console.log("Score fileter: ",filterScore);
-        if (this.filterStrExpl.includes('<')) {
-          for (let obj of this.subgrapsSelected) {
-            if (Number(obj['score']) <= filterScore) SubgraphList.push(obj);
-          }
-        } else if (this.filterStrExpl.includes('==')) {
-          for (let obj of this.subgrapsSelected) {
-            if (Number(obj['score']) == filterScore) SubgraphList.push(obj);
-          }
-        } else if (this.filterStrExpl.includes('>')) {
-          for (let obj of this.subgrapsSelected) {
-            if (Number(obj['score']) >= filterScore) SubgraphList.push(obj);
-          }
-        }
-      }
-
-      case 'consequences': {
-        for (let obj of this.subgrapsSelected) {
-          console.log('consequences loop:', obj["consequences"]);
-          if (obj["consequences"].includes(''+this.filterStrExpl)){
-            SubgraphList.push(obj);
-          }
-        }
-      }
-      default: {
-      }
-    }
-
-    // set up the node list which sort by score
-    this.subgrapSrc = new jqx.dataAdapter({
-      localData: SubgraphList,
-      sortcolumn: 'score',
-      sortdirection: 'dsc',
-    });
-
-  }
 
   selectEdgeLabel(event: any) {
     let selectedLb = event.target.value;
@@ -738,20 +737,26 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.buildNodesTable(this.subgraphName);
     this.buildEdgesTable(this.subgraphName);
 
-    this.cygraph.setSubgraphInfo(this.selectedgraph, this.subgraphName, subgrapshScore, subgrapshCons)
+    this.cygraph.setSubgraphInfo(this.selectedDataSet, this.subgraphName, subgrapshScore, subgrapshCons)
 
-    this.subGpar = this.selectedgraph + '[' + this.subgraphName + ']';
+    this.subgraphTitle = this.selectedDataSet + '[' + this.subgraphName + ']';
     this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
 
     this.cygraph.redraw();
   }
 
+  selectNodeSubGRow(event: any) {
+    let args = event.args;
+    let subgraphNamethis = this.subGridList.getcelltext(args.rowindex, 'name');
+    console.log('selectNodeSubGRow', subgraphNamethis);
+    this.nodegraph.filterDisNodes(subgraphNamethis);
+  }
 
   rebuildSubgraph(){
     this.buildNodesTable(this.subgraphName);
     this.buildEdgesTable(this.subgraphName);
-    this.cygraph.setSubgraphInfo(this.selectedgraph, this.subgraphName, 0, [])
-    this.subGpar = this.selectedgraph + '[' + this.subgraphName + ']';
+    this.cygraph.setSubgraphInfo(this.selectedDataSet, this.subgraphName, 0, [])
+    this.subgraphTitle = this.selectedDataSet + '[' + this.subgraphName + ']';
     this.cygraph.setCrtSubGraph([this.subgraphName], this.nodesDis, this.edgesDis);
     this.cygraph.redraw();
   }
@@ -775,73 +780,6 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.cygraph.setCrtSelectNode(selectNodeIdx);
   }
 
-  buildNodesTable(subgName: string) {
-    console.log('buildNodesTable', subgName)
-    this.nodesDis = [];
-    this.nodesW = [];
-    for (let obj of this.nodes) {
-      if (obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)) {
-        this.nodesDis.push(obj);
-        if (obj['data'].hasOwnProperty("geo")) {
-          let ctString = obj['data']['geo'];
-          if (ctString[0] == 'unknown') {
-            ctString = ['']
-          } else {
-            ctString.pop();
-          }
 
-          this.nodesW.push({
-            "id": obj['data']["id"],
-            "subgraphs": obj['data']['subgraphs'],
-            "type": obj['data']['type'],
-            "geo": ctString
-          });
-        }
-      }
-    }
-    this.nodesSrc = new jqx.dataAdapter({
-      localData: this.nodesW
-    });
-
-  }
-
-  buildEdgesTable(subgName: string) {
-    // find all nodes's id belongs to the sub graph list: 
-    let nodeIDlist = []; // Clear the node list
-    for (let obj of this.nodes) {
-      if (obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)) {
-        nodeIDlist.push(obj['data']['id']);
-      }
-    }
-    // find all edges src+tgt nodes are all in the subgraph list.
-    this.edgesDis = [];
-    this.edgesW = [];
-    for (let obj of this.edges) {
-      //if(this.nodeIDlist.indexOf(obj['data']['source']) !== -1 || this.nodeIDlist.indexOf(obj['data']['target']) !== -1)
-      if (nodeIDlist.includes(obj['data']['source']) && nodeIDlist.includes(obj['data']['target'])) {
-        
-        //obj['data']['span'] = obj['data']['span'] / (60 * 60 * 24);
-        //converspan: 
-        if (obj['data']['span'] < 1) {
-          obj['data']['spanStr'] = "" + Number(obj['data']['span']).toFixed(1) + "s";
-        }
-        else if (obj['data']['span'] < 3600) {
-          obj['data']['spanStr'] = "" + Number(obj['data']['span'] / 60).toFixed(1) + "m";
-        }
-        else if (obj['data']['span'] < 3600 * 24) {
-          obj['data']['spanStr'] = "" + Number(obj['data']['span'] / 3600).toFixed(2) + "h";
-        }
-        else {
-          obj['data']['spanStr'] = "" + Number(obj['data']['span'] / (3600 * 24)).toFixed(3) + "d";
-        }
-        this.edgesDis.push(obj);
-        this.edgesW.push(obj['data']);
-      }
-    }
-    // build the Edges table
-    this.edgesSrc = new jqx.dataAdapter({
-      localData: this.edgesW
-    });
-  }
 
 }
