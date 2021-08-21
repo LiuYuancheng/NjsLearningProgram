@@ -1,4 +1,4 @@
-<div fxLayout="row" fxLayoutGap="10px" class="parent">
+<div fxLayout="row" fxLayoutGap="10px">
     <div fxFlex="100%" class="left">
         <p-card header="{{subGpar}}" [style]="{'width': '1050', 'height':'1000px'}" styleClass="panel-background">
             <!-- #Show subgraph information  -->
@@ -15,7 +15,6 @@
                     <a>Risk score : --</a>
                     <a>Country code: [ {{selectNode?.geo[0]}} ]</a>
                     <a>Subgraphs : {{selectNode?.subgraphs}} </a>
-                    <!-- <a *ngFor="let subgraph of selectNode?.subgraphs"> {{subgraph}} </a> -->
                 </div>
             </div>
             <div *ngIf="showEdge">
@@ -25,7 +24,7 @@
                     <a>Target : {{selectEdge?.target}}</a>
                     <a>Gini_t_port : {{selectEdge?.gini_t_port}}</a>
                     <a>NumOfEvents : {{selectEdge?.NumOfEvents}}</a>
-                    <a>Logtype : {{selectEdge?.logtype}}</a> 
+                    <a>Logtype : {{selectEdge?.logtype}}</a>
                     <a>Signature : </a>
                     <a *ngFor="let sig of selectEdge?.signature"> - {{sig}}</a>
                     <a>Unique_t_port_count : {{selectEdge?.unique_t_port_count}}</a>
