@@ -5,15 +5,15 @@ import fcose from 'cytoscape-fcose';
 //-----------------------------------------------------------------------------
 // Name:        nodedetail.components.ts
 // Purpose:     This module is used to generate a graph to show the nodes and edges
-//              connected to teh selected node. 
+//              connected to the selected node. 
 // Author:
 // Created:     2021/07/28
 // Copyright:    n.a    
 // License:      n.a
 //------------------------------------------------------------------------------
 
+// use fcose layout.
 cytoscape.use(fcose);
-
 
 @Component({
   selector: 'app-nodedetail',
@@ -25,18 +25,16 @@ cytoscape.use(fcose);
 //------------------------------------------------------------------------------
 export class NodedetailComponent implements OnInit, AfterViewInit {
   @ViewChild('cygraph') cyRef: ElementRef;
-
+  private nativeElement: HTMLElement;
+  // define data storage parameters : 
   nodes: cytoscape.NodeDefinition[] = [];
   edges: cytoscape.EdgeDefinition[] = [];
   style: cytoscape.Stylesheet[];
+  // def cytoscapte used parameters
   cy: any = null;
-
   private defaultoptions: any; // default layout option.
-  private nativeElement: HTMLElement;
-
-  nodeName: String;     // Selected node's name. 
   edgelabelStr: string; // displayed edge label tamplet in the graph
-
+  nodeName: String;     // Selected node's name. 
   protected layoutOptions: any = {
     name: 'fcose',
     nodeDimensionsIncludeLabels: true,
@@ -49,6 +47,7 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
 
   //------------------------------------------------------------------------------
   constructor(element: ElementRef) {
+    // Init all parameters
     this.nativeElement = element.nativeElement;
     this.nodeName = "";
     this.edgelabelStr = "";
@@ -71,6 +70,7 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
 
   //------------------------------------------------------------------------------
   ngOnInit(): void {
+    //this.redraw();
   }
 
   //------------------------------------------------------------------------------
@@ -104,7 +104,6 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           "color": "#fff",
           // "overlay-padding": "6px",
           // "padding": "0",
-          // 'shape': 'round-rectangle',
           "background-image": 'assets/images/icons/ip.png',
         }
       },
@@ -120,18 +119,14 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           "border-opacity": 0.7,
           "font-size": "10px",
           "text-outline-color": "#e76f51"
-          // "background-color": "yellow",
-          // "text-outline-color": "yellow",
         }
       },
-
       {
         selector: 'node[type = "other"]',
         style: {
           'background-image': 'assets/images/icons/ep.png',
         }
       },
-
       {
         selector: 'edges', // default edge style
         style: {
@@ -142,7 +137,6 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
           "color": "#FFFFFF",
         }
       },
-
       {
         selector: 'edge:selected', // default edge style
         style: {
@@ -207,37 +201,38 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
 
     this.cy.zoom({ level: 1 });
   }
+  clearGraph() : void {
+    // clear the current graph for redraw.
+    if (this.cy != null) { this.cy.destroy(); }
+  }
 
   //------------------------------------------------------------------------------
   evtListener(): void {
     this.cy.one('tap', (event) => {
       var evtTarget = event.target;
-      if (evtTarget == null) {
-        return;
-      }
-      if (evtTarget.isNode()) {
+      if (evtTarget == null) return;
+      if (typeof evtTarget.isNode === "function" && evtTarget.isNode()) {
         //this.menuState = 'out';
       }
-      else if (evtTarget.isEdge()) {
+      else if (typeof evtTarget.isEdge === "function" && evtTarget.isEdge()) {
         //this.menuState = 'out';
       }
       else {
-        console.log('this is the background');
+        console.log('evtListener:','Clicked the background');
         //this.menuState = 'in';
       }
     });
   }
 
   //------------------------------------------------------------------------------
-  setEdgeLabelStr(tag: string) {
-    if (tag == 'score') {
-      this.edgelabelStr = 'data(final_score)';
-    } else if (tag == 'sig') {
-      this.edgelabelStr = 'data(signature)';
-    } else {
-      this.edgelabelStr = '';
-    }
-    this.redraw();
+  redraw(): void {
+    // redraw the graph
+    this.buildGraph();
+    this.cy.zoom({ level: 1 });
+    this.cy.pan({ x: 200, y: 200 });
+    this.cy.fit()
+    let layout = this.cy.elements().layout(this.layoutOptions);
+    layout.run();
   }
 
   //------------------------------------------------------------------------------
@@ -253,16 +248,30 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
     this.edges = edgesDis;
     this.redraw();
   }
-
+  
   //------------------------------------------------------------------------------
-  redraw(): void {
-    // redraw the graph
-    this.buildGraph();
-    this.cy.zoom({ level: 1 });
-    this.cy.pan({ x: 200, y: 200 });
-    this.cy.fit()
-    let layout = this.cy.elements().layout(this.layoutOptions);
-    layout.run();
+  filterDisNodes(graphName:string): void{
+    // remove the node not belongs to the graph name.
+    // filter the displayed node by subgraph name
+    this.redraw();
+    //console.log('filterDisNodes', graphName)
+    this.cy.nodes().filter(ele => !ele.data()['subgraphs'].includes(graphName)).remove();
   }
 
+  //------------------------------------------------------------------------------
+  setEdgeLabelStr(tag: string): void {
+    switch (tag) {
+      case 'score': {
+        this.edgelabelStr = 'data(final_score)';
+        break;
+      }
+      case 'sig': {
+        this.edgelabelStr = 'data(signature)';
+        break;
+      }
+      default:
+        this.edgelabelStr = '';
+    }
+    this.redraw();
+  }
 }
