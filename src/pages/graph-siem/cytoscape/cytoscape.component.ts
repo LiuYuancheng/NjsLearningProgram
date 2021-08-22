@@ -429,7 +429,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
 
 
   //-----------------------------------------------------------------------------
-  setEdgeColor(tag: string) {
+  setEdgeColor(tag: string): void {
     if (tag == 'color') {
       this.customEdgeStyle = [
         {
@@ -464,7 +464,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   }
 
   //-----------------------------------------------------------------------------
-  setEdgeLabelStr(tag: string) {
+  setEdgeLabelStr(tag: string):void {
     switch (tag) {
       case 'logtype': {
         this.edgelabelStr = 'data(logtype)';
@@ -494,7 +494,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   }
 
   //----------------------------------------------------------------------------- 
-  setElementInfo(eleType:string, eleData:any){
+  setElementInfo(eleType:string, eleData:any): void{
     // set the element tag display information. 
     if (eleType == 'node') {
       this.selectNode = {

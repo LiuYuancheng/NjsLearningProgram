@@ -1,29 +1,29 @@
 <div class="container">
 
   <mat-tab-group [selectedIndex]="selectedTag.value" (selectedIndexChange)="selectedTag.setValue($event)">
-    
+
     <!-- 1. Main landing page -->
     <mat-tab label="Subgraph Page">
-      <!-- Show the subgraph and group in table -->
-        
       <div fxLayout="row" fxLayoutGap="10px" class="parent">
-      
+        <!-- # show subgraph on the left -->
         <div fxFlex="75%" class="left">
           <app-cytoscape #cygraph (parentFun)="parentFun($event)"></app-cytoscape>
         </div>
-      
+        <!-- # show the function page and tables on the right -->
         <div fxFlex="25%" class="right">
-          <select (change)="selectChangeHandler($event)">
+          <!-- # data set selection -->
+          <select (change)="selectDataSetHandler($event)">
             <option value="snort">Snort Subgraphs</option>
             <option value="windows">Windows Subgraphs</option>
             <option value="fortinet">Fortinet Subgraphs</option>
             <option value="linked">Linked Subgraphs</option>
           </select>
           <p> </p>
+          <!-- # graph table filter  -->
           <table style="border-spacing: 1px;">
             <tr>
               <td>Graph Filter:</td>
-              <td> 
+              <td>
                 <select (change)="selectFilterHandler($event)">
                   <option value="none"> </option>
                   <option value="nodeIP">Node ID</option>
@@ -32,86 +32,64 @@
                 </select>
               </td>
               <td> <input [value]="filterStrExpl" type="text" #subgraphIPfilter> </td>
-              <td> <!-- <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> Query </button> -->
+              <td>
                 <div *ngIf="graphFilterKey!=='none'">
                   <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> Query </button>
                 </div>
               </td>
             </tr>
           </table>
-
-          <!-- <p><span>You selected: </span><b>{{selectedgraph}}</b></p> -->
-          <jqxGrid #graphGrid (onRowselect)="selectRow($event)" [source]="subgrapSrc" [width]="'100%'" [height]="'300px'"
-            [theme]="'metrodark'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
-            [columns]="subgraphColumns" [rowdetails]="true" [initrowdetails]="initconqdetails"
+          <!-- # Subgraph table -->
+          <jqxGrid #graphGrid (onRowselect)="selectGraphRow($event)" [source]="subgrapSrc" [width]="'100%'"
+            [height]="'300px'" [theme]="'metrodark'" [pageable]="true" [altrows]="true" [filterable]="true"
+            [sortable]="true" [columns]="subgraphColumns" [rowdetails]="true" [initrowdetails]="initconqdetails"
             [rowdetailstemplate]="sugbraphdetailstemplate">
           </jqxGrid>
-
-
+          <!-- # Node table, edges table and config tab -->
           <mat-tab-group>
             <mat-tab label="Graph Nodes" style="width: 50px;">
-              <jqxGrid #nodedGrid (onRowselect)="selectNodeRow($event)" [source]="nodesSrc" [width]="'100%'" [theme]="'metrodark'" 
-                [height]="'560px'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true" 
-                [columns]="nodesLColums" #grid>
+              <jqxGrid #nodedGrid (onRowselect)="selectNodeRow($event)" [source]="nodesSrc" [width]="'100%'"
+                [height]="'560px'" [theme]="'metrodark'" [pageable]="true" [altrows]="true" [filterable]="true"
+                [sortable]="true" [columns]="nodesLColums" #grid>
               </jqxGrid>
             </mat-tab>
             <mat-tab label="Graph Edges" style="min-width: 50px;">
-              <jqxGrid #edgeGrid (onRowselect)="selectEdgeRow($event)" [source]="edgesSrc" [width]="'100%'" [theme]="'metrodark'"
-                [height]="'560px'" [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
-                [columns]="edgesWColumns" [rowdetails]="true" [initrowdetails]="initedgedetails"
+              <jqxGrid #edgeGrid (onRowselect)="selectEdgeRow($event)" [source]="edgesSrc" [width]="'100%'"
+                [height]="'560px'" [theme]="'metrodark'" [pageable]="true" [altrows]="true" [filterable]="true"
+                [sortable]="true" [columns]="edgesWColumns" [rowdetails]="true" [initrowdetails]="initedgedetails"
                 [rowdetailstemplate]="edgedetailstemplate">
               </jqxGrid>
             </mat-tab>
-          
             <mat-tab label="Graph Config" style="min-width: 50px;">
               <h4>Graph Filter Config </h4>
-              <table> 
-                <tr> 
-                  <td>
-                    Search Range: 
-                  </td>
-                    <!-- <select>
-                      <option value="nodes">All Subgraphs</option>
-                      <option value="edges">Subgraph[G0]</option>
-                    </select> -->
-                    <td>
-                      {{subgraphTitle}}
-                    </td>
-                </tr>
-
+              <table>
                 <tr>
-                  <td>
-                    Filter target:
-                  </td>
+                  <td> Search Range: </td>
+                  <td> {{subgraphTitle}} </td>
+                </tr>
+                <tr>
+                  <td> Filter Target: </td>
                   <td>
                     <select (change)="filterSelHandler($event)">
-                      <option value="null">  </option>
+                      <option value="null"> </option>
                       <option value="nodes">Node ID</option>
                       <option value="edges">Edges Signature</option>
                     </select>
                   </td>
-
                 </tr>
                 <tr>
-                  <td>
-                    Filter value:
-                  </td>
-                  <td>
-                      <input type="text" #filterValue>
-                  </td>
-                  
+                  <td> Filter Value: </td>
+                  <td> <input type="text" #filterValue> </td>
                   <td>
                     <div *ngIf="selectedfilter!=='null'">
-                      <!-- <button (click)="onRebuild(filterValue.value)"> Query</button> -->
                       <button (click)="rebuildFiltergraph(filterValue.value)"> Query</button>
                     </div>
                   </td>
                 </tr>
               </table>
-
               <h4>Graph Display Config</h4>
-                <table>
-                  <tr>
+              <table>
+                <tr>
                   <td> Edges Label:</td>
                   <td>
                     <select (change)="setGraphEdgeLable($event)">
@@ -123,53 +101,47 @@
                       <option value="span"> Span Value</option>
                     </select>
                   </td>
-                  </tr>
-
+                </tr>
+                <tr>
+                  <td> Edges Color:</td>
+                  <td>
+                    <select (change)="setGraphEdgeColor($event)">
+                      <option value="gray">Default[gray]</option>
+                      <option value="color">Customized[color]</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button (click)="reLayoutgraph($event)">Reset Graph Layout</button>
+                  </td>
+                </tr>
+              </table>
+              <div *ngIf="edgesColor=='color'">
+                <table>
                   <tr>
-                    <td> Edges Color:</td>
+                    <td>Windows type edges color: </td>
                     <td>
-                      <select (change)="setGraphEdgeColor($event)">
-                        <option value="gray">Default[gray]</option>
-                        <option value="color">Customized[color]</option>
-                      </select>
-                    </td>
-                    <td> 
-                      <button (click)="reLayoutgraph($event)">Reset Graph Layout</button>
+                      <div style=" width:12px;height:12px;background:#f4f1de; border:solid 1px white;"> </div>
                     </td>
                   </tr>
-                  
+                  <tr>
+                    <td>Snort type edges color: </td>
+                    <td>
+                      <div style=" width:12px;height:12px;background:#2a9d8f; border:solid 1px white;"> </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Fortinet type edges color: </td>
+                    <td>
+                      <div style=" width:12px;height:12px;background:#e9c46a; border:solid 1px white;"> </div>
+                    </td>
+                  </tr>
                 </table>
-
-                <div *ngIf="edgesColor=='color'">
-                  <table>
-                    <tr>
-                      <td>Windows type edges color: </td>
-                      <td>
-                        <div style=" width:12px;height:12px;background:#f4f1de; border:solid 1px white;"> </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Snort type edges color: </td>
-                      <td>
-                        <div style=" width:12px;height:12px;background:#2a9d8f; border:solid 1px white;"> </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Fortinet type edges color: </td>
-                      <td>
-                        <div style=" width:12px;height:12px;background:#e9c46a; border:solid 1px white;"> </div>
-                      </td>
-                    </tr>
-                  </table>
-                
-                </div>
+              </div>
             </mat-tab>
           </mat-tab-group>
         </div>
       </div>
-
     </mat-tab>
-
     <!-- 2. Node Detail page -->
     <mat-tab label="Node Detail Information ">
       <table style="width:100%">
@@ -179,44 +151,41 @@
               <div fxFlex="75%" class="left">
                 <app-nodedetail #nodegraph></app-nodedetail>
               </div>
-      
               <div fxFlex="25%" class="right">
                 <hr>
-                <!-- <h4> Node [{{selectednodeID}}] Parent Subgraphs Table</h4> -->
                 <h4> Subgraphs Table</h4>
                 <hr>
-                <jqxGrid #subGrid (onRowselect)="selectNodeSubGRow($event)" [source]="nodePrtSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'80%'"
-                  [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true" [columns]="subgraphColumns"
-                  [rowdetails]="true" [initrowdetails]="initconqdetails" [rowdetailstemplate]="sugbraphdetailstemplate"
-                  >
+                <jqxGrid #subGrid (onRowselect)="selectNodeSubGRow($event)" [source]="nodePrtSrc" [width]="'100%'"
+                  [theme]="'metrodark'" [height]="'80%'" [pageable]="true" [altrows]="true" [filterable]="true"
+                  [sortable]="true" [columns]="subgraphColumns" [rowdetails]="true" [initrowdetails]="initconqdetails"
+                  [rowdetailstemplate]="sugbraphdetailstemplate">
                 </jqxGrid>
-                <p> <b> Edges label : </b> 
-                <select (change)="selectEdgeLabel($event)">
-                  <option value="none">No Label</option>
-                  <option value="sig"> Signature</option>
-                  <option value="score"> Final score</option>
-                </select>
+                <p> <b> Edges label : </b>
+                  <select (change)="selectEdgeLabel($event)">
+                    <option value="none">No Label</option>
+                    <option value="sig"> Signature</option>
+                    <option value="score"> Final score</option>
+                  </select>
                 </p>
-                
               </div>
             </div>
           </tr>
-          
           <hr>
-          
           <tr>
             <div fxLayout="row" fxLayoutGap="10px" class="parent">
               <div fxFlex="25%" class="left">
                 Nodes Connected to Node [{{selectednodeID}}]:<br><br>
-                <jqxGrid [source]="nodeRelSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'300px'" [pageable]="true" [altrows]="true"
-                  [filterable]="true" [sortable]="true" [columns]="nodesWColumns" #grid>
+                <jqxGrid [source]="nodeRelSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'300px'"
+                  [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true" [columns]="nodesWColumns"
+                  #grid>
                 </jqxGrid>
               </div>
-      
+
               <div fxFlex="75%" class="right">
                 Edges From/To Node [{{selectednodeID}}]: <br><br>
-                <jqxGrid [source]="edgeRelSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'300px'" [pageable]="true" [altrows]="true"
-                  [filterable]="true" [sortable]="true" [columns]="edgesWColumns" #grid>
+                <jqxGrid [source]="edgeRelSrc" [width]="'100%'" [theme]="'metrodark'" [height]="'300px'"
+                  [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true" [columns]="edgesWColumns"
+                  #grid>
                 </jqxGrid>
               </div>
             </div>
@@ -224,116 +193,5 @@
         </tbody>
       </table>
     </mat-tab>
-
-<!--     <mat-tab label="Snort Data List"> Snort List Idx = 1
-      <hr>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>source</th>
-            <th>target</th>
-            <th>gini_t_port</th>
-            <th>signature</th>
-            <th>unique_t_port_count</th>
-            <th>gini_s_port</th>
-            <th>signature_id</th>
-            <th>span</th>
-            <th>unique_s_port_count</th>
-            <th>dispersion</th>
-            <th>final_score</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let networkdata of networkdatas">
-            <td>{{ networkdata.source }}</td>
-            <td>{{ networkdata.target }}</td>
-            <td>{{ networkdata.gini_t_port }}</td>
-            <td>{{ networkdata.signature }}</td>
-            <td>{{ networkdata.unique_s_port_count }}</td>
-            <td>{{ networkdata.gini_s_port }}</td>
-            <td>{{ networkdata.signature_id }}</td>
-            <td>{{ networkdata.span }}</td>
-            <td>{{ networkdata.unique_s_port_count }}</td>
-            <td>{{ networkdata.dispersion }}</td>
-            <td>{{ networkdata.final_score }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </mat-tab> -->
-<!-- 
-    <mat-tab label="Windows Data List"> Windows List Idx = 1
-      <hr>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>source</th>
-            <th>target</th>
-            <th>unique_t_port_count</th>
-            <th>dispersion</th>
-            <th>gini_t_port</th>
-            <th>final_score</th>
-            <th>signature</th>
-            <th>unique_s_port_count</th>
-            <th>span</th>
-            <th>signature_id</th>
-            <th>gini_s_port</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let networkdata of networkdataw">
-            <td>{{ networkdata.source }}</td>
-            <td>{{ networkdata.target }}</td>
-            <td>{{ networkdata.unique_t_port_count }}</td>
-            <td>{{ networkdata.dispersion }}</td>
-            <td>{{ networkdata.gini_t_port }}</td>
-            <td>{{ networkdata.final_score }}</td>
-            <td>{{ networkdata.signature }}</td>
-            <td>{{ networkdata.unique_s_port_count }}</td>
-            <td>{{ networkdata.span }}</td>
-            <td>{{ networkdata.signature_id }}</td>
-            <td>{{ networkdata.gini_s_port }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </mat-tab> -->
-
- <!--    <mat-tab label="Fortinet Data List"> Fortinet List Idx = 0
-      <hr>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>source</th>
-            <th>target</th>
-            <th>gini_t_port</th>
-            <th>signature</th>
-            <th>unique_t_port_count</th>
-            <th>gini_s_port</th>
-            <th>signature_id</th>
-            <th>span</th>
-            <th>unique_s_port_count</th>
-            <th>dispersion</th>
-            <th>final_score</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let networkdata of networkdataf">
-            <td>{{ networkdata.source }}</td>
-            <td>{{ networkdata.target }}</td>
-            <td>{{ networkdata.gini_t_port }}</td>
-            <td>{{ networkdata.signature }}</td>
-            <td>{{ networkdata.unique_s_port_count }}</td>
-            <td>{{ networkdata.gini_s_port }}</td>
-            <td>{{ networkdata.signature_id }}</td>
-            <td>{{ networkdata.span }}</td>
-            <td>{{ networkdata.unique_s_port_count }}</td>
-            <td>{{ networkdata.dispersion }}</td>
-            <td>{{ networkdata.final_score }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-    </mat-tab> -->
-
   </mat-tab-group>
-
 </div>

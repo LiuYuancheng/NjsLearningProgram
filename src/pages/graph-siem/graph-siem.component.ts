@@ -698,6 +698,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.cygraph.setCrtSelectEdge(Number(selectEdgeIdx));
   }
 
+  //-----------------------------------------------------------------------------
   selectNodeRow(event: any): void {
     // focus the related edge when the use click the row of landing page edges table.
     let args = event.args;
@@ -729,5 +730,5 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     let selectedLb = event.target.value;
     this.cygraph.setEdgeLabelStr(selectedLb);
   }
-
+  //-----------------------------------------------------------------------------
 }
