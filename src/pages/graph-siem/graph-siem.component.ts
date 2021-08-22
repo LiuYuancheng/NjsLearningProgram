@@ -362,7 +362,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   }
 
   //-----------------------------------------------------------------------------
-  onRebuild(value: string) {
+  onRebuild(value: string):void {
     // filter all the subgraphs and rebuild the tables and graph ( current this function is 
     // not used), this function was replaced by onSubGraphFilter(value: string).
     var subgraphNames = ['filtered'];
@@ -430,9 +430,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
   }
 
-
 //-----------------------------------------------------------------------------
-  onSubGraphFilter(value: string) {
+  onSubGraphFilter(value: string): void {
     // filter the subgraphs based on the input value.
     this.filterStrExpl = value;
     if (value.includes(':')) this.filterStrExpl = value.split(':')[1];
@@ -501,17 +500,17 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
 
   //-----------------------------------------------------------------------------
   parentFun(nodeID: String): void {
+    // When user right click the cxt menu and select  the "node detail", Swith the 
+    // focus tab to the node detail page and create the graph and tables.
     this.selectedTag.setValue(1);
-    //alert("parent component function.:"+nodeID.toString());
     this.selectednodeID = nodeID;
-    let nodesToNP = []; // nodes shown in the 
-    let edgesToNP = [];
+    let nodesToNP = []; // nodes shown in the node detail graph. 
+    let edgesToNP = []; // edges shown in the node detail graph.
     let nodesNames = [nodeID,];
     this.nodeRelList = [];
     this.edgeRelList = [];
-
+    // find all the related edges and nodes
     for (let obj of this.edges) {
-      //if(this.nodeIDlist.indexOf(obj['data']['source']) !== -1 || this.nodeIDlist.indexOf(obj['data']['target']) !== -1)
       if (obj['data']['source'] == nodeID) {
         edgesToNP.push(obj);
         nodesNames.push(obj['data']['target']);
@@ -519,79 +518,131 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
       }
       if (obj['data']['target'] == nodeID) {
         edgesToNP.push(obj);
-        this.edgeRelList.push(obj['data'])
         nodesNames.push(obj['data']['source']);
+        this.edgeRelList.push(obj['data']);
       }
     }
-
+    // Add all the related node in to the related node list.
     for (let obj of this.nodes) {
       if (nodesNames.includes(obj['data']['id'])) {
         nodesToNP.push(obj);
-        this.nodeRelList = this.nodeRelList.concat({ "name": obj['data']['id'], "score": 0, "subgraphs": obj['data']['subgraphs'] })
+        this.nodeRelList = this.nodeRelList.concat({ "name": obj['data']['id'], "score": 0, "subgraphs": obj['data']['subgraphs'] });
       }
     }
-
-    // setup the subgrap table 
+    // setup the node's subgrap table 
     let parentNames = [];
-
-    for (let obj of this.nodes) {
-      if (obj['data']['id'] == nodeID) {
-        parentNames = parentNames.concat(obj['data']['subgraphs']);
-      }
-    }
-    console.log("parents:", parentNames);
-
-
-
     this.nodePrtList = [];
+    for (let obj of this.nodes) {
+      if (obj['data']['id'] == nodeID) parentNames = parentNames.concat(obj['data']['subgraphs']);
+    }
+    //console.log("parents:", parentNames);
     for (let obj of this.nodes) {
       if (parentNames.includes(obj['data']['id'])) {
         this.nodePrtList.push({ "name": obj['data']['id'], "score": obj['data']['score'], "consequences": obj['data']['consequences'] });
       }
     }
-
     console.log("Data to node page", this.nodePrtList);
-
-    //set the node page sub graph
+    //create  the node page sub graph
     this.nodegraph.setCrtSubGraph(nodeID, nodesToNP, edgesToNP);
 
-    // set the node page subgraph table: 
-    this.nodePrtSrc = new jqx.dataAdapter({
-      localData: this.nodePrtList,
-    });
-
-    this.nodeRelSrc = new jqx.dataAdapter({
-      localData: this.nodeRelList,
-    });
-
-    this.edgeRelSrc = new jqx.dataAdapter({
-      localData: this.edgeRelList,
-    });
-
-
-    //this.subGridList.refresh();
-
+    // update all the tables in the node detail page: 
+    this.nodePrtSrc = new jqx.dataAdapter({localData: this.nodePrtList,});
+    this.nodeRelSrc = new jqx.dataAdapter({localData: this.nodeRelList,});
+    this.edgeRelSrc = new jqx.dataAdapter({localData: this.edgeRelList,});
   }
 
+  //-----------------------------------------------------------------------------
+  rebuildFiltergraph(value: string): void {
+    // Rebuld the current displayed graph based on the input filter sting.
+    var subgraphNames = ['filtered'];
+    let edgesFilDis = [];
+    let edegsFilW = [];
+    let nodesFilDis = [];
+    let nodesFilW = [];
+    let NodeArr = [];
+    // Add the related edges and build the node name list.
+    if (this.selectedfilter == 'nodes') { // filter by Node ID
+      NodeArr.push(value);
+      for (let obj of this.edgesDis) {
+        if (obj['data']['source'] == value || obj['data']['target'] == value) {
+          edgesFilDis.push(obj);
+          edegsFilW.push(obj['data']);
+          if (!NodeArr.includes(obj['data']['source'])) NodeArr.push(obj['data']['source']);
+          if (!NodeArr.includes(obj['data']['target'])) NodeArr.push(obj['data']['target']);
+        }
+      }
+    } else if (this.selectedfilter == 'edges') { // filter by edges signature.
+      for (let obj of this.edgesDis) {
+        for (let sigStr of obj['data']['signature']) {
+          if (sigStr.includes(value)) {
+            edgesFilDis.push(obj);
+            edegsFilW.push(obj['data']);
+            if (!NodeArr.includes(obj['data']['source'])) NodeArr.push(obj['data']['source']);
+            if (!NodeArr.includes(obj['data']['target'])) NodeArr.push(obj['data']['target']);
+          }
+        }
+      }
+    }
+    // Add the related nodes.
+    for (let obj of this.nodesDis) {
+      if (NodeArr.includes(obj['data']['id'])) {
+        nodesFilDis.push(obj);
+        let ctString = obj['data']['geo'];
+        if (ctString[0] == 'unknown') {
+          ctString = ['']
+        } else {
+          ctString.pop();
+        }
+        nodesFilW.push({
+          "id": obj['data']["id"],
+          "subgraphs": obj['data']['subgraphs'],
+          "type": obj['data']['type'],
+          "geo": ctString
+        });
+      }
+    }
+    // update nodes and edges tables
+    this.nodesSrc = new jqx.dataAdapter({ localData: nodesFilW });
+    this.edgesSrc = new jqx.dataAdapter({ localData: edegsFilW });
+    // update the graph
+    this.cygraph.setCrtSubGraph(subgraphNames, nodesFilDis, edgesFilDis);
+    this.cygraph.redraw();
+  }
 
+  //-----------------------------------------------------------------------------
+  rebuildSubgraph(): void {
+    // rebuild the current displayed subgraph, node edges table in the landing page.
+    this.buildNodesTable(this.subgraphName);
+    this.buildEdgesTable(this.subgraphName);
+    this.cygraph.setSubgraphInfo(this.selectedDataSet, this.subgraphName, 0, [])
+    this.subgraphTitle = this.selectedDataSet + '[' + this.subgraphName + ']';
+    this.cygraph.setCrtSubGraph([this.subgraphName], this.nodesDis, this.edgesDis);
+    this.cygraph.redraw();
+  }
 
+  reLayoutgraph(event: any): void { this.cygraph.resetLayout(); }
 
-  selectChangeHandler(event: any) {
-    //update the ui
+  //-----------------------------------------------------------------------------
+  selectDataSetHandler(event: any): void {
+    // Handle the event when user select new data set.
     this.selectedDataSet = event.target.value;
     this.loadGraphsData();
-
-    //this.loadEdgesData();
-    // update the siem graph.
+    // clear the previous graph and its info tag. 
     this.cygraph.clearGraph();
-    //this.cygraph.setCrtGraph(this.selectedDataSet);
-    //this.cygraph.redraw();
-    // clear the previous grid selection. 
     this.cygraph.setSubgraphInfo(this.selectedDataSet, '', 0, [])
   }
 
-  selectFilterHandler(event: any) {
-    //let sel = 
+  //-----------------------------------------------------------------------------
+  selectEdgeLabel(event: any) {
+    // change the node detail page graph edges' label.
+    let selectedLb = event.target.value;
+    this.nodegraph.setEdgeLabelStr(selectedLb);
+  }
+
+  //-----------------------------------------------------------------------------
+  selectFilterHandler(event: any):void {
+    // fill the filter text field with filter example str or reset the filtered graph
+    // table.
     this.graphFilterKey = event.target.value;
     switch (this.graphFilterKey) {
       case 'nodeIP': {
@@ -614,172 +665,69 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
           sortcolumn: 'score',
           sortdirection: 'dsc',
         });
-        break;
       }
     }
   }
 
-
-
-
-
-
-
-  rebuildFiltergraph(value: string){
-    var subgraphNames = ['filtered'];
-    let edgesFilDis = [];
-    let edegsFilW = [];
-    let nodesFilDis= [];
-    let nodesFilW = [];
-    let NodeArr = [value];
-    if(this.selectedfilter == 'nodes'){
-      for(let obj of this.edgesDis){
-        if(obj['data']['source'] == value || obj['data']['target'] == value){
-          edgesFilDis.push(obj);
-          edegsFilW.push(obj['data']);
-          if(!NodeArr.includes(obj['data']['source'])) NodeArr.push(obj['data']['source']); 
-          if(!NodeArr.includes(obj['data']['target'])) NodeArr.push(obj['data']['target']);
-        }
-      }
-
-      for(let obj of this.nodesDis){
-        if(NodeArr.includes(obj['data']['id'])){
-          nodesFilDis.push(obj);
-
-
-          let ctString = obj['data']['geo'];
-          if (ctString[0] == 'unknown') {
-            ctString = ['']
-          } else {
-            ctString.pop();
-          }
-          nodesFilW.push({
-            "id": obj['data']["id"],
-            "subgraphs": obj['data']['subgraphs'],
-            "type": obj['data']['type'],
-            "geo": ctString
-          });
-        }
-      }
-    }
-    else if (this.selectedfilter == 'edges') {
-      for (let obj of this.edgesDis) {
-        for (let sigStr of obj['data']['signature']) {
-          if (sigStr.includes(value)) {
-            edgesFilDis.push(obj);
-            edegsFilW.push(obj['data']);
-            if (!NodeArr.includes(obj['data']['source'])) NodeArr.push(obj['data']['source']);
-            if (!NodeArr.includes(obj['data']['target'])) NodeArr.push(obj['data']['target']);
-          }
-        }
-      }
-
-      for(let obj of this.nodesDis){
-        if(NodeArr.includes(obj['data']['id'])){
-          nodesFilDis.push(obj);
-
-
-          let ctString = obj['data']['geo'];
-          if (ctString[0] == 'unknown') {
-            ctString = ['']
-          } else {
-            ctString.pop();
-          }
-          nodesFilW.push({
-            "id": obj['data']["id"],
-            "subgraphs": obj['data']['subgraphs'],
-            "type": obj['data']['type'],
-            "geo": ctString
-          });
-        }
-      }
-    }
-
-    this.nodesSrc = new jqx.dataAdapter({
-      localData: nodesFilW
-    });
-    this.edgesSrc = new jqx.dataAdapter({
-      localData: edegsFilW
-    });
-
-    this.cygraph.setCrtSubGraph(subgraphNames, nodesFilDis, edgesFilDis);
-    this.cygraph.redraw();
-
-  }
-
-
-
-  selectEdgeLabel(event: any) {
-    let selectedLb = event.target.value;
-    this.nodegraph.setEdgeLabelStr(selectedLb);
-  }
-
-  setGraphEdgeLable(event: any){
-    let selectedLb = event.target.value;
-    this.cygraph.setEdgeLabelStr(selectedLb);
-  }
-
-  setGraphEdgeColor(event: any){
-    this.edgesColor = event.target.value;
-    this.cygraph.setEdgeColor(this.edgesColor);
-  }
-
-  selectRow(event: any) {
-
+  //-----------------------------------------------------------------------------
+  selectGraphRow(event: any): void {
+    // update the graph, node edges table when user select different row in the 
+    // graph table.
     let args = event.args;
-    console.log("row selected", args.rowindex)
-
+    console.log("selectGraphRow , rowIdx:", args.rowindex)
     this.subgraphName = this.graphGridList.getcelltext(args.rowindex, 'name')
-    var subgraphNames = [this.subgraphName];
+    var subgraphNames = [this.subgraphName]; // leave this as array incase we need support multi graph display
     var subgrapshScore = Number(this.graphGridList.getcelltext(args.rowindex, 'score'))
     var subgrapshCons = String(this.graphGridList.getcelltext(args.rowindex, 'consequences')).split(',')
-
+    // update tables
     this.buildNodesTable(this.subgraphName);
     this.buildEdgesTable(this.subgraphName);
-
+    // udapte graph and displayed information
+    this.subgraphTitle = this.selectedDataSet + '[' + this.subgraphName + ']';
     this.cygraph.setSubgraphInfo(this.selectedDataSet, this.subgraphName, subgrapshScore, subgrapshCons)
-
-    this.subgraphTitle = this.selectedDataSet + '[' + this.subgraphName + ']';
     this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
-
     this.cygraph.redraw();
   }
 
-  selectNodeSubGRow(event: any) {
-    let args = event.args;
-    let subgraphNamethis = this.subGridList.getcelltext(args.rowindex, 'name');
-    console.log('selectNodeSubGRow', subgraphNamethis);
-    this.nodegraph.filterDisNodes(subgraphNamethis);
-  }
-
-  rebuildSubgraph(){
-    this.buildNodesTable(this.subgraphName);
-    this.buildEdgesTable(this.subgraphName);
-    this.cygraph.setSubgraphInfo(this.selectedDataSet, this.subgraphName, 0, [])
-    this.subgraphTitle = this.selectedDataSet + '[' + this.subgraphName + ']';
-    this.cygraph.setCrtSubGraph([this.subgraphName], this.nodesDis, this.edgesDis);
-    this.cygraph.redraw();
-  }
-
-  reLayoutgraph(event: any){
-    this.cygraph.resetLayout();
-  }
-
-
-  selectEdgeRow(event: any) {
+  //-----------------------------------------------------------------------------
+  selectEdgeRow(event: any): void {
+    // focus the related node when the use click the row of landing page nodes table.
     let args = event.args;
     console.log("Edge row selected", args.rowindex)
     var selectEdgeIdx = this.edgeGridList.getcelltext(args.rowindex, 'idx')
     this.cygraph.setCrtSelectEdge(Number(selectEdgeIdx));
   }
 
-  selectNodeRow(event:any){
+  selectNodeRow(event: any): void {
+    // focus the related edge when the use click the row of landing page edges table.
     let args = event.args;
     console.log("Node row selected", args.rowindex)
     var selectNodeIdx = this.nodeGridList.getcelltext(args.rowindex, 'id')
     this.cygraph.setCrtSelectNode(selectNodeIdx);
   }
 
+  //-----------------------------------------------------------------------------
+  selectNodeSubGRow(event: any): void {
+    // When the user click the row in the node detail page subgraph, get the subgraph
+    // name and filtered the node not belongs to the selected graph. 
+    let args = event.args;
+    let subgraphNamethis = this.subGridList.getcelltext(args.rowindex, 'name');
+    //console.log('selectNodeSubGRow', subgraphNamethis);
+    this.nodegraph.filterDisNodes(subgraphNamethis);
+  }
 
+  //-----------------------------------------------------------------------------
+  setGraphEdgeColor(event: any): void {
+    // change the landing page graph edges' color.
+    this.edgesColor = event.target.value;
+    this.cygraph.setEdgeColor(this.edgesColor);
+  }
+
+  //-----------------------------------------------------------------------------
+  setGraphEdgeLable(event: any): void {
+    // change the landing page graph edges' label.
+    let selectedLb = event.target.value;
+    this.cygraph.setEdgeLabelStr(selectedLb);
+  }
 
 }
