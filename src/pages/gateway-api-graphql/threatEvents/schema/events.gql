@@ -1,0 +1,51 @@
+#
+# Queries
+#
+type Query {
+  # Return threat count
+  threatEvents_list(
+    dateFrom: DateRangeDuration
+    page: Int! = 0
+    rowsPerPage: Int! = 10
+    sort: JSON # array
+    filters: JSON # array
+    # filters: JSON
+  ): ThreatEventPage @authz
+  # return the filter lists
+  threatEvents_filters(
+    dateFrom: DateRangeDuration
+  ): ThreatFilterList @authz
+}
+
+# types
+type ThreatEvent {
+  eventTime: DateTime!
+  firstSeen: DateTime
+  lastSeen: DateTime
+  srcNodeId: String!
+  dstNodeId: String!
+  dstPort: Int
+  protocol: String
+  domain: String
+  url: String
+  srcEnterprise: String
+  dstEnterprise: String
+  srcSector: String
+  dstSector: String
+  threatName: String!
+  threatType: String!
+  threatCount: Int!
+  app: String
+  connectionType: String
+}
+
+type ThreatEventPage {
+  totalCount: Int!
+  events: [ThreatEvent]
+}
+
+type ThreatFilterList {
+  threatNameList: [String]
+  threatTypeList: [String]
+  sectorList: [String]
+}

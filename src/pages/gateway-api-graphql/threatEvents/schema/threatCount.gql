@@ -1,0 +1,19 @@
+#
+# Queries
+#
+type Query {
+  # top N threat names with time series returns
+  threatEvents_topNThreatNameCountTimeSeries(
+    topN: Int! = 10 @valuelimit(max: 100)
+    dateFrom: DateRangeDuration
+    timeseries: TimeSeriesInput = {}
+    sectors: [Sector]
+  ): [TimeSeriesData2] @authz
+  # top N friendly threat types with time series returns
+  threatEvents_topNFriendlyThreatTypeCountTimeSeries(
+    topN: Int! = 10 @valuelimit(max: 100)
+    dateFrom: DateRangeDuration
+    timeseries: TimeSeriesInput = {}
+    sectors: [Sector]
+  ): [TimeSeriesData2] @authz
+}
