@@ -26,7 +26,7 @@ ng generate component dash-national-actors
 
 
 
-actor query: 
+Threat actor query: 
 
 ```
 SELECT
@@ -37,5 +37,16 @@ GROUP BY threatName
 ORDER BY threatCount DESC
 LIMIT 10
 
+```
+
+Threat namequery: 
+
+```
+SELECT
+threatName, count(*) as threatCount
+FROM "ds-suspected-ip-2019"
+GROUP BY threatName
+ORDER BY threatCount DESC
+LIMIT 10
 ```
 

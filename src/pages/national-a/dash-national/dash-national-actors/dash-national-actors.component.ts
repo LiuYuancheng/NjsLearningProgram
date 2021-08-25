@@ -22,7 +22,7 @@ Accessibility(Highcharts);
 
 const QUERY = gql`
 query {
-  threadActor
+  threatActor
 }
 `;
 
@@ -100,7 +100,7 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
 
     // the below part is asynchronous operation, a subthread will be started. 
     this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-      this.dataSet = JSON.parse(data['threadActor'])['0'];
+      this.dataSet = JSON.parse(data['threatActor'])['0'];
       this.loading = loading;
       console.log('Query data 0:', this.dataSet);
       console.log('Query loading:', loading);
