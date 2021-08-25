@@ -5,6 +5,9 @@ import { Subscription } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
 
+import {DashNationalActorsComponent} from "../dash-national-actors/dash-national-actors.component";
+
+
 const QUERY = gql`
 query {
     test
@@ -99,7 +102,7 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
     constructor(private apollo: Apollo) { }
 
     ngOnInit(): void {
-
+/* 
         this.feedQuery = this.apollo.watchQuery<any>({
             query: QUERY,
             variables: {
@@ -113,16 +116,18 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
 
           this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
             // console.log("threatEvents_list", this.threatEvents_list)
-            console.log('Query data:', data);
+            let darrary  = JSON.parse(data['test']);
+            console.log('Query data 0:', darrary);
+            //console.log('Query data 1:', darrary[1]);
             console.log('Query loading:', loading);
 
-          });
+          }); */
 
         console.log('Query data:', this.posts);
 
-        Highcharts.chart('container', this.options);
+        let chartG = Highcharts.chart('container', this.options);
+        chartG.reflow();
     }
-
 
     ngOnDestroy() {
         this.querySubscription.unsubscribe();

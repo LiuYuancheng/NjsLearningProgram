@@ -1,10 +1,27 @@
 <p>dash-national</p>
+
+
 <mat-card>
-
     <h3 style="text-align:center">Threat Counts</h3>
-    <div id="container"></div>
-
+    <div id="container" style="width: 100%; height: 200px;"></div>
 </mat-card>
-<p-card header="Threat counts" [style]="{'width': '100%', 'height':'200px'}" styleClass="panel-background"> 
 
-</p-card>
+<div fxLayout="row" fxLayoutGap="1px">
+    <div fxFlex="40%" class="left" style="width: 50%; height: 95%;">
+        <mat-card style="width: 100%; height: 100%;">
+            <div id="container" style="width: 100%; height: 100%;">
+                <app-dash-national-actors></app-dash-national-actors>
+            </div>
+        </mat-card>
+    </div>
+    <div fxFlex="1%" class="right" style="width: 100%; height: 95%;">
+
+    </div>
+
+    <div fxFlex="50%" class="right" style="width: 100%; height: 95%;">
+        <mat-card>
+
+        </mat-card>
+    </div>
+
+</div>

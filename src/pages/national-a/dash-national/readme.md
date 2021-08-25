@@ -19,3 +19,23 @@ druid API: http://druid.cdl.telco.lan/druid/v2, ,user/pwd : druid / Cwv9MSOeWwAQ
 Native queries: https://druid.apache.org/docs/latest/querying/querying.html
 
 
+
+
+
+ng generate component dash-national-actors
+
+
+
+actor query: 
+
+```
+SELECT
+threatName, count(*) as threatCount
+FROM "ds-suspected-ip-2019"
+WHERE threatType='IntrusionSet'
+GROUP BY threatName
+ORDER BY threatCount DESC
+LIMIT 10
+
+```
+

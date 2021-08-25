@@ -6,15 +6,21 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { MatCardModule } from '@angular/material/card';
 import { HighchartsChartModule } from 'highcharts-angular';
+import { DashNationalActorsComponent } from './dash-national-actors/dash-national-actors.component';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 @NgModule({
   declarations: [
-    DashNationalComponent
+    DashNationalComponent,
+    DashNationalActorsComponent
   ],
   imports: [
     CommonModule,
     BrowserModule,
     FormsModule,
+
+    FlexLayoutModule,
     CardModule,
     MatCardModule,
     HighchartsChartModule,
