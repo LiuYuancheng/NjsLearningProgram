@@ -7,7 +7,7 @@ import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
 
 import {DashNationalActorsComponent} from "../dash-national-actors/dash-national-actors.component";
-
+import {DashNationalClientComponent} from "../dash-national-client/dash-national-client.component"
 
 const QUERY = gql`
 query {
@@ -45,6 +45,7 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
     posts: any;
     nameDataSet: any;
     public threatNameTS: String;
+    clientArr: String[]; 
 
     private querySubscription: Subscription;
     private feedQuery: QueryRef<any>;
@@ -123,6 +124,7 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
 
     constructor(private apollo: Apollo) {
         this.threatNameTS = "Loading ...";
+        this.clientArr = ["GOVERMENT", "INFOCOMM", "MANIFATURE", "UTILITI"];
         this.nameDataSet = {};
 
     }

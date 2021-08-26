@@ -20,9 +20,17 @@ Native queries: https://druid.apache.org/docs/latest/querying/querying.html
 
 
 
+Angular handle input
+
+https://stackoverflow.com/questions/42287304/pass-variable-to-custom-component
+
+
+
 
 
 ng generate component dash-national-actors
+
+ng generate component dash-national-client
 
 
 

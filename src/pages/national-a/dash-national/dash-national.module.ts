@@ -10,11 +10,13 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import { DashNationalActorsComponent } from './dash-national-actors/dash-national-actors.component';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { DashNationalClientComponent } from './dash-national-client/dash-national-client.component';
 
 @NgModule({
   declarations: [
     DashNationalComponent,
-    DashNationalActorsComponent
+    DashNationalActorsComponent,
+    DashNationalClientComponent
   ],
   imports: [
     CommonModule,
