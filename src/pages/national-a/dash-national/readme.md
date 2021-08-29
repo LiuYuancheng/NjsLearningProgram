@@ -58,3 +58,69 @@ ORDER BY threatCount DESC
 LIMIT 10
 ```
 
+
+
+SELECT __time,"count"
+FROM "ds-suspected-ip-2019"
+WHERE "__time" BETWEEN TIMESTAMP '2019-10-18 00:00:00' AND TIMESTAMP '2020-10-19 00:00:00' AND srcSector='GOVERNMENT'
+
+
+
+SELECT
+__time, count(*) as threatCount
+FROM "ds-suspected-ip-2019"
+WHERE srcSector='GOVERNMENT'
+GROUP BY __time
+ORDER BY __time
+
+SELECT
+srcSector, count(*) as threatCount
+FROM "ds-suspected-ip-2019"
+GROUP BY srcSector
+ORDER BY threatCount DESC
+
+
+
+SELECT __time, COUNT("count")
+FROM "ds-findings-tor-2019"
+WHERE srcSector = 'GOVERNMENT'
+GROUP BY __time
+ORDER BY __time
+
+
+
+```
+SELECT
+__time, count(*) as threatCount
+FROM "ds-suspected-ip-2019"
+WHERE srcSector='GOVERNMENT'
+GROUP BY  __time
+ORDER BY threatCount DESC
+```
+
+```
+SELECT
+__time, count(*) as threatCount
+FROM "ds-suspected-ip-2019"
+WHERE srcSector='GOVERNMENT'
+GROUP BY  __time
+ORDER BY threatCount DESC
+```
+
+```
+SELECT
+__time, SUM("count") as threatCount
+FROM "ds-suspected-ip-2019"
+WHERE srcSector='GOVERNMENT'
+GROUP BY  __time
+ORDER BY threatCount DESC
+```
+
+Current select query
+
+```
+SELECT __time, COUNT(__time) as threatCount  FROM "ds-suspected-ip-2019"
+WHERE srcSector='GOVERNMENT' 
+GROUP BY __time
+```
+

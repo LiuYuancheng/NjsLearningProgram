@@ -1,0 +1,11 @@
+@import 'tippy.js/dist/tippy.css';
+@import 'tippy.js/themes/light.css';
+
+// align
+
+::ng-deep .scrollpanel {
+  height: calc(100vh - 90px);
+  width: 100%;
+  text-indent: center;
+  margin: auto;
+}
