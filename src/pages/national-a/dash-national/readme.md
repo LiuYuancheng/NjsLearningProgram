@@ -124,3 +124,13 @@ WHERE srcSector='GOVERNMENT'
 GROUP BY __time
 ```
 
+use data TRUNc
+
+```
+SELECT
+DATE_TRUNC('hour', __time), count(*) as threatCount
+FROM "ds-suspected-ip-2019"
+GROUP BY DATE_TRUNC('hour', __time)
+
+```
+

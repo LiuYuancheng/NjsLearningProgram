@@ -7,11 +7,12 @@
 <div fxLayout="row" fxLayoutGap="1px">
     <div fxFlex="30%" class="left" style="width: 100%; height: 95%;">
         <mat-card style="margin: 5px;">
-            <!-- <p style="text-align: center;"> Top Threat Name </p> -->
-            <jqxGrid #nameGrid [source]="nameSrc" [width]="'100%'" [height]="'75%'" [theme]="'metrodark'" [pageable]="true"
+            <app-dash-national-name></app-dash-national-name>
+<!--             <jqxGrid #nameGrid [source]="nameSrc" [width]="'100%'" [height]="'75%'" [theme]="'metrodark'" [pageable]="true"
                 [altrows]="true" [filterable]="true" [sortable]="true" [columns]="nameColumns">
-            </jqxGrid>
-            {{threatNameTS}}
+            </jqxGrid> -->
+            <!-- <div id="nameChart" style="width: 100%; height: 75%"></div> -->
+            
         </mat-card>
     </div>
     
@@ -39,22 +40,30 @@
 </div>
 
 <h4> Threat Counts Summary </h4>
-<app-dash-national-client customTitle="COVERNMENT"></app-dash-national-client>
+<!-- <app-dash-national-client customTitle="COVERNMENT"></app-dash-national-client> -->
 
-<!-- <table  style="width: 100%; height: 45%;" >
+ <table>
     <tr>
         <td style="width: 25%;" *ngFor="let name of clientArr1">
             <app-dash-national-client customTitle={{name}}></app-dash-national-client>
         </td>       
+<!--         <td style="width: 25%;">
+            <app-dash-national-client customTitle="COVERNMENT"></app-dash-national-client>
+        </td>  
+        
+        <td style="width: 25%;">
+            <app-dash-national-client customTitle="INFOCOMM"></app-dash-national-client>
+        </td>  
+ -->
     </tr>
-
+<!-- 
     <tr>
         <td style="width: 25%;" *ngFor="let name of clientArr2">
             <app-dash-national-client customTitle={{name}}></app-dash-national-client>
         </td>   
-    </tr>
+    </tr> -->
 
-</table> -->
+</table>
 
 
 

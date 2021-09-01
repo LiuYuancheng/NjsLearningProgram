@@ -91,17 +91,18 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
     },
     title: {
         text: 'Threat Counts'
+        
     },
     subtitle: {
         text: document.ontouchstart === undefined ?
-          'from 08/05/2019 to 20/10/2019':'Threat Counts'
+          'from 18/10/2019 to 18/10/2019':'Threat Counts'
     },
     xAxis: {
         type: 'datetime'
     },
     yAxis: {
         title: {
-            text: 'Thread Number(k)'
+            text: 'Thread Number'
         }
     },
     legend: {
@@ -150,7 +151,7 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
 
       let querStr:any
 
-      switch(this.querySector){
+      switch(this.customTitle){
         case "GOVERNMENT":{
           querStr = GV_QUERY;
           break;
@@ -180,10 +181,10 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
           break;
         }
         default:{
-          querStr = GV_QUERY;
+          querStr = BF_QUERY;
         }
       }
-
+      console.log("Client Query String", querStr)
       this.feedQuery = this.apollo.watchQuery<any>({
         query: querStr,
         variables: {
@@ -198,7 +199,7 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
         console.log('Query client data :', this.dataSet);
         console.log('Query client loading:', loading);
         if (!this.loading) {
-          this.timestamp = 'Date set timestamp : '+this.dataSet['timestamp'];
+          this.timestamp = 'Data timestamp : '+this.dataSet['timestamp'];
           this.data =[]; 
           for (let obj of this.dataSet['result']) {
             let actor =[
@@ -207,16 +208,16 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
             ]
             this.data.push(actor);
           }
+          this.options['title']['text'] = this.customTitle;
           this.options['series']['0']['data'] = this.data;
+          this.redraw();
         }
-        this.redraw();
       });
-      this.redraw();
   }
 
   
   redraw(){
-    let chartG = Highcharts.chart('clientChart', this.options);
+    let chartG = Highcharts.chart(this.customTitle, this.options);
     chartG.reflow();
   }
 

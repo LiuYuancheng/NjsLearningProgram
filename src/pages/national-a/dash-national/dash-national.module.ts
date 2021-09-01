@@ -11,12 +11,14 @@ import { DashNationalActorsComponent } from './dash-national-actors/dash-nationa
 
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { DashNationalClientComponent } from './dash-national-client/dash-national-client.component';
+import { DashNationalNameComponent } from './dash-national-name/dash-national-name.component';
 
 @NgModule({
   declarations: [
     DashNationalComponent,
     DashNationalActorsComponent,
-    DashNationalClientComponent
+    DashNationalClientComponent,
+    DashNationalNameComponent
   ],
   imports: [
     CommonModule,

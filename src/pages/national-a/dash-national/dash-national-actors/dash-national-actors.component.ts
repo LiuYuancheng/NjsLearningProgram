@@ -105,7 +105,7 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
       console.log('Query data 0:', this.dataSet);
       console.log('Query loading:', loading);
       if (!this.loading) {
-        this.timestamp = 'Date set timestamp : '+this.dataSet['timestamp'];
+        this.timestamp = 'Dataset timestamp : '+this.dataSet['timestamp'];
         let data =[]; 
         for (let obj of this.dataSet['result']) {
           let actor = {
@@ -118,7 +118,7 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
         }
         this.options['series']['0']['data'] = data;
       }
-      this.redraw()
+      this.redraw();
     });
 
     this.redraw();

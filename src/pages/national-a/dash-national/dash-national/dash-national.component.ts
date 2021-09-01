@@ -9,11 +9,14 @@ import gql from 'graphql-tag';
 import {DashNationalActorsComponent} from "../dash-national-actors/dash-national-actors.component";
 import {DashNationalClientComponent} from "../dash-national-client/dash-national-client.component"
 
-const NAME_QUERY = gql`
+
+const COUTN_QUERY =  gql`
 query {
-    threatName
+    threatHourCounts
 }
 `;
+
+
 
 const SECTOR_QUERY = gql`
 query {
@@ -21,8 +24,6 @@ query {
 }
 `;
 
-
-import * as cdata from './data';
 declare var require: any;
 const More = require('highcharts/highcharts-more');
 More(Highcharts);
@@ -36,6 +37,7 @@ ExportData(Highcharts);
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
+
 // define the name type
 type threatNType = Array<{
     name: String,
@@ -48,30 +50,42 @@ type threatNType = Array<{
     styleUrls: ['./dash-national.component.scss']
 })
 export class DashNationalComponent implements OnInit, OnDestroy  {
-    loadingName: boolean;
-    loadingSector: boolean;
-    posts: any;
-    nameDataSet: any;
-    sectorDataSet: any;
-    public threatNameTS: String;
-    public threatSectorTS: String;
-    clientArr1: String[];
-    clientArr2: String[]; 
+    private nativeElement: HTMLElement;
 
-    private queryNameSubscription: Subscription;
+    //Query data paramters
+    loadingCount: boolean;
+    countDataSet: any;
+    public threatCountTS: String;
+    private queryCountSubscription: Subscription;
+    private feedCouQuery: QueryRef<any>;
+    private feedCount: Subscription;
+    
+
+
+    loadingSector: boolean;
+    sectorDataSet: any;
+    public threatSectorTS: String;
     private querySecotrSubscription: Subscription;
-    private feedQuery: QueryRef<any>;
-    private feedName: Subscription;
     private feedSecQuery: QueryRef<any>;
     private feedSector: Subscription;
 
 
+    posts: any;
+    
+    public countdata = [];
+    
+    
+    clientArr1: String[];
+    clientArr2: String[]; 
 
-    private nativeElement: HTMLElement;
-
+    
+    
+    
+    countSrc: any;
     nameSrc: any;
     sectorSrc: any;
-    public threatNameArr: threatNType = [];
+
+    
     public threatSectorArr: threatNType = [];
 
 
@@ -86,7 +100,6 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
       ]; // landing page subgraph table
 
 
-    public data = cdata.TimeChartData;
     public options: any = {
         chart: {
             zoomType: 'x'
@@ -95,8 +108,7 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
             text: 'Threat Counts'
         },
         subtitle: {
-            text: document.ontouchstart === undefined ?
-              'from 08/05/2019 to 20/10/2019':'Threat Counts'
+            text: 'from (local pre-saved data)'
             //'Drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
         },
         xAxis: {
@@ -138,28 +150,47 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
         },
         series: [{
             type: 'area',
-            name: 'USD to EUR',
-            data: this.data
+            name: 'All Threats Counts (K)',
+            data: this.countdata
         }]
-    }
-
+    };
+    
+    // word cloud option
+    wcOptions = {
+        accessibility: {
+            screenReaderSection: {
+                beforeChartFormat: '<h5>{chartTitle}</h5>' +
+                    '<div>{chartSubtitle}</div>' +
+                    '<div>{chartLongdesc}</div>' +
+                    '<div>{viewTableButton}</div>'
+            }
+        },
+        series: [{
+            type: 'wordcloud',
+            data: [['loading',1]],
+            name: 'Occurrences'
+        }],
+        title: {
+            text: ''
+        }
+    };
 
     constructor(private apollo: Apollo) {
-        this.threatNameTS = "Loading ...";
+        
         this.threatSectorTS = "Loading ...";
-        this.clientArr1 = ["GOVERNMENT"];
+        //this.clientArr1 = ["GOVERNMENT"];
         this.clientArr2 = [];
-        //this.clientArr1 = ["GOVERNMENT", "INFOCOMM", "MANIFATURE", "UTILITI"];
+        this.clientArr1 = ["GOVERNMENT", "INFOCOMM", "MANIFATURE", "UTILITI"];
         //this.clientArr2 = ["TRANSPORT", "HEALTHCARE", "SECURITY AND EMERGENCY", "BANKING AND FINANCE"];
 
-        this.nameDataSet = {};
+        
         this.sectorDataSet ={};
     }
 
     ngOnInit(): void {
 
-        this.feedQuery = this.apollo.watchQuery<any>({
-            query: NAME_QUERY,
+        this.feedCouQuery = this.apollo.watchQuery<any>({
+            query: COUTN_QUERY,
             variables: {
                 // page: this.page,
                 // rowsPerPage: this.rowsPerPage,
@@ -168,7 +199,11 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
             fetchPolicy: 'network-only',
             // fetchPolicy: 'cache-first',
         });
-        this.fetchNameQuery();
+        this.fetchCountQuery();
+
+
+
+
 
         this.feedSecQuery = this.apollo.watchQuery<any>({
             query: SECTOR_QUERY,
@@ -182,17 +217,14 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
         });
         this.fetchSectorQuery();
 
-        console.log('Query data:', this.posts);
-
-        let chartG = Highcharts.chart('container', this.options);
-        chartG.reflow();
 
 
-        this.nameSrc = new jqx.dataAdapter({
-            localData: [],
-            sortcolumn: 'count',
-            sortdirection: 'dsc',
-        });
+
+        // this.nameSrc = new jqx.dataAdapter({
+        //     localData: [],
+        //     sortcolumn: 'count',
+        //     sortdirection: 'dsc',
+        // });
 
         this.nameSrc = new jqx.dataAdapter({
             localData: [],
@@ -203,31 +235,43 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
     }
 
     ngOnDestroy() {
-        this.queryNameSubscription.unsubscribe();
+        //this.queryNameSubscription.unsubscribe();
         this.querySecotrSubscription.unsubscribe();
     }
-    fetchNameQuery(): void{
-        this.feedName = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
+
+    redraw():void {
+        let chartG = Highcharts.chart('container', this.options);
+        chartG.reflow();
+    }
+
+    fetchCountQuery():void{
+        this.feedCount = this.feedCouQuery.valueChanges.subscribe(({ data, loading }) => {
             // console.log("threatEvents_list", this.threatEvents_list)
-            this.nameDataSet = JSON.parse(data['threatName'])['0'];
-            this.loadingName = loading;
-            console.log('Query name 0:', this.nameDataSet);
+            this.countDataSet = JSON.parse(data['threatHourCounts']);
+            this.loadingCount = loading;
+            console.log('Query count  0:', this.countDataSet);
             //console.log('Query data 1:', darrary[1]);
-            console.log('Query name loading:', loading);
-            this.threatNameArr = [];
-            if (!this.loadingName) {
-                this.threatNameTS = 'Date set timestamp : ' + this.nameDataSet['timestamp'];
-                for (let obj of this.nameDataSet['result']) {
-                    this.threatNameArr.push({ "name": obj['d0'], "count": Number(obj['a0']) });
-                }
+            console.log('Query count loading:', loading);
+            this.countdata = [];
+            if (!this.loadingCount) {
+                for (let obj of this.countDataSet) {
+                    let actor =[
+                      Number(obj['d0']),
+                      Number(obj['a0']),
+                    ]
+                    this.countdata.push(actor);
+                  }
+                let timestamp1 = this.countdata[0][0];
+                let date1 = new Date(timestamp1).toLocaleDateString("en-us");
+                let timestamp2 = this.countdata[this.countdata.length-1][0];
+                let date2 = new Date(timestamp2).toLocaleDateString("en-us");
+                this.options['subtitle']['text'] = 'From '+ date1 + ' to ' +date2;
+                this.options['series']['0']['data'] = this.countdata;
+                this.redraw();
             }
-            this.nameSrc = new jqx.dataAdapter({
-                localData: this.threatNameArr,
-                sortcolumn: 'count',
-                sortdirection: 'dsc',
-            });
         });
     }
+
 
     fetchSectorQuery(): void {
         console.log("123", "123");
@@ -240,7 +284,7 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
             console.log('Query sector loading:', loading);
             this.threatSectorArr = [];
             if (!this.loadingSector) {
-                this.threatSectorTS = 'Date set timestamp : ' + this.sectorDataSet['timestamp'];
+                this.threatSectorTS = 'Dataset timestamp : ' + this.sectorDataSet['timestamp'];
                 for (let obj of this.sectorDataSet['result']) {
                     this.threatSectorArr.push({ "name": obj['d0'], "count": Number(obj['a0']) });
                 }
