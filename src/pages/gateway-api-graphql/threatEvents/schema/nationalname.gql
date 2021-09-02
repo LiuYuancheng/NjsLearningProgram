@@ -1,3 +1,5 @@
 type Query  {
-   threatName: String
+   threatName: String, 
+   threatSector: String,
+   threatClient(ClientName:String!): String
 }

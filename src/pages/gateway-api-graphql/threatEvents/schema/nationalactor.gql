@@ -1,3 +1,17 @@
 type Query  {
    threatActor: String
+   threatHourCounts: String
+}
+
+#
+# Types
+#
+type hourCountType {
+ timestamp:String
+ result:[resutlType]
+}
+
+type resutlType{
+   d0:Int
+   a0:Int
 }
