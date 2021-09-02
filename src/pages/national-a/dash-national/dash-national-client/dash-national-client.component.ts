@@ -75,6 +75,7 @@ query {
 export class DashNationalClientComponent implements OnInit, OnDestroy {
   @Input() customTitle: string;
  
+  iconPath; String;
   loading: boolean;
   timestamp: String;
   querySector: String;
@@ -143,11 +144,14 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
 
   constructor(private apollo: Apollo) {
     this.timestamp = 'Loading ...';
+
     this.querySector = String(this.customTitle);
   }
 
   ngOnInit(): void {
         // get the data 
+      let iconName = this.customTitle;
+      this.iconPath = "assets/images/icons/cii/"+iconName[0].toUpperCase() + iconName.substr(1).toLowerCase()+".png";
 
       let querStr:any
 

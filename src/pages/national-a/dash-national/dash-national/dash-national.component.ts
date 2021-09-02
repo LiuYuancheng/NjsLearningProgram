@@ -180,7 +180,7 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
         this.threatSectorTS = "Loading ...";
         //this.clientArr1 = ["GOVERNMENT"];
         this.clientArr2 = [];
-        this.clientArr1 = ["GOVERNMENT", "INFOCOMM", "MANIFATURE", "UTILITI"];
+        this.clientArr1 = ["GOVERNMENT", "INFOCOMM", "Manufacturing", "UTILITIES"];
         //this.clientArr2 = ["TRANSPORT", "HEALTHCARE", "SECURITY AND EMERGENCY", "BANKING AND FINANCE"];
 
         

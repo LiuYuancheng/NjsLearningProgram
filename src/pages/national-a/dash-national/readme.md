@@ -24,9 +24,13 @@ Angular handle input
 
 https://stackoverflow.com/questions/42287304/pass-variable-to-custom-component
 
+High chart word cloud: 
 
+https://medium.com/@pmzubar/creating-awesome-word-clouds-using-highcarts-js-76967cb15c22
 
+tool tip: 
 
+https://material.angular.io/components/tooltip/overview
 
 ng generate component dash-national-actors
 

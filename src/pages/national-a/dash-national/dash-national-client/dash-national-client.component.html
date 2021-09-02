@@ -1,6 +1,10 @@
 
-<mat-card style="width: 420px; height:300px; margin: 5px;">
-    <p> [ {{customTitle}} ] {{timestamp}}</p> 
-<!--     <div *ngVar=" customTitle as chartID"></div> -->
-    <div id={{customTitle}} style="width: 100%; height: 95%;"></div>
+<mat-card style="width: 420px; height:300px; margin: 2px;">
+    <!--     <p> [ {{customTitle}} ] {{timestamp}}</p>  -->
+    <img src={{iconPath}} style=" position: absolute; top:5px; left:5px; width:30px; height:30px; float:left">
+
+    <!--     <div *ngVar=" customTitle as chartID"></div> -->
+    <div id={{customTitle}} style=" position: relative;  display: block; width: 100%; height: 95%;"></div>
+
+    </div>
 </mat-card>
