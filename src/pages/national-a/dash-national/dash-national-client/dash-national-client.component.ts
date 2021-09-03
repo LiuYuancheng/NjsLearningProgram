@@ -20,48 +20,9 @@ ExportData(Highcharts);
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
-const GV_QUERY = gql`
-query {
-  threatClient(ClientName:"GOVERNMENT")
-}
-`;
-
-const IF_QUERY = gql`
-query {
-  threatClient(ClientName:"INFOCOMM")
-}
-`;
-
-const MF_QUERY = gql`
-query {
-  threatClient(ClientName:"MANUFACTURING")
-}
-`;
-
-const UT_QUERY = gql`
-query {
-  threatClient(ClientName:"UTILITIES")
-}
-`;
-
-const TS_QUERY = gql`
-query {
-  threatClient(ClientName:"TRANSPORT")
-}
-`;
-const HT_QUERY = gql`
-query {
-  threatClient(ClientName:"HEALTHCARE")
-}
-`;
-const SE_QUERY = gql`
-query {
-  threatClient(ClientName:"SECURITY AND EMERGENCY")
-}
-`;
-const BF_QUERY = gql`
-query {
-  threatClient(ClientName:"BANKING AND FINANCE")
+const QUERY =  gql`
+query($srcSector:String!) {
+  threatClient(ClientName:$srcSector)
 }
 `;
 
@@ -95,8 +56,7 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
         
     },
     subtitle: {
-        text: document.ontouchstart === undefined ?
-          'from 18/10/2019 to 18/10/2019':'Threat Counts'
+        text: ''
     },
     xAxis: {
         type: 'datetime'
@@ -151,72 +111,43 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
         // get the data 
       let iconName = this.customTitle;
-      this.iconPath = "assets/images/icons/cii/"+iconName[0].toUpperCase() + iconName.substr(1).toLowerCase()+".png";
-
-      let querStr:any
-
-      switch(this.customTitle){
-        case "GOVERNMENT":{
-          querStr = GV_QUERY;
-          break;
-        }
-        case "INFOCOMM":{
-          querStr = IF_QUERY;
-          break;
-        }
-        case "MANUFACTURING":{
-          querStr = MF_QUERY;
-          break;
-        }
-        case "UTILITIES":{
-          querStr = UT_QUERY;
-          break;
-        }
-        case "TRANSPORT":{
-          querStr = TS_QUERY;
-          break;
-        }
-        case "HEALTHCARE":{
-          querStr = HT_QUERY;
-          break;
-        }
-        case "SECURITY AND EMERGENCY":{
-          querStr = SE_QUERY;
-          break;
-        }
-        default:{
-          querStr = BF_QUERY;
-        }
-      }
-      console.log("Client Query String", querStr)
+      //this.iconPath = "assets/images/icons/cii/icons"+iconName[0].toUpperCase() + iconName.substr(1).toLowerCase()+".png";
+      this.iconPath = "assets/images/icons/cii/icons/"+iconName+".png";
       this.feedQuery = this.apollo.watchQuery<any>({
-        query: querStr,
+        query: QUERY,
         variables: {
-          //page: 0,
+          srcSector: this.customTitle,
         },
         fetchPolicy: 'network-only',
-        // fetchPolicy: 'cache-first',
       });
-      this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-        this.dataSet = JSON.parse(data['threatClient'])['0'];
-        this.loading = loading;
-        console.log('Query client data :', this.dataSet);
-        console.log('Query client loading:', loading);
-        if (!this.loading) {
-          this.timestamp = 'Data timestamp : '+this.dataSet['timestamp'];
-          this.data =[]; 
-          for (let obj of this.dataSet['result']) {
-            let actor =[
-              Number(obj['d0']),
-              Number(obj['a0']),
-            ]
-            this.data.push(actor);
-          }
-          this.options['title']['text'] = this.customTitle;
-          this.options['series']['0']['data'] = this.data;
-          this.redraw();
+    this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
+      this.dataSet = JSON.parse(data['threatClient']);
+      this.loading = loading;
+      console.log('Query client data :', this.dataSet);
+      console.log('Query client loading:', loading);
+
+      if (!this.loading) {
+        let totalCount = 0;
+        for (let obj of this.dataSet) {
+          let actor = [
+            Number(obj['d0']),
+            Number(obj['a0']),
+          ]
+          totalCount += actor[1];
+          this.data.push(actor);
         }
-      });
+        let timestamp1 = this.data[0][0];
+        let date1 = new Date(timestamp1).toLocaleDateString("en-us");
+        let timestamp2 = this.data[this.data.length - 1][0];
+        let date2 = new Date(timestamp2).toLocaleDateString("en-us");
+        
+        //this.options['subtitle']['text'] = 'From ' + date1 + ' to ' + date2;
+        this.options['subtitle']['text'] = 'Threat Count : ' + String(totalCount);
+        this.options['title']['text'] = this.customTitle;
+        this.options['series']['0']['data'] = this.data;
+        this.redraw();
+      }
+    });
   }
 
   

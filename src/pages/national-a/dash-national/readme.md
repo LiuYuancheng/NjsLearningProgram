@@ -138,3 +138,13 @@ GROUP BY DATE_TRUNC('hour', __time)
 
 ```
 
+select and order by hour
+
+```
+SELECT
+DATE_TRUNC('hour', __time), count(*) as threatCount
+FROM "ds-suspected-ip-2019"
+GROUP BY DATE_TRUNC('hour', __time)
+ORDER BY DATE_TRUNC('hour', __time)
+```
+

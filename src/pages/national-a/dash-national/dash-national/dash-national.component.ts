@@ -179,9 +179,9 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
         
         this.threatSectorTS = "Loading ...";
         //this.clientArr1 = ["GOVERNMENT"];
-        this.clientArr2 = [];
-        this.clientArr1 = ["GOVERNMENT", "INFOCOMM", "Manufacturing", "UTILITIES"];
-        //this.clientArr2 = ["TRANSPORT", "HEALTHCARE", "SECURITY AND EMERGENCY", "BANKING AND FINANCE"];
+        //this.clientArr2 = [];
+        this.clientArr1 = ["GOVERNMENT", "INFOCOMM", "MANUFACTURING", "ENERGY"];
+        this.clientArr2 = ["TRANSPORTATION SERVICES", "HEALTH AND SOCIAL SERVICES", "SECURITY AND EMERGENCY", "BANKING AND FINANCE"];
 
         
         this.sectorDataSet ={};
@@ -235,8 +235,8 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
     }
 
     ngOnDestroy() {
-        //this.queryNameSubscription.unsubscribe();
-        this.querySecotrSubscription.unsubscribe();
+        this.feedSector.unsubscribe();
+        this.feedCount.unsubscribe();
     }
 
     redraw():void {

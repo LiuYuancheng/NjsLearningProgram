@@ -1,4 +1,5 @@
- <h3> National Profile</h3>
+<div class="scroll-container">
+<h3> National Profile</h3>
 <mat-card style="margin: 5px;">
     <!-- <h3 style="text-align:center">Threat Counts</h3> -->
     <div id="container" style="width: 100%; height: 200px;"></div>
@@ -42,7 +43,7 @@
 <!-- <h4> Threat Counts Summary </h4> -->
 <!-- <app-dash-national-client customTitle="COVERNMENT"></app-dash-national-client> -->
 
- <table>
+ <table style = "scroll-behavior: smooth;">
     <tr>
         <td style="width: 25%;" *ngFor="let name of clientArr1">
             <app-dash-national-client customTitle={{name}}></app-dash-national-client>
@@ -56,6 +57,15 @@
         </td>  
  -->
     </tr>
+
+    <tr>
+        <td style="width: 25%;" *ngFor="let name of clientArr2">
+            <app-dash-national-client customTitle={{name}}></app-dash-national-client>
+        </td>    
+
+    </tr>
+
+
 <!-- 
     <tr>
         <td style="width: 25%;" *ngFor="let name of clientArr2">
@@ -65,8 +75,6 @@
 
 </table>
 
-
-
-
+</div>
 
 

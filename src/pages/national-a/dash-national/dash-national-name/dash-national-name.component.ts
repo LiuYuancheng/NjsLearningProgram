@@ -101,7 +101,7 @@ export class DashNationalNameComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.queryNameSubscription.unsubscribe();
+    this.feedName.unsubscribe();
   }
 
   redrawNameChart(): void {
