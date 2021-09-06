@@ -1,8 +1,5 @@
 <div class="scroll-container">
     <h3> National Profile</h3>
-    <button type="button"(click)="showPopup()">
-        SELECT
-       </button>
     <mat-card style="margin: 5px;">
         <!-- <h3 style="text-align:center">Threat Counts</h3> -->
         <div id="container" style="width: 100%; height: 200px;"></div>
@@ -49,25 +46,26 @@
     <table style="scroll-behavior: smooth;">
         <tr>
             <td style="width: 25%;" *ngFor="let name of clientArr1">
-                <app-dash-national-client customTitle={{name}} (showPopup)="showPopup()"></app-dash-national-client>
+                <app-dash-national-client customTitle={{name}} (showPopup)="showPopup($event)"></app-dash-national-client>
             </td>
         </tr>
 
         <tr>
             <td style="width: 25%;" *ngFor="let name of clientArr2">
-                <app-dash-national-client customTitle={{name}}></app-dash-national-client>
+                <app-dash-national-client customTitle={{name}} (showPopup)="showPopup($event)"></app-dash-national-client>
             </td>
 
         </tr>
     </table>
 
-    <div class="overlay" *ngIf="popup" (click)="popup = false" >
-        <div class="popup" (click)="popup = true">
-            <h2>Here i am</h2>
+    <div class="overlay" *ngIf="popup" (click)="popup = false">
+        <div class="popup">
+            
+            <h3> <img src={{popCliIconPath}} style="top: 5px; left:5px; width:25px; height:25px; float:left">  &nbsp; &nbsp; {{popName}}</h3>
+            
+            <hr>
             <a class="close" (click)="popup = false">&times;</a>
-            <div class="content">
-            you have selected this event
-            </div>
+            <app-dash-national-popup ></app-dash-national-popup>
         </div>
     </div>
 

@@ -21,8 +21,8 @@ const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
 const QUERY =  gql`
-query($srcSector:String!) {
-  threatClient(ClientName:$srcSector)
+query($srcSector:String!, $threatType:String!) {
+  threatClient(ClientName:$srcSector, ThreatType:$threatType)
 }
 `;
 
@@ -132,9 +132,11 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
         query: QUERY,
         variables: {
           srcSector: this.customTitle,
+          threatType: 'All',
         },
         fetchPolicy: 'network-only',
       });
+
     this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
       this.dataSet = JSON.parse(data['threatClient']);
       this.loading = loading;
@@ -177,6 +179,6 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
 
   doStuff(): void{
     console.log("1234", "1234");
-    this.parentFun.emit("");
+    this.parentFun.emit(this.customTitle);
   }
 }

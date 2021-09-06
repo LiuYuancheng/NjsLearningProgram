@@ -13,13 +13,15 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { DashNationalClientComponent } from './dash-national-client/dash-national-client.component';
 import { DashNationalNameComponent } from './dash-national-name/dash-national-name.component';
+import { DashNationalPopupComponent } from './dash-national-popup/dash-national-popup.component';
 
 @NgModule({
   declarations: [
     DashNationalComponent,
     DashNationalActorsComponent,
     DashNationalClientComponent,
-    DashNationalNameComponent
+    DashNationalNameComponent,
+    DashNationalPopupComponent
   ],
   imports: [
     CommonModule,

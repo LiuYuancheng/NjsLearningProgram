@@ -8,7 +8,8 @@ import gql from 'graphql-tag';
 
 
 import {DashNationalActorsComponent} from "../dash-national-actors/dash-national-actors.component";
-import {DashNationalClientComponent} from "../dash-national-client/dash-national-client.component"
+import {DashNationalClientComponent} from "../dash-national-client/dash-national-client.component";
+import {DashNationalPopupComponent} from "../dash-national-popup/dash-national-popup.component";
 
 
 const COUTN_QUERY =  gql`
@@ -51,6 +52,7 @@ type threatNType = Array<{
     styleUrls: ['./dash-national.component.scss']
 })
 export class DashNationalComponent implements OnInit, OnDestroy  {
+    @ViewChild('popupDialog') popupDialog: DashNationalPopupComponent; 
     private nativeElement: HTMLElement;
 
     //Query data paramters
@@ -80,9 +82,9 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
     clientArr2: String[]; 
 
     
-    popup = false
-    name = 'Angular';
-
+    popup = false;
+    popName:String;
+    popCliIconPath:String;
     
     countSrc: any;
     nameSrc: any;
@@ -205,10 +207,6 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
         });
         this.fetchCountQuery();
 
-
-
-
-
         this.feedSecQuery = this.apollo.watchQuery<any>({
             query: SECTOR_QUERY,
             variables: {
@@ -220,9 +218,6 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
             // fetchPolicy: 'cache-first',
         });
         this.fetchSectorQuery();
-
-
-
 
         // this.nameSrc = new jqx.dataAdapter({
         //     localData: [],
@@ -304,9 +299,16 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
 
     }
 
-    showPopup():void{
-        this.popup = true;
+    showPopup(popName: String):void{
+        this.popCliIconPath = "assets/images/icons/cii/icons/"+popName+".png";
+        this.popName = popName;
         console.log('show pop up', "123");
+        this.popup = true;
+        //this.popupDialog.createGraph("Client", this.popName)
     }
 
+
+
+
+    
 }

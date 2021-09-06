@@ -52,7 +52,8 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
         text: 'Top Threat Actors'
     },
     tooltip: {
-        pointFormat: '{series.name}: <b>{point.y:.1f}</b>'
+        //pointFormat: '{series.name}: <b>{point.y:.1f}</b>'
+        pointFormat: '{series.name}: <b>{point.y}</b>'
     },
     // accessibility: {
     //     point: {
@@ -67,7 +68,8 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
             cursor: 'pointer',
             dataLabels: {
                 enabled: true,
-                format: '<b>{point.name}</b>: {point.y:.1f}'
+                //format: '<b>{point.name}</b>: {point.y:.1f}'
+                format: '<b>{point.name}</b>: {point.y}'
             },
             showInLegend: true
         }
