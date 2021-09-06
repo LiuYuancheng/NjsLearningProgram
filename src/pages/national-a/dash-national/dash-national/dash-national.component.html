@@ -1,80 +1,76 @@
 <div class="scroll-container">
-<h3> National Profile</h3>
-<mat-card style="margin: 5px;">
-    <!-- <h3 style="text-align:center">Threat Counts</h3> -->
-    <div id="container" style="width: 100%; height: 200px;"></div>
-</mat-card>
+    <h3> National Profile</h3>
+    <button type="button"(click)="showPopup()">
+        SELECT
+       </button>
+    <mat-card style="margin: 5px;">
+        <!-- <h3 style="text-align:center">Threat Counts</h3> -->
+        <div id="container" style="width: 100%; height: 200px;"></div>
+    </mat-card>
 
-<div fxLayout="row" fxLayoutGap="1px">
-    <div fxFlex="30%" class="left" style="width: 100%; height: 95%;">
-        <mat-card style="margin: 5px;">
-            <app-dash-national-name></app-dash-national-name>
-<!--             <jqxGrid #nameGrid [source]="nameSrc" [width]="'100%'" [height]="'75%'" [theme]="'metrodark'" [pageable]="true"
+    <table style="width: 100%;">
+        <tr>
+            <td style="width: 30%;">
+                <mat-card style="margin: 5px;">
+                    <app-dash-national-name></app-dash-national-name>
+                    <!--             <jqxGrid #nameGrid [source]="nameSrc" [width]="'100%'" [height]="'75%'" [theme]="'metrodark'" [pageable]="true"
                 [altrows]="true" [filterable]="true" [sortable]="true" [columns]="nameColumns">
             </jqxGrid> -->
-            <!-- <div id="nameChart" style="width: 100%; height: 75%"></div> -->
-            
-        </mat-card>
-    </div>
-    
-    
-    <div fxFlex="40%" class="right" style="width: 50%; height: 95%;">
-        <mat-card style="width: 100%; height: 100%; margin: 5px;">
-            <div id="container" style="width: 100%; height: 100%;">
-                <app-dash-national-actors></app-dash-national-actors>
+                    <!-- <div id="nameChart" style="width: 100%; height: 75%"></div> -->
+
+                </mat-card>
+            </td>
+            <td style="width: 40%;">
+                <mat-card style="width: 100%; height: 100%; margin: 5px;">
+                    <div id="container" style="width: 100%; height: 100%;">
+                        <app-dash-national-actors></app-dash-national-actors>
+                    </div>
+                </mat-card>
+            </td>
+            <td style="width: 30%;">
+                <mat-card style="margin: 5px;">
+                    <!-- <p style="text-align: center;"> Top Threat Name </p> -->
+                    <jqxGrid #sectorGrid [source]="sectorSrc" [width]="'100%'" [height]="'75%'" [theme]="'metrodark'"
+                        [pageable]="true" [altrows]="true" [filterable]="true" [sortable]="true"
+                        [columns]="sectorColumns">
+                    </jqxGrid>
+                    {{threatSectorTS}}
+                </mat-card>
+            </td>
+        <tr>
+    </table>
+
+
+
+
+    <!-- <h4> Threat Counts Summary </h4> -->
+    <!-- <app-dash-national-client customTitle="COVERNMENT"></app-dash-national-client> -->
+
+    <table style="scroll-behavior: smooth;">
+        <tr>
+            <td style="width: 25%;" *ngFor="let name of clientArr1">
+                <app-dash-national-client customTitle={{name}} (showPopup)="showPopup()"></app-dash-national-client>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="width: 25%;" *ngFor="let name of clientArr2">
+                <app-dash-national-client customTitle={{name}}></app-dash-national-client>
+            </td>
+
+        </tr>
+    </table>
+
+    <div class="overlay" *ngIf="popup" (click)="popup = false" >
+        <div class="popup" (click)="popup = true">
+            <h2>Here i am</h2>
+            <a class="close" (click)="popup = false">&times;</a>
+            <div class="content">
+            you have selected this event
             </div>
-        </mat-card>
-    </div>
-
-
-    <div fxFlex="28%" class="right" style="width: 100%; height: 95%;">
-        <mat-card style="margin: 5px;">
-            <!-- <p style="text-align: center;"> Top Threat Name </p> -->
-            <jqxGrid #sectorGrid [source]="sectorSrc" [width]="'100%'" [height]="'75%'" [theme]="'metrodark'" [pageable]="true"
-                [altrows]="true" [filterable]="true" [sortable]="true" [columns]="sectorColumns">
-            </jqxGrid>
-            {{threatSectorTS}}
-        </mat-card>
+        </div>
     </div>
 
 
 </div>
-
-<!-- <h4> Threat Counts Summary </h4> -->
-<!-- <app-dash-national-client customTitle="COVERNMENT"></app-dash-national-client> -->
-
- <table style = "scroll-behavior: smooth;">
-    <tr>
-        <td style="width: 25%;" *ngFor="let name of clientArr1">
-            <app-dash-national-client customTitle={{name}}></app-dash-national-client>
-        </td>       
-<!--         <td style="width: 25%;">
-            <app-dash-national-client customTitle="COVERNMENT"></app-dash-national-client>
-        </td>  
-        
-        <td style="width: 25%;">
-            <app-dash-national-client customTitle="INFOCOMM"></app-dash-national-client>
-        </td>  
- -->
-    </tr>
-
-    <tr>
-        <td style="width: 25%;" *ngFor="let name of clientArr2">
-            <app-dash-national-client customTitle={{name}}></app-dash-national-client>
-        </td>    
-
-    </tr>
-
-
-<!-- 
-    <tr>
-        <td style="width: 25%;" *ngFor="let name of clientArr2">
-            <app-dash-national-client customTitle={{name}}></app-dash-national-client>
-        </td>   
-    </tr> -->
-
-</table>
-
-</div>
-
 

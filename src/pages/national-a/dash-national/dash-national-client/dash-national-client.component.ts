@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy} from '@angular/core';
 
 
 import { Subscription } from 'rxjs';
@@ -26,6 +26,8 @@ query($srcSector:String!) {
 }
 `;
 
+const AREA_COLOR = '#2E6B9A';
+
 
 @Component({
   selector: 'app-dash-national-client',
@@ -35,8 +37,13 @@ query($srcSector:String!) {
 
 export class DashNationalClientComponent implements OnInit, OnDestroy {
   @Input() customTitle: string;
- 
-  iconPath; String;
+  @Output("showPopup") parentFun: EventEmitter<any> = new EventEmitter();
+
+  iconPath: String;
+  cliIconPath: String;
+  malIconPath: String;
+  intIconPath: String;
+
   loading: boolean;
   timestamp: String;
   querySector: String;
@@ -46,6 +53,10 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
   private feedQuery: QueryRef<any>;
   private feed: Subscription;
   public data = [];
+
+  popup = false
+  name = 'Angular';
+
 
   public options: any = {
     chart: {
@@ -79,8 +90,8 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
                     y2: 1
                 },
                 stops: [
-                    [0, Highcharts.getOptions().colors[0]],
-                    [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    [0, AREA_COLOR],
+                    [1, Highcharts.color(AREA_COLOR).setOpacity(0).get('rgba')]
                 ]
             },
             marker: {
@@ -92,19 +103,20 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
                     lineWidth: 1
                 }
             },
-            threshold: null
+            threshold: null,
         }
     },
     series: [{
         type: 'area',
         name: 'Threat Count',
-        data: this.data
+        data: this.data,
+        color: '#2E6B9A'
     }]
 }
 
   constructor(private apollo: Apollo) {
     this.timestamp = 'Loading ...';
-
+    this.iconPath = "assets/images/icons/cii/icons/";
     this.querySector = String(this.customTitle);
   }
 
@@ -112,7 +124,10 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
         // get the data 
       let iconName = this.customTitle;
       //this.iconPath = "assets/images/icons/cii/icons"+iconName[0].toUpperCase() + iconName.substr(1).toLowerCase()+".png";
-      this.iconPath = "assets/images/icons/cii/icons/"+iconName+".png";
+      this.cliIconPath = this.iconPath+iconName+".png";
+      this.malIconPath = this.iconPath+"MALWARE.png";
+      this.intIconPath = this.iconPath+"hackingtool.png";
+
       this.feedQuery = this.apollo.watchQuery<any>({
         query: QUERY,
         variables: {
@@ -123,8 +138,8 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
     this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
       this.dataSet = JSON.parse(data['threatClient']);
       this.loading = loading;
-      console.log('Query client data :', this.dataSet);
-      console.log('Query client loading:', loading);
+      //console.log('Query client data :', this.dataSet);
+      //console.log('Query client loading:', loading);
 
       if (!this.loading) {
         let totalCount = 0;
@@ -160,4 +175,8 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
     this.feed.unsubscribe();
   }
 
+  doStuff(): void{
+    console.log("1234", "1234");
+    this.parentFun.emit("");
+  }
 }

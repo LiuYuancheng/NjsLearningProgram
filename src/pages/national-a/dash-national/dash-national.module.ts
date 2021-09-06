@@ -8,6 +8,7 @@ import { jqxGridModule } from 'jqwidgets-ng/jqxgrid';
 import { MatCardModule } from '@angular/material/card';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { DashNationalActorsComponent } from './dash-national-actors/dash-national-actors.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { DashNationalClientComponent } from './dash-national-client/dash-national-client.component';
@@ -28,6 +29,7 @@ import { DashNationalNameComponent } from './dash-national-name/dash-national-na
     FlexLayoutModule,
     CardModule,
     MatCardModule,
+    MatTooltipModule,
     HighchartsChartModule,
   ]
 })

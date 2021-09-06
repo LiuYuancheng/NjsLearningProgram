@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
 
+
 import {DashNationalActorsComponent} from "../dash-national-actors/dash-national-actors.component";
 import {DashNationalClientComponent} from "../dash-national-client/dash-national-client.component"
 
@@ -79,7 +80,9 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
     clientArr2: String[]; 
 
     
-    
+    popup = false
+    name = 'Angular';
+
     
     countSrc: any;
     nameSrc: any;
@@ -151,7 +154,8 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
         series: [{
             type: 'area',
             name: 'All Threats Counts (K)',
-            data: this.countdata
+            data: this.countdata,
+
         }]
     };
     
@@ -298,6 +302,11 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
         });
 
 
+    }
+
+    showPopup():void{
+        this.popup = true;
+        console.log('show pop up', "123");
     }
 
 }
