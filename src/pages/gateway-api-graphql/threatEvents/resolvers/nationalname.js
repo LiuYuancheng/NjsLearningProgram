@@ -126,10 +126,37 @@ module.exports = {
             //return 'Test Success, GraphQL server is up & running !!' 
         },
 
-    threatClient: (root, { ClientName }, { user }) => {
+    threatClient: (root, { ClientName, ThreatType}, { user }) => {
       let feedback = '123';
       //let nameString = '"'+ClientName+'"';
       console.log('>>>threat Client', ClientName);
+      let filterDict =  {
+        "type": "selector",
+        "dimension": "srcSector",
+        "value": ClientName,
+        "extractionFn": null
+      };
+
+      if(ThreatType!='All'){
+        filterDict = {
+          "type": "and",
+          "fields": [
+            {
+              "type": "selector",
+              "dimension": "srcSector",
+              "value": ClientName,
+              "extractionFn": null
+            },
+            {
+              "type": "selector",
+              "dimension": "threatType",
+              "value": ThreatType,
+              "extractionFn": null
+            }
+          ]
+        }
+      }
+
       let query = {
         "queryType": "timeseries",
         "dataSource": {
@@ -144,12 +171,7 @@ module.exports = {
         },
         "descending": false,
         "virtualColumns": [],
-        "filter": {
-          "type": "selector",
-          "dimension": "srcSector",
-          "value": ClientName,
-          "extractionFn": null
-        },
+        "filter":filterDict,
         "granularity": "HOUR",
         "aggregations": [
           {

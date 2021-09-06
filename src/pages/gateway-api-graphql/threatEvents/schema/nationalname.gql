@@ -3,5 +3,6 @@ type Query  {
    threatSector: String
    threatClient(
       ClientName: String!
+      ThreatType: String!
       ): String
 }
