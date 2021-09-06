@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy } from '@angular/core';
 import * as Highcharts from "highcharts";
 import { jqxGridComponent } from 'jqwidgets-ng/jqxgrid';
 
@@ -17,7 +17,6 @@ query {
     threatHourCounts
 }
 `;
-
 
 
 const SECTOR_QUERY = gql`
@@ -52,7 +51,6 @@ type threatNType = Array<{
     styleUrls: ['./dash-national.component.scss']
 })
 export class DashNationalComponent implements OnInit, OnDestroy  {
-    @ViewChild('popupDialog') popupDialog: DashNationalPopupComponent; 
     private nativeElement: HTMLElement;
 
     //Query data paramters
@@ -90,7 +88,10 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
     nameSrc: any;
     sectorSrc: any;
 
-    
+    popupType:String;
+    popupName:String;
+
+
     public threatSectorArr: threatNType = [];
 
 
@@ -303,12 +304,10 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
         this.popCliIconPath = "assets/images/icons/cii/icons/"+popName+".png";
         this.popName = popName;
         console.log('show pop up', "123");
+        this.popupType = 'Client';
+        this.popupName = ''+popName;
+
         this.popup = true;
-        //this.popupDialog.createGraph("Client", this.popName)
+
     }
-
-
-
-
-    
 }

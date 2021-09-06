@@ -65,6 +65,21 @@ export class DashNationalNameComponent implements OnInit {
             '<div>{viewTableButton}</div>'
         }
       },
+
+      plotOptions: {
+        series: {
+            cursor: 'pointer',
+            events: {
+                click: function (event) {
+                    alert(
+                        'Shift: ' + String(this.data[0])
+                    );
+                }
+            }
+        }
+    }, 
+
+
       series: [{
         type: 'wordcloud',
         data: [['123', 1]],
@@ -112,10 +127,16 @@ export class DashNationalNameComponent implements OnInit {
         let size = rweight < 8? 10: rweight
         return size
       }; */
+    this.options.plotOptions.series.events.click = (event) => this.clickBars(event);
     let chartG2 = Highcharts.chart('nameContainer', this.options);
-
+    
     chartG2.reflow();
   }
+
+  clickBars(event:any){
+    console.log("---------------", event.point['name']);
+  }
+
 
   fetchNameQuery(): void {
     this.feedName = this.feedNameQuery.valueChanges.subscribe(({ data, loading }) => {
