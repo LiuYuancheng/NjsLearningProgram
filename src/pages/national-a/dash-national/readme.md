@@ -148,3 +148,14 @@ GROUP BY DATE_TRUNC('hour', __time)
 ORDER BY DATE_TRUNC('hour', __time)
 ```
 
+select popup 
+
+```
+SELECT
+DATE_TRUNC('hour', __time), count(*) as threatCount
+FROM "ds-suspected-ip-2019"
+WHERE srcSector='GOVERNMENT' and threatType = 'IntrustionSet'
+GROUP BY DATE_TRUNC('hour', __time)
+ORDER BY DATE_TRUNC('hour', __time)
+```
+

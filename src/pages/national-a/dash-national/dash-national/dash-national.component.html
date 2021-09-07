@@ -9,7 +9,7 @@
         <tr>
             <td style="width: 30%;">
                 <mat-card style="margin: 5px;">
-                    <app-dash-national-name></app-dash-national-name>
+                    <app-dash-national-name (showPopup)="showNamePopup($event)"></app-dash-national-name>
                     <!--             <jqxGrid #nameGrid [source]="nameSrc" [width]="'100%'" [height]="'75%'" [theme]="'metrodark'" [pageable]="true"
                 [altrows]="true" [filterable]="true" [sortable]="true" [columns]="nameColumns">
             </jqxGrid> -->
@@ -46,13 +46,13 @@
     <table style="scroll-behavior: smooth;">
         <tr>
             <td style="width: 25%;" *ngFor="let name of clientArr1">
-                <app-dash-national-client customTitle={{name}} (showPopup)="showPopup($event)"></app-dash-national-client>
+                <app-dash-national-client customTitle={{name}} (showPopup)="showClientPopup($event)"></app-dash-national-client>
             </td>
         </tr>
 
         <tr>
             <td style="width: 25%;" *ngFor="let name of clientArr2">
-                <app-dash-national-client customTitle={{name}} (showPopup)="showPopup($event)"></app-dash-national-client>
+                <app-dash-national-client customTitle={{name}} (showPopup)="showClientPopup($event)"></app-dash-national-client>
             </td>
 
         </tr>
@@ -68,7 +68,5 @@
             <app-dash-national-popup popupType={{popupType}} popupName={{popupName}}></app-dash-national-popup>
         </div>
     </div>
-
-
 </div>
 

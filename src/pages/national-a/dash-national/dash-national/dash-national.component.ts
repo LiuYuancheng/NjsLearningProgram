@@ -300,14 +300,21 @@ export class DashNationalComponent implements OnInit, OnDestroy  {
 
     }
 
-    showPopup(popName: String):void{
+    showClientPopup(popName: String):void{
         this.popCliIconPath = "assets/images/icons/cii/icons/"+popName+".png";
         this.popName = popName;
-        console.log('show pop up', "123");
+        console.log('show Client pop up', "123");
         this.popupType = 'Client';
         this.popupName = ''+popName;
-
         this.popup = true;
+    }
 
+    showNamePopup(popName: String):void{
+        this.popCliIconPath = "assets/images/icons/cii/icons/hackingtool.png";
+        this.popName = popName;
+        console.log('show pop up', "123");
+        this.popupType = 'Tname';
+        this.popupName = ''+popName;
+        this.popup = true;
     }
 }

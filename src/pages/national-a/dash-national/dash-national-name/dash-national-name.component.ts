@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef,EventEmitter, ViewChild,Output, OnDestroy } from '@angular/core';
 import * as Highcharts from "highcharts";
 
 import { Subscription } from 'rxjs';
@@ -29,10 +29,11 @@ const Wordcloud = require('highcharts/modules/wordcloud');
 Wordcloud(Highcharts);
 
 const NAME_QUERY = gql`
-query {
-    threatName
+query($NameStr:String!) {
+    threatName(NameStr:$NameStr)
 }
 `;
+
 
 
 @Component({
@@ -40,7 +41,9 @@ query {
   templateUrl: './dash-national-name.component.html',
   styleUrls: ['./dash-national-name.component.scss']
 })
-export class DashNationalNameComponent implements OnInit {
+export class DashNationalNameComponent implements OnInit, OnDestroy{
+  @Output("showPopup") parentFun: EventEmitter<any> = new EventEmitter();
+
   public activity;
   public xData;
   public label;
@@ -106,7 +109,7 @@ export class DashNationalNameComponent implements OnInit {
       variables: {
         // page: this.page,
         // rowsPerPage: this.rowsPerPage,
-        page: 0,
+        NameStr: "topN",
       },
       fetchPolicy: 'network-only',
       // fetchPolicy: 'cache-first',
@@ -135,6 +138,7 @@ export class DashNationalNameComponent implements OnInit {
 
   clickBars(event:any){
     console.log("---------------", event.point['name']);
+    this.parentFun.emit(event.point['name']);
   }
 
 

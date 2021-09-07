@@ -20,11 +20,19 @@ ExportData(Highcharts);
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
-const QUERY = gql`
+const SECTOR_QUERY = gql`
 query($srcSector:String!, $threatType:String!) {
   threatClient(ClientName:$srcSector, ThreatType:$threatType)
 }
 `;
+
+
+const NAME_QUERY = gql`
+query($NameStr:String!) {
+    threatName(NameStr:$NameStr)
+}
+`;
+
 
 const AREA_COLOR = '#2E6B9A';
 
@@ -51,78 +59,112 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
     // queryName;String;
 
 
-
-    public options: any = {
-        chart: {
-            zoomType: 'x'
-        },
-        title: {
-            text: 'Threat Counts'
-
-        },
-        subtitle: {
-            text: ''
-        },
-        xAxis: {
-            type: 'datetime'
-        },
-        yAxis: {
-            title: {
-                text: 'Thread Number'
-            }
-        },
-        legend: {
-            enabled: true
-        },
-        plotOptions: {
-            area: {
-                fillColor: {
-                    linearGradient: {
-                        x1: 0,
-                        y1: 0,
-                        x2: 0,
-                        y2: 1
-                    },
-                    stops: [
-                        [0, AREA_COLOR],
-                        [1, Highcharts.color(AREA_COLOR).setOpacity(0).get('rgba')]
-                    ]
-                },
-                marker: {
-                    radius: 2
-                },
-                lineWidth: 1,
-                states: {
-                    hover: {
-                        lineWidth: 1
-                    }
-                },
-                threshold: null,
-                
-            },
-            showInLegend: true
-        },
-        series: []
-    }
+    public options: any 
 
 
     constructor(private apollo: Apollo) {
-
+        this.options ={
+            chart: {
+                zoomType: 'x'
+            },
+            title: {
+                text: 'Threat Counts'
+    
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                type: 'datetime'
+            },
+            yAxis: {
+                title: {
+                    text: 'Thread Number'
+                }
+            },
+            legend: {
+                enabled: true
+            },
+            plotOptions: {
+                area: {
+                    fillColor: {
+                        linearGradient: {
+                            x1: 0,
+                            y1: 0,
+                            x2: 0,
+                            y2: 1
+                        },
+                        stops: [
+                            [0, AREA_COLOR],
+                            [1, Highcharts.color(AREA_COLOR).setOpacity(0).get('rgba')]
+                        ]
+                    },
+                    marker: {
+                        radius: 2
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null,
+                    
+                },
+                showInLegend: true
+            },
+            series: []
+        }
     }
 
     ngOnInit(): void {
 
 
         if (this.popupType == 'Client') {
-            this.getThreatCount('Malware');
-            this.getThreatCount('IntrusionSet');
+            this.getThreatTCount('Malware');
+            this.getThreatTCount('IntrusionSet');
+        }
+        else if (this.popupType == 'Tname') {
+            this.getThreadNCount()
         }
     }
 
-
-    getThreatCount(threatType: String): void {
+    getThreadNCount():void{
         this.feedQuery = this.apollo.watchQuery<any>({
-            query: QUERY,
+            query: NAME_QUERY,
+            variables: {
+                NameStr: this.popupName,
+            },
+            fetchPolicy: 'network-only',
+        });
+
+        this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
+            this.dataSet = JSON.parse(data['threatName']);
+            this.loading = loading;
+            if (!this.loading) {
+                let totalCount = 0;
+                let series = {
+                    type: 'area',
+                    name: this.popupName,
+                    data: [],
+                }
+                for (let obj of this.dataSet) {
+                    let actor = [
+                        Number(obj['d0']),
+                        Number(obj['a0']),
+                    ]
+                    totalCount += actor[1];
+                    series['data'].push(actor);
+                }
+                this.options['series'].push(series);
+                    this.redraw();
+            }
+        });
+    }
+
+    getThreatTCount(threatType: String): void {
+        this.feedQuery = this.apollo.watchQuery<any>({
+            query: SECTOR_QUERY,
             variables: {
                 srcSector: this.popupName,
                 threatType: threatType,
@@ -161,7 +203,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.feed.unsubscribe();
+        if(this.feed != null) this.feed.unsubscribe();
     }
 
 }
