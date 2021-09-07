@@ -33,6 +33,11 @@ query($NameStr:String!) {
 }
 `;
 
+const ACTOR_QUERY = gql`
+query($ActorStr:String!) {
+  threatActor(ActorStr:$ActorStr)
+}
+`;
 
 const AREA_COLOR = '#2E6B9A';
 
@@ -125,8 +130,47 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
             this.getThreatTCount('IntrusionSet');
         }
         else if (this.popupType == 'Tname') {
-            this.getThreadNCount()
+            this.getThreadNCount();
         }
+        else if (this.popupType== 'Actor')
+        {
+            this.getThreatACount();
+
+        }
+
+    }
+
+    getThreatACount():void{
+        this.feedQuery = this.apollo.watchQuery<any>({
+            query: ACTOR_QUERY,
+            variables: {
+                ActorStr: this.popupName,
+            },
+            fetchPolicy: 'network-only',
+        });
+
+        this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
+            this.dataSet = JSON.parse(data['threatActor']);
+            this.loading = loading;
+            if (!this.loading) {
+                let totalCount = 0;
+                let series = {
+                    type: 'area',
+                    name: this.popupName,
+                    data: [],
+                }
+                for (let obj of this.dataSet) {
+                    let actor = [
+                        Number(obj['d0']),
+                        Number(obj['a0']),
+                    ]
+                    totalCount += actor[1];
+                    series['data'].push(actor);
+                }
+                this.options['series'].push(series);
+                    this.redraw();
+            }
+        });
     }
 
     getThreadNCount():void{

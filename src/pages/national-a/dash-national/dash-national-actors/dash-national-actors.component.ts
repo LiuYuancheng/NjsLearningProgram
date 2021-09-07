@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, OnDestroy} from '@angular/core';
 
 
 import { Subscription } from 'rxjs';
@@ -20,9 +20,9 @@ ExportData(Highcharts);
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
-const QUERY = gql`
-query {
-  threatActor
+const ACTOR_QUERY = gql`
+query($ActorStr:String!) {
+  threatActor(ActorStr:$ActorStr)
 }
 `;
 
@@ -32,13 +32,13 @@ query {
   styleUrls: ['./dash-national-actors.component.scss']
 })
 export class DashNationalActorsComponent implements OnInit, OnDestroy {
+  @Output("showPopup") parentFun: EventEmitter<any> = new EventEmitter();
   loading: boolean;
   timestamp: String;
   posts: any;
   dataSet: any;
   private feedQuery: QueryRef<any>;
   private feed: Subscription;
-
 
 
   public options: any =  {
@@ -69,10 +69,20 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
             dataLabels: {
                 enabled: true,
                 //format: '<b>{point.name}</b>: {point.y:.1f}'
-                format: '<b>{point.name}</b>: {point.y}'
+                format: '<b>{point.name}</b>: {point.percentage:.2f}%'
             },
             showInLegend: true
-        }
+        },
+        series: {
+          cursor: 'pointer',
+          events: {
+              click: function (event) {
+                  alert(
+                      'Shift: ' + String(this.data[0])
+                  );
+              }
+          }
+      }
     },
     series: [{
       name: 'Brands',
@@ -92,9 +102,10 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
 
     // get the data 
     this.feedQuery = this.apollo.watchQuery<any>({
-      query: QUERY,
+      query: ACTOR_QUERY,
       variables: {
         //page: 0,
+        ActorStr: "topN",
       },
       fetchPolicy: 'network-only',
       // fetchPolicy: 'cache-first',
@@ -127,8 +138,16 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
   }
 
   redraw(){
+    this.options.plotOptions.series.events.click = (event) => this.clickBars(event);
     let chartG = Highcharts.chart('actorPieChart', this.options);
     chartG.reflow();
+  }
+
+
+  clickBars(event:any){
+    console.log("---------------", event.point['name']);
+    //this.parentFun.emit(event.point['name']);
+    this.parentFun.emit(event.point['name']);
   }
 
   ngOnDestroy() {

@@ -34,8 +34,6 @@ query($NameStr:String!) {
 }
 `;
 
-
-
 @Component({
   selector: 'app-dash-national-name',
   templateUrl: './dash-national-name.component.html',
@@ -130,14 +128,14 @@ export class DashNationalNameComponent implements OnInit, OnDestroy{
         let size = rweight < 8? 10: rweight
         return size
       }; */
-    this.options.plotOptions.series.events.click = (event) => this.clickBars(event);
+    this.options.plotOptions.series.events.click = (event) => this.clickWords(event);
     let chartG2 = Highcharts.chart('nameContainer', this.options);
     
     chartG2.reflow();
   }
 
-  clickBars(event:any){
-    console.log("---------------", event.point['name']);
+  clickWords(event:any){
+    //console.log("---------------", event.point['name']);
     this.parentFun.emit(event.point['name']);
   }
 
