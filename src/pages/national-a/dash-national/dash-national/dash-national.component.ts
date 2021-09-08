@@ -7,17 +7,16 @@ import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
 
 
-import {DashNationalActorsComponent} from "../dash-national-actors/dash-national-actors.component";
-import {DashNationalClientComponent} from "../dash-national-client/dash-national-client.component";
-import {DashNationalPopupComponent} from "../dash-national-popup/dash-national-popup.component";
+import { DashNationalActorsComponent } from "../dash-national-actors/dash-national-actors.component";
+import { DashNationalClientComponent } from "../dash-national-client/dash-national-client.component";
+import { DashNationalPopupComponent } from "../dash-national-popup/dash-national-popup.component";
 
 
-const COUTN_QUERY =  gql`
+const COUTN_QUERY = gql`
 query {
     threatHourCounts
 }
 `;
-
 
 const SECTOR_QUERY = gql`
 query {
@@ -38,292 +37,241 @@ ExportData(Highcharts);
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
-
-// define the name type
-type threatNType = Array<{
-    name: String,
-    count: Number,
-  }>; 
-
 @Component({
     selector: 'app-dash-national',
     templateUrl: './dash-national.component.html',
     styleUrls: ['./dash-national.component.scss']
 })
-export class DashNationalComponent implements OnInit, OnDestroy  {
+
+export class DashNationalComponent implements OnInit, OnDestroy {
     private nativeElement: HTMLElement;
 
-    //Query data paramters
-    loadingCount: boolean;
+    //Total threat count query paramters
+    loadingCount: boolean;  // query data finished flag
     countDataSet: any;
     public threatCountTS: String;
-    private queryCountSubscription: Subscription;
     private feedCouQuery: QueryRef<any>;
     private feedCount: Subscription;
-    
 
-
+    // top-N sector query parameters
     loadingSector: boolean;
     sectorDataSet: any;
     public threatSectorTS: String;
-    private querySecotrSubscription: Subscription;
     private feedSecQuery: QueryRef<any>;
     private feedSector: Subscription;
 
-
-    posts: any;
-    
-    public countdata = [];
-    
-    
+    // the client we want to show in the summery section.
     clientArr1: String[];
-    clientArr2: String[]; 
+    clientArr2: String[];
 
-    
+    // pop-up dialog parameters
     popup = false;
-    popName:String;
-    popCliIconPath:String;
-    
-    countSrc: any;
-    nameSrc: any;
-    sectorSrc: any;
+    popName: String;
+    popCliIconPath: String;
+    popupType: String;
+    popupName: String;
 
-    popupType:String;
-    popupName:String;
-
-
-    public threatSectorArr: threatNType = [];
-
-
-    nameColumns = [
-        { text: 'Threat Name', datafield: 'name'},
-        { text: 'Threat Count', datafield: 'count' },
-      ]; // landing page subgraph table
-
-    sectorColumns = [
-        { text: 'Sector Name', datafield: 'name'},
-        { text: 'Total Threat Count', datafield: 'count' },
-      ]; // landing page subgraph table
-
-
-    public options: any = {
-        chart: {
-            zoomType: 'x'
-        },
-        title: {
-            text: 'Threat Counts'
-        },
-        subtitle: {
-            text: 'from (local pre-saved data)'
-            //'Drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
-        },
-        xAxis: {
-            type: 'datetime'
-        },
-        yAxis: {
-            title: {
-                text: 'Thread Number(k)'
-            }
-        },
-        legend: {
-            enabled: false
-        },
-        plotOptions: {
-            area: {
-                fillColor: {
-                    linearGradient: {
-                        x1: 0,
-                        y1: 0,
-                        x2: 0,
-                        y2: 1
-                    },
-                    stops: [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
-                marker: {
-                    radius: 2
-                },
-                lineWidth: 1,
-                states: {
-                    hover: {
-                        lineWidth: 1
-                    }
-                },
-                threshold: null
-            }
-        },
-        series: [{
-            type: 'area',
-            name: 'All Threats Counts (K)',
-            data: this.countdata,
-
-        }]
-    };
-    
-    // word cloud option
-    wcOptions = {
-        accessibility: {
-            screenReaderSection: {
-                beforeChartFormat: '<h5>{chartTitle}</h5>' +
-                    '<div>{chartSubtitle}</div>' +
-                    '<div>{chartLongdesc}</div>' +
-                    '<div>{viewTableButton}</div>'
-            }
-        },
-        series: [{
-            type: 'wordcloud',
-            data: [['loading',1]],
-            name: 'Occurrences'
-        }],
-        title: {
-            text: ''
-        }
-    };
+    // high chart options
+    public areOptions: any;
+    public pieOption: any;
 
     constructor(private apollo: Apollo) {
-        
         this.threatSectorTS = "Loading ...";
-        //this.clientArr1 = ["GOVERNMENT"];
-        //this.clientArr2 = [];
         this.clientArr1 = ["GOVERNMENT", "INFOCOMM", "MANUFACTURING", "ENERGY"];
         this.clientArr2 = ["TRANSPORTATION SERVICES", "HEALTH AND SOCIAL SERVICES", "SECURITY AND EMERGENCY", "BANKING AND FINANCE"];
+        this.sectorDataSet = {};
+        // Init the threat count area highchart option.
+        this.areOptions = {
+            chart: {
+                zoomType: 'x'
+            },
+            title: {
+                text: 'Total Threat Counts'
+            },
+            subtitle: {
+                text: 'from (local pre-saved data)'
+            },
+            xAxis: {
+                type: 'datetime'
+            },
+            yAxis: {
+                title: {
+                    text: 'Thread count'
+                }
+            },
+            legend: {
+                enabled: true
+            },
+            plotOptions: {
+                area: {
+                    fillColor: {
+                        linearGradient: {
+                            x1: 0,
+                            y1: 0,
+                            x2: 0,
+                            y2: 1
+                        },
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                        ]
+                    },
+                    marker: {
+                        radius: 2
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null
+                }
+            },
+            series: [{
+                type: 'area',
+                name: 'All Threats Counts',
+                data: [],
 
-        
-        this.sectorDataSet ={};
+            }]
+        };
+
+        // Init the top-N sector pie highchart option.
+        this.pieOption = {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie',
+            },
+            title: {
+                text: 'Top-N Threat Sectors'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.y}</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y:.1f}'
+                        //format: '<b>{point.name}</b>: {point.percentage:.2f}%'
+                    },
+                    showInLegend: false,
+                },
+            },
+            series: [{
+                name: 'Brands',
+                colorByPoint: true,
+                data: []
+            }]
+        }
     }
 
     ngOnInit(): void {
 
         this.feedCouQuery = this.apollo.watchQuery<any>({
             query: COUTN_QUERY,
-            variables: {
-                // page: this.page,
-                // rowsPerPage: this.rowsPerPage,
-                page: 0,
-            },
+            variables: {},
             fetchPolicy: 'network-only',
-            // fetchPolicy: 'cache-first',
         });
         this.fetchCountQuery();
 
         this.feedSecQuery = this.apollo.watchQuery<any>({
             query: SECTOR_QUERY,
-            variables: {
-                // page: this.page,
-                // rowsPerPage: this.rowsPerPage,
-                page: 0,
-            },
+            variables: {},
             fetchPolicy: 'network-only',
-            // fetchPolicy: 'cache-first',
         });
         this.fetchSectorQuery();
-
-        // this.nameSrc = new jqx.dataAdapter({
-        //     localData: [],
-        //     sortcolumn: 'count',
-        //     sortdirection: 'dsc',
-        // });
-
-        this.nameSrc = new jqx.dataAdapter({
-            localData: [],
-            sortcolumn: 'count',
-            sortdirection: 'dsc',
-        });
-
     }
 
-    ngOnDestroy() {
-        this.feedSector.unsubscribe();
-        this.feedCount.unsubscribe();
+    ngOnDestroy(): void {
+        if (this.feedSector != null) this.feedSector.unsubscribe();
+        if (this.feedCount != null) this.feedCount.unsubscribe();
     }
 
-    redraw():void {
-        let chartG = Highcharts.chart('container', this.options);
+    redrawTotal(): void {
+        let chartG = Highcharts.chart('totalCount', this.areOptions);
         chartG.reflow();
     }
 
-    fetchCountQuery():void{
+    redrawSector(): void {
+        let chartG = Highcharts.chart('sectorPie', this.pieOption);
+        chartG.reflow();
+    }
+
+
+    fetchCountQuery(): void {
         this.feedCount = this.feedCouQuery.valueChanges.subscribe(({ data, loading }) => {
-            // console.log("threatEvents_list", this.threatEvents_list)
             this.countDataSet = JSON.parse(data['threatHourCounts']);
             this.loadingCount = loading;
-            console.log('Query count  0:', this.countDataSet);
-            //console.log('Query data 1:', darrary[1]);
-            console.log('Query count loading:', loading);
-            this.countdata = [];
+            //console.log('Query count data:', this.countDataSet);
+            //console.log('Query count loading:', loading);
+            let countdata = [];
             if (!this.loadingCount) {
                 for (let obj of this.countDataSet) {
-                    let actor =[
-                      Number(obj['d0']),
-                      Number(obj['a0']),
+                    let actor = [
+                        Number(obj['d0']),
+                        Number(obj['a0']),
                     ]
-                    this.countdata.push(actor);
-                  }
-                let timestamp1 = this.countdata[0][0];
+                    countdata.push(actor);
+                }
+                let timestamp1 = countdata[0][0];
                 let date1 = new Date(timestamp1).toLocaleDateString("en-us");
-                let timestamp2 = this.countdata[this.countdata.length-1][0];
+                let timestamp2 = countdata[countdata.length - 1][0];
                 let date2 = new Date(timestamp2).toLocaleDateString("en-us");
-                this.options['subtitle']['text'] = 'From '+ date1 + ' to ' +date2;
-                this.options['series']['0']['data'] = this.countdata;
-                this.redraw();
+                this.areOptions['subtitle']['text'] = 'From ' + date1 + ' to ' + date2;
+                this.areOptions['series']['0']['data'] = countdata;
+                this.redrawTotal();
             }
         });
     }
-
 
     fetchSectorQuery(): void {
-        console.log("123", "123");
         this.feedSector = this.feedSecQuery.valueChanges.subscribe(({ data, loading }) => {
-            // console.log("threatEvents_list", this.threatEvents_list)
             this.sectorDataSet = JSON.parse(data['threatSector'])['0'];
             this.loadingSector = loading;
-            console.log('Query sector 0:', this.sectorDataSet);
-            //console.log('Query data 1:', darrary[1]);
-            console.log('Query sector loading:', loading);
-            this.threatSectorArr = [];
+            //console.log('Query sector data:', this.sectorDataSet);
+            //console.log('Query sector loading:', loading);
             if (!this.loadingSector) {
                 this.threatSectorTS = 'Dataset timestamp : ' + this.sectorDataSet['timestamp'];
+                let data = [];
                 for (let obj of this.sectorDataSet['result']) {
-                    this.threatSectorArr.push({ "name": obj['d0'], "count": Number(obj['a0']) });
+                    let actor = {
+                        name: obj['d0'],
+                        y: obj['a0'],
+                    }
+                    data.push(actor);
                 }
+                this.pieOption['series']['0']['data'] = data;
+                this.redrawSector();
             }
-
-            this.sectorSrc = new jqx.dataAdapter({
-                localData: this.threatSectorArr,
-                sortcolumn: 'count',
-                sortdirection: 'dsc',
-            });
         });
-
-
     }
 
-    showClientPopup(popName: String):void{
-        this.popCliIconPath = "assets/images/icons/cii/icons/"+popName+".png";
+    showClientPopup(popName: String): void {
+        this.popCliIconPath = "assets/images/icons/cii/icons/" + popName + ".png";
         this.popName = popName;
-        console.log('show Client pop up', "123");
         this.popupType = 'Client';
-        this.popupName = ''+popName;
+        this.popupName = '' + popName;
         this.popup = true;
     }
 
-    showNamePopup(popName: String):void{
+    showNamePopup(popName: String): void {
         this.popCliIconPath = "assets/images/icons/cii/icons/hackingtool.png";
         this.popName = popName;
-        console.log('show pop up', "123");
         this.popupType = 'Tname';
-        this.popupName = ''+popName;
+        this.popupName = '' + popName;
         this.popup = true;
     }
 
-    showActorPopup(popName: String):void{
+    showActorPopup(popName: String): void {
         this.popCliIconPath = "assets/images/icons/cii/icons/MALWARE.png";
         this.popName = popName;
-        console.log('show pop up', "123");
         this.popupType = 'Actor';
-        this.popupName = ''+popName;
+        this.popupName = '' + popName;
         this.popup = true;
     }
 }

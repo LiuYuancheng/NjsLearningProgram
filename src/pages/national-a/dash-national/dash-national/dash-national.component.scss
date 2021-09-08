@@ -20,7 +20,6 @@
   opacity: 1;
 }
 
-
 ::ng-deep .popup {
   margin: 200px auto;
   padding: 15px;
@@ -42,18 +41,13 @@
   text-decoration: none;
   color: #333;
 }
+
 ::ng-deep .popup .close:hover {
   color: #06D85F;
   cursor: pointer;
 }
+
 ::ng-deep .popup .content {
   max-height: 30%;
   overflow: auto;
-}
-
-@media screen and (max-width: 700px){
-  
-  .popup{
-    width: 70%;
-  }
 }

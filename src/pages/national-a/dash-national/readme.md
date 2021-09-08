@@ -170,3 +170,9 @@ GROUP BY DATE_TRUNC('hour', __time)
 ORDER BY DATE_TRUNC('hour', __time)
 ```
 
+
+
+TODO
+
+- [ ] remove the pie chart legends. 
+- [ ] Add the description in the pop-up dialog. 

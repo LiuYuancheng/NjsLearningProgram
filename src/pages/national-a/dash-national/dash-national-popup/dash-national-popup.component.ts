@@ -26,7 +26,6 @@ query($srcSector:String!, $threatType:String!) {
 }
 `;
 
-
 const NAME_QUERY = gql`
 query($NameStr:String!) {
     threatName(NameStr:$NameStr)
@@ -36,6 +35,12 @@ query($NameStr:String!) {
 const ACTOR_QUERY = gql`
 query($ActorStr:String!) {
   threatActor(ActorStr:$ActorStr)
+}
+`;
+
+const DES_QUERY = gql`
+query($threatName:String!) {
+    profile_threatName(threatName:$threatName)
 }
 `;
 
@@ -60,14 +65,17 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
     private feed: Subscription;
     public data = [];
 
+    public threatDesStr:String;
+    private feedDesQuery: QueryRef<any>;
+    private feedDes: Subscription;
+
     // queryType:String;
     // queryName;String;
 
-
     public options: any 
 
-
     constructor(private apollo: Apollo) {
+        this.threatDesStr = 'Loading ...'; 
         this.options ={
             chart: {
                 zoomType: 'x'
@@ -128,15 +136,37 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
         if (this.popupType == 'Client') {
             this.getThreatTCount('Malware');
             this.getThreatTCount('IntrusionSet');
+            this.threatDesStr = 'No Info from database.'
         }
         else if (this.popupType == 'Tname') {
             this.getThreadNCount();
+            this.getThreatDes();
         }
         else if (this.popupType== 'Actor')
         {
             this.getThreatACount();
+            this.getThreatDes();
 
         }
+
+    }
+
+    getThreatDes():void{
+        this.feedDesQuery = this.apollo.watchQuery<any>({
+            query: DES_QUERY,
+            variables: {
+                threatName: this.popupName,
+            },
+            fetchPolicy: 'network-only',
+        });
+        this.feedDes = this.feedDesQuery.valueChanges.subscribe(({ data, loading }) => {
+            console.log('descriptiong >>>', data);
+            let dataSet = data['profile_threatName'];
+            loading;
+            if (!loading) {
+                this.threatDesStr = dataSet['threat']['description'];
+            }
+        });
 
     }
 
@@ -248,6 +278,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         if(this.feed != null) this.feed.unsubscribe();
+        if(this.feedDes!=null) this.feedDes.unsubscribe();
     }
 
 }

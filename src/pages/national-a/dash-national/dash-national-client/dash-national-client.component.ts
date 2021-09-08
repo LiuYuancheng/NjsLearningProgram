@@ -121,21 +121,21 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-        // get the data 
-      let iconName = this.customTitle;
-      //this.iconPath = "assets/images/icons/cii/icons"+iconName[0].toUpperCase() + iconName.substr(1).toLowerCase()+".png";
-      this.cliIconPath = this.iconPath+iconName+".png";
-      this.malIconPath = this.iconPath+"MALWARE.png";
-      this.intIconPath = this.iconPath+"hackingtool.png";
+    // get the data 
+    let iconName = this.customTitle;
+    //this.iconPath = "assets/images/icons/cii/icons"+iconName[0].toUpperCase() + iconName.substr(1).toLowerCase()+".png";
+    this.cliIconPath = this.iconPath + iconName + ".png";
+    this.malIconPath = this.iconPath + "MALWARE.png";
+    this.intIconPath = this.iconPath + "hackingtool.png";
 
-      this.feedQuery = this.apollo.watchQuery<any>({
-        query: QUERY,
-        variables: {
-          srcSector: this.customTitle,
-          threatType: 'All',
-        },
-        fetchPolicy: 'network-only',
-      });
+    this.feedQuery = this.apollo.watchQuery<any>({
+      query: QUERY,
+      variables: {
+        srcSector: this.customTitle,
+        threatType: 'All',
+      },
+      fetchPolicy: 'network-only',
+    });
 
     this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
       this.dataSet = JSON.parse(data['threatClient']);
@@ -157,7 +157,7 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
         let date1 = new Date(timestamp1).toLocaleDateString("en-us");
         let timestamp2 = this.data[this.data.length - 1][0];
         let date2 = new Date(timestamp2).toLocaleDateString("en-us");
-        
+
         //this.options['subtitle']['text'] = 'From ' + date1 + ' to ' + date2;
         this.options['subtitle']['text'] = 'Threat Count : ' + String(totalCount);
         this.options['title']['text'] = this.customTitle;
