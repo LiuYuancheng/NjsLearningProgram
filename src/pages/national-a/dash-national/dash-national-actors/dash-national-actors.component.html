@@ -1,3 +1,12 @@
 
 <div id="actorPieChart" style="width: 100%; height: 95%;"></div>
 {{timestamp}}
+&nbsp;
+<select (change)="selectConfigN($event)">
+    <option value="name:5">Show Top-5</option>
+    <option value="name:10" selected="selected">Show Top-10</option>
+    <option value="name:15">Show Top-15</option>
+    <option value="name:20">Show Top-20</option>
+</select>
+&nbsp; &nbsp;
+<mat-checkbox color="primary" [checked]="true" (change)="showLegend($event)">Show Legend</mat-checkbox>

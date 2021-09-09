@@ -1,12 +1,10 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
-
-
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
+
 import gql from 'graphql-tag';
-
-
 import * as Highcharts from 'highcharts';
+
 declare var require: any;
 const More = require('highcharts/highcharts-more');
 More(Highcharts);
@@ -51,38 +49,30 @@ const AREA_COLOR = '#2E6B9A';
     templateUrl: './dash-national-popup.component.html',
     styleUrls: ['./dash-national-popup.component.scss']
 })
+
+
 export class DashNationalPopupComponent implements OnInit, OnDestroy {
     @Input() popupType: String;
     @Input() popupName: String;
 
-    loading: boolean;
-    timestamp: String;
-    querySector: String;
-
-    posts: any;
-    dataSet: any;
+    private dataSet: any;
     private feedQuery: QueryRef<any>;
     private feed: Subscription;
-    public data = [];
 
     public threatDesStr:String;
     private feedDesQuery: QueryRef<any>;
     private feedDes: Subscription;
 
-    // queryType:String;
-    // queryName;String;
-
     public options: any 
 
     constructor(private apollo: Apollo) {
         this.threatDesStr = 'Loading ...'; 
-        this.options ={
+        this.options = {
             chart: {
                 zoomType: 'x'
             },
             title: {
                 text: 'Threat Counts'
-    
             },
             subtitle: {
                 text: ''
@@ -122,7 +112,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
                         }
                     },
                     threshold: null,
-                    
+
                 },
                 showInLegend: true
             },
@@ -131,8 +121,6 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-
-
         if (this.popupType == 'Client') {
             this.getThreatTCount('Malware');
             this.getThreatTCount('IntrusionSet');
@@ -148,10 +136,9 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
             this.getThreatDes();
 
         }
-
     }
 
-    getThreatDes():void{
+    getThreatDes(): void {
         this.feedDesQuery = this.apollo.watchQuery<any>({
             query: DES_QUERY,
             variables: {
@@ -160,17 +147,13 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
             fetchPolicy: 'network-only',
         });
         this.feedDes = this.feedDesQuery.valueChanges.subscribe(({ data, loading }) => {
-            console.log('descriptiong >>>', data);
+            //console.log('getThreatDes():', data);
             let dataSet = data['profile_threatName'];
-            loading;
-            if (!loading) {
-                this.threatDesStr = dataSet['threat']['description'];
-            }
+            if (!loading) this.threatDesStr = dataSet['threat']['description'];
         });
-
     }
 
-    getThreatACount():void{
+    getThreatACount(): void {
         this.feedQuery = this.apollo.watchQuery<any>({
             query: ACTOR_QUERY,
             variables: {
@@ -181,24 +164,17 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
 
         this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
             this.dataSet = JSON.parse(data['threatActor']);
-            this.loading = loading;
-            if (!this.loading) {
-                let totalCount = 0;
+            if (!loading) {
                 let series = {
                     type: 'area',
                     name: this.popupName,
                     data: [],
                 }
                 for (let obj of this.dataSet) {
-                    let actor = [
-                        Number(obj['d0']),
-                        Number(obj['a0']),
-                    ]
-                    totalCount += actor[1];
-                    series['data'].push(actor);
+                    series['data'].push([Number(obj['d0']), Number(obj['a0']),]);
                 }
                 this.options['series'].push(series);
-                    this.redraw();
+                this.redraw();
             }
         });
     }
@@ -214,8 +190,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
 
         this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
             this.dataSet = JSON.parse(data['threatName']);
-            this.loading = loading;
-            if (!this.loading) {
+            if (!loading) {
                 let totalCount = 0;
                 let series = {
                     type: 'area',
@@ -248,8 +223,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
 
         this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
             this.dataSet = JSON.parse(data['threatClient']);
-            this.loading = loading;
-            if (!this.loading) {
+            if (!loading) {
                 let totalCount = 0;
                 let series = {
                     type: 'area',

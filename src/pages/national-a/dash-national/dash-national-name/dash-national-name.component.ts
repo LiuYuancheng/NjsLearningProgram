@@ -1,12 +1,10 @@
-import { Component, OnInit, ElementRef,EventEmitter, ViewChild,Output, OnDestroy } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, OnDestroy } from '@angular/core';
 import * as Highcharts from "highcharts";
 
 import { Subscription } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
-
-
-
+import wordCloud from "highcharts/modules/wordcloud.js";
 
 declare var require: any;
 const More = require('highcharts/highcharts-more');
@@ -24,13 +22,13 @@ ExportData(Highcharts);
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
-import wordCloud from "highcharts/modules/wordcloud.js";
+
 const Wordcloud = require('highcharts/modules/wordcloud');
 Wordcloud(Highcharts);
 
 const NAME_QUERY = gql`
-query($NameStr:String!) {
-    threatName(NameStr:$NameStr)
+query($NameStr:String!, $topN:Int) {
+    threatName(NameStr:$NameStr, topN:$topN)
 }
 `;
 
@@ -39,12 +37,9 @@ query($NameStr:String!) {
   templateUrl: './dash-national-name.component.html',
   styleUrls: ['./dash-national-name.component.scss']
 })
-export class DashNationalNameComponent implements OnInit, OnDestroy{
+export class DashNationalNameComponent implements OnInit, OnDestroy {
   @Output("showPopup") parentFun: EventEmitter<any> = new EventEmitter();
 
-  public activity;
-  public xData;
-  public label;
   options: any;
 
   loadingName: boolean;
@@ -69,16 +64,16 @@ export class DashNationalNameComponent implements OnInit, OnDestroy{
 
       plotOptions: {
         series: {
-            cursor: 'pointer',
-            events: {
-                click: function (event) {
-                    alert(
-                        'Shift: ' + String(this.data[0])
-                    );
-                }
+          cursor: 'pointer',
+          events: {
+            click: function (event) {
+              alert(
+                'Shift: ' + String(this.data[0])
+              );
             }
+          }
         }
-    }, 
+      },
 
 
       series: [{
@@ -93,7 +88,7 @@ export class DashNationalNameComponent implements OnInit, OnDestroy{
         name: 'Occurrences',
       }],
       title: {
-        text: 'Threat Name'
+        text: 'TOP-N Threat Names'
       }
     };
   }
@@ -105,8 +100,6 @@ export class DashNationalNameComponent implements OnInit, OnDestroy{
     this.feedNameQuery = this.apollo.watchQuery<any>({
       query: NAME_QUERY,
       variables: {
-        // page: this.page,
-        // rowsPerPage: this.rowsPerPage,
         NameStr: "topN",
       },
       fetchPolicy: 'network-only',
@@ -130,13 +123,36 @@ export class DashNationalNameComponent implements OnInit, OnDestroy{
       }; */
     this.options.plotOptions.series.events.click = (event) => this.clickWords(event);
     let chartG2 = Highcharts.chart('nameContainer', this.options);
-    
+
     chartG2.reflow();
   }
 
-  clickWords(event:any){
+  clickWords(event: any) {
     //console.log("---------------", event.point['name']);
-    this.parentFun.emit({type:'name', 'val':event.point['name']});
+    this.parentFun.emit({ type: 'name', 'val': event.point['name'] });
+  }
+
+
+  selectConfigN(event: any): void {
+    let inputData = String(event.target.value).split(':');
+    switch (inputData[0]) {
+      case 'name': {
+        this.feedNameQuery = this.apollo.watchQuery<any>({
+          query: NAME_QUERY,
+          variables: {
+            NameStr: "topN",
+            topN: Number(inputData[1])
+          },
+          fetchPolicy: 'network-only',
+          // fetchPolicy: 'cache-first',
+        });
+        this.fetchNameQuery();
+        break;
+      }
+      default: {
+        console.log("input not valid");
+      }
+    }
   }
 
 
@@ -150,7 +166,8 @@ export class DashNationalNameComponent implements OnInit, OnDestroy{
       console.log('Query name loading:', loading);
       this.threatNameArr = [];
       if (!this.loadingName) {
-        this.threatNameTS = 'Dataset timestamp : ' + this.nameDataSet['timestamp'];
+        //this.threatNameTS = 'Dataset timestamp : ' + this.nameDataSet['timestamp'];
+        this.threatNameTS = 'Chart Display Config : '
         for (let obj of this.nameDataSet) {
           //this.threatNameArr.push({ "name": obj['d0'], "count": Number(obj['a0']) });
           this.threatNameArr.push([obj['d0'], Number(obj['a0'])]);
@@ -158,12 +175,6 @@ export class DashNationalNameComponent implements OnInit, OnDestroy{
         this.options['series']['0']['data'] = this.threatNameArr;
         this.redrawNameChart();
       }
-
-      /*             this.nameSrc = new jqx.dataAdapter({
-                localData: this.threatNameArr,
-                sortcolumn: 'count',
-                sortdirection: 'dsc',
-            }); */
     });
   }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, Output, OnDestroy} from '@angular/core';
-
+import {MatCheckboxChange} from '@angular/material/checkbox';
 
 import { Subscription } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
@@ -21,8 +21,8 @@ const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
 const ACTOR_QUERY = gql`
-query($ActorStr:String!) {
-  threatActor(ActorStr:$ActorStr)
+query($ActorStr:String!, $topN:Int) {
+  threatActor(ActorStr:$ActorStr, topN:$topN)
 }
 `;
 
@@ -49,19 +49,12 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
         type: 'pie',
     },
     title: {
-        text: 'Top Threat Actors'
+        text: 'Top-N Threat Actors'
     },
     tooltip: {
         //pointFormat: '{series.name}: <b>{point.y:.1f}</b>'
         pointFormat: '{series.name}: <b>{point.y}</b>'
-    },
-    // accessibility: {
-    //     point: {
-    //         valueSuffix: '%'
-    //     }
-    // },
-
-    
+    },    
     plotOptions: {
         pie: {
             allowPointSelect: true,
@@ -112,13 +105,19 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
     });
 
     // the below part is asynchronous operation, a subthread will be started. 
+    this.fetchActorQuery();
+
+  }
+
+  fetchActorQuery(): void { 
     this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
       this.dataSet = JSON.parse(data['threatActor'])['0'];
       this.loading = loading;
       console.log('Query data 0:', this.dataSet);
       console.log('Query loading:', loading);
       if (!this.loading) {
-        this.timestamp = 'Dataset timestamp : '+this.dataSet['timestamp'];
+        //this.timestamp = 'Dataset timestamp : '+this.dataSet['timestamp'];
+        this.timestamp = 'Chart Display Config : '
         let data =[]; 
         for (let obj of this.dataSet['result']) {
           let actor = {
@@ -133,9 +132,9 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
       }
       this.redraw();
     });
-
-    this.redraw();
   }
+
+
 
   redraw(){
     this.options.plotOptions.series.events.click = (event) => this.clickBars(event);
@@ -143,15 +142,43 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
     chartG.reflow();
   }
 
-
   clickBars(event:any){
     console.log("---------------", event.point['name']);
     //this.parentFun.emit(event.point['name']);
     this.parentFun.emit({'type':'actor', 'val':event.point['name']});
   }
+  
+  selectConfigN(event: any): void {
+    let inputData = String(event.target.value).split(':');
+    switch (inputData[0]) {
+      case 'name': {
+        this.feedQuery = this.apollo.watchQuery<any>({
+          query: ACTOR_QUERY,
+          variables: {
+            ActorStr: "topN",
+            topN: Number(inputData[1])
+          },
+          fetchPolicy: 'network-only',
+          // fetchPolicy: 'cache-first',
+        });
+        this.fetchActorQuery();
+        break;
+      }
+      default: {
+        console.log("input not valid");
+      }
+    }
+  }
+
+  showLegend(event:MatCheckboxChange): void {
+    let legendshow = true;
+    if (!event.checked) legendshow=false;
+    this.options.plotOptions.pie.showInLegend = legendshow;
+    this.redraw();
+}
 
   ngOnDestroy() {
-    this.feed.unsubscribe();
+    if (this,this.feed != null) this.feed.unsubscribe();
   }
 
 }

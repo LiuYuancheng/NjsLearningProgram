@@ -28,6 +28,14 @@ High chart word cloud:
 
 https://medium.com/@pmzubar/creating-awesome-word-clouds-using-highcarts-js-76967cb15c22
 
+Check box event: 
+
+https://www.concretepage.com/angular-material/angular-material-checkbox-change-event
+
+
+
+
+
 tool tip: 
 
 https://material.angular.io/components/tooltip/overview
@@ -35,6 +43,8 @@ https://material.angular.io/components/tooltip/overview
 ng generate component dash-national-actors
 
 ng generate component dash-national-client
+
+
 
 
 
@@ -61,6 +71,8 @@ GROUP BY threatName
 ORDER BY threatCount DESC
 LIMIT 10
 ```
+
+
 
 
 
