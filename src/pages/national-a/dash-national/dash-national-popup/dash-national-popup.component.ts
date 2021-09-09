@@ -5,6 +5,17 @@ import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
 import * as Highcharts from 'highcharts';
 
+//-----------------------------------------------------------------------------
+// Name:        dash-national-popup.components.ts
+// Purpose:     This components will show a pop-up dialog in the mid of the page 
+//              with a count area chart of the item selected by user on the left
+//              side and a item description on the right side.
+// Author:
+// Created:     2021/09/05
+// Copyright:    n.a    
+// License:      n.a
+//------------------------------------------------------------------------------
+
 declare var require: any;
 const More = require('highcharts/highcharts-more');
 More(Highcharts);
@@ -17,6 +28,7 @@ ExportData(Highcharts);
 
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
+
 
 const SECTOR_QUERY = gql`
 query($srcSector:String!, $threatType:String!) {
@@ -42,31 +54,35 @@ query($threatName:String!) {
 }
 `;
 
-const AREA_COLOR = '#2E6B9A';
+const AREA_COLOR = '#2E6B9A'; // area highchart color
 
+//------------------------------------------------------------------------------
 @Component({
     selector: 'app-dash-national-popup',
     templateUrl: './dash-national-popup.component.html',
     styleUrls: ['./dash-national-popup.component.scss']
 })
 
-
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 export class DashNationalPopupComponent implements OnInit, OnDestroy {
     @Input() popupType: String;
     @Input() popupName: String;
 
-    private dataSet: any;
+    // highchart query
     private feedQuery: QueryRef<any>;
     private feed: Subscription;
 
-    public threatDesStr:String;
+    // description query 
+    public threatDesStr: String;
     private feedDesQuery: QueryRef<any>;
     private feedDes: Subscription;
 
-    public options: any 
+    public options: any
 
+    //------------------------------------------------------------------------------
     constructor(private apollo: Apollo) {
-        this.threatDesStr = 'Loading ...'; 
+        this.threatDesStr = 'Loading ...';
         this.options = {
             chart: {
                 zoomType: 'x'
@@ -74,15 +90,12 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
             title: {
                 text: 'Threat Counts'
             },
-            subtitle: {
-                text: ''
-            },
             xAxis: {
                 type: 'datetime'
             },
             yAxis: {
                 title: {
-                    text: 'Thread Number'
+                    text: 'Thread Count'
                 }
             },
             legend: {
@@ -112,7 +125,6 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
                         }
                     },
                     threshold: null,
-
                 },
                 showInLegend: true
             },
@@ -120,25 +132,98 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
         }
     }
 
+    //------------------------------------------------------------------------------
     ngOnInit(): void {
-        if (this.popupType == 'Client') {
-            this.getThreatTCount('Malware');
-            this.getThreatTCount('IntrusionSet');
-            this.threatDesStr = 'No Info from database.'
-        }
-        else if (this.popupType == 'Tname') {
-            this.getThreadNCount();
-            this.getThreatDes();
-        }
-        else if (this.popupType== 'Actor')
-        {
-            this.getThreatACount();
-            this.getThreatDes();
-
+        switch (this.popupType) {
+            case 'Client': {
+                this.getThreatCount('threatClient', 'Malware');
+                this.getThreatCount('threatClient', 'IntrusionSet');
+                this.threatDesStr = 'No infomation from database.'
+                break;
+            }
+            case 'Tname': {
+                this.getThreatCount('threatName');
+                this.getThreatDes();
+                break;
+            }
+            case 'Actor': {
+                this.getThreatCount('threatActor');
+                this.getThreatDes();
+                break;
+            }
+            default: {
+                console.log('ngOnInit() input popupType invalied:', this.popupType);
+                return;
+            }
         }
     }
 
+    //------------------------------------------------------------------------------
+    ngOnDestroy() {
+        if (this.feed != null) this.feed.unsubscribe();
+        if (this.feedDes != null) this.feedDes.unsubscribe();
+    }
+
+    // All detail function methods (name sorted by alphabet):
+    //-----------------------------------------------------------------------------
+    getThreatCount(queryName: String, threatType?: String): void {
+        // get the threat count and plot the high chart based on the input queryName.
+        let queryItem: any;
+        let variablesItem: any;
+        let seriesItem = {
+            type: 'area',
+            name: this.popupName,
+            data: [],
+        };
+        switch (queryName) {
+            case 'threatActor': {
+                queryItem = ACTOR_QUERY;
+                variablesItem = { ActorStr: this.popupName };
+                break;
+            }
+            case 'threatName': {
+                queryItem = NAME_QUERY;
+                variablesItem = { NameStr: this.popupName };
+                break;
+            }
+            case 'threatClient': {
+                if (threatType == null) return; // the input threat type is missing
+                queryItem = SECTOR_QUERY;
+                variablesItem = {
+                    srcSector: this.popupName,
+                    threatType: threatType
+                };
+                seriesItem.name = threatType;
+                break;
+            }
+            default: {
+                console.log("getThreatCount(): input query name invalied: ", queryName);
+                return;
+            }
+
+        }
+        this.feedQuery = this.apollo.watchQuery<any>({
+            query: queryItem,
+            variables: variablesItem,
+            fetchPolicy: 'network-only',
+        });
+
+        this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
+            let dataSet = JSON.parse(data['' + queryName]);
+            if (!loading) {
+                let series = seriesItem;
+                for (let obj of dataSet) {
+                    series['data'].push([Number(obj['d0']), Number(obj['a0'])]);
+                }
+                this.options['series'].push(series);
+                this.redraw();
+            }
+        });
+    }
+
+    //-----------------------------------------------------------------------------
     getThreatDes(): void {
+        // Get the threat keyword(name/type) description string.
         this.feedDesQuery = this.apollo.watchQuery<any>({
             query: DES_QUERY,
             variables: {
@@ -153,7 +238,16 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
         });
     }
 
+    //-----------------------------------------------------------------------------
+    redraw():void {
+        let chartG = Highcharts.chart('popupHighChart', this.options);
+        chartG.reflow();
+    }
+
+    //-----------------------------------------------------------------------------
     getThreatACount(): void {
+        // this function is not used as it is replace by getThreatCount()
+        // Get the threat actor count by hours (limit 100)
         this.feedQuery = this.apollo.watchQuery<any>({
             query: ACTOR_QUERY,
             variables: {
@@ -163,14 +257,14 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
         });
 
         this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-            this.dataSet = JSON.parse(data['threatActor']);
+            let dataSet = JSON.parse(data['threatActor']);
             if (!loading) {
                 let series = {
                     type: 'area',
                     name: this.popupName,
                     data: [],
                 }
-                for (let obj of this.dataSet) {
+                for (let obj of dataSet) {
                     series['data'].push([Number(obj['d0']), Number(obj['a0']),]);
                 }
                 this.options['series'].push(series);
@@ -179,7 +273,9 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
         });
     }
 
-    getThreadNCount():void{
+    //-----------------------------------------------------------------------------
+    getThreadNCount(): void {
+        // this function is not used as it is replace by getThreatCount()
         this.feedQuery = this.apollo.watchQuery<any>({
             query: NAME_QUERY,
             variables: {
@@ -189,7 +285,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
         });
 
         this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-            this.dataSet = JSON.parse(data['threatName']);
+            let dataSet = JSON.parse(data['threatName']);
             if (!loading) {
                 let totalCount = 0;
                 let series = {
@@ -197,7 +293,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
                     name: this.popupName,
                     data: [],
                 }
-                for (let obj of this.dataSet) {
+                for (let obj of dataSet) {
                     let actor = [
                         Number(obj['d0']),
                         Number(obj['a0']),
@@ -206,12 +302,14 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
                     series['data'].push(actor);
                 }
                 this.options['series'].push(series);
-                    this.redraw();
+                this.redraw();
             }
         });
     }
 
+    //-----------------------------------------------------------------------------
     getThreatTCount(threatType: String): void {
+        // this function is not used as it is replace by getThreatCount()
         this.feedQuery = this.apollo.watchQuery<any>({
             query: SECTOR_QUERY,
             variables: {
@@ -222,7 +320,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
         });
 
         this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-            this.dataSet = JSON.parse(data['threatClient']);
+            let dataSet = JSON.parse(data['threatClient']);
             if (!loading) {
                 let totalCount = 0;
                 let series = {
@@ -230,7 +328,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
                     name: threatType,
                     data: [],
                 }
-                for (let obj of this.dataSet) {
+                for (let obj of dataSet) {
                     let actor = [
                         Number(obj['d0']),
                         Number(obj['a0']),
@@ -239,20 +337,8 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
                     series['data'].push(actor);
                 }
                 this.options['series'].push(series);
-                    this.redraw();
+                this.redraw();
             }
         });
-
     }
-
-    redraw() {
-        let chartG = Highcharts.chart('popupHighChart', this.options);
-        chartG.reflow();
-    }
-
-    ngOnDestroy() {
-        if(this.feed != null) this.feed.unsubscribe();
-        if(this.feedDes!=null) this.feedDes.unsubscribe();
-    }
-
 }
