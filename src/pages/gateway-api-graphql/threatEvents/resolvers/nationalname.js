@@ -8,9 +8,10 @@
 const druid = require('@lib/druid.js');
 module.exports = {
   Query: {
-    threatName: (root, { NameStr }, { user }) => {
+    threatName: (root, { NameStr, topN }, { user }) => {
       let feedback = '123';
-      let query = {};
+      let thresholdVal = 10;
+      if (topN) thresholdVal = Number(topN);
       // Top N 
       if (NameStr == 'topN') {
         let query = {
@@ -30,7 +31,7 @@ module.exports = {
             "type": "numeric",
             "metric": "a0"
           },
-          "threshold": 10,
+          "threshold": thresholdVal,
           "intervals": {
             "type": "intervals",
             "intervals": [
@@ -68,12 +69,9 @@ module.exports = {
             reject(err)
           })
         });
-
-
-
       }
       else {
-        query = {
+        let query = {
           "queryType": "timeseries",
           "dataSource": {
             "type": "table",
@@ -127,8 +125,10 @@ module.exports = {
       //return 'Test Success, GraphQL server is up & running !!' 
     },
 
-    threatSector: () => {
+    threatSector: (root, { topN }, { user }) => {
       let feedback = '123';
+      let thresholdVal = 10;
+      if (topN) thresholdVal = Number(topN);
       let query = {
         "queryType": "topN",
         "dataSource": {
@@ -146,7 +146,7 @@ module.exports = {
           "type": "numeric",
           "metric": "a0"
         },
-        "threshold": 100,
+        "threshold": thresholdVal,
         "intervals": {
           "type": "intervals",
           "intervals": [

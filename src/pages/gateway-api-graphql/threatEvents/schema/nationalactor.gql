@@ -1,5 +1,8 @@
 type Query  {
-   threatActor(ActorStr:String!): String
+   threatActor(
+      ActorStr:String!
+      topN:Int
+   ): String
    threatHourCounts: String
 }
 

@@ -62,8 +62,10 @@ module.exports = {
       return feedback;
     },
 
-    threatActor: (root, { ActorStr }, { user }) => {
+    threatActor: (root, { ActorStr, topN }, { user }) => {
       let feedback = '123';
+      let thresholdVal = 10;
+      if (topN) thresholdVal = Number(topN);
 
       if (ActorStr == 'topN') {
         let query = {
@@ -83,7 +85,7 @@ module.exports = {
             "type": "numeric",
             "metric": "a0"
           },
-          "threshold": 10,
+          "threshold": thresholdVal,
           "intervals": {
             "type": "intervals",
             "intervals": [
