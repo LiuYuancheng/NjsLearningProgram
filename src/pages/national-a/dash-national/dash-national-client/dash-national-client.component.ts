@@ -179,6 +179,6 @@ export class DashNationalClientComponent implements OnInit, OnDestroy {
 
   doStuff(): void{
     console.log("1234", "1234");
-    this.parentFun.emit(this.customTitle);
+    this.parentFun.emit({'type':'client', 'val':this.customTitle});
   }
 }

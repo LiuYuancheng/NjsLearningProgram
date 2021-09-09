@@ -147,7 +147,7 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
   clickBars(event:any){
     console.log("---------------", event.point['name']);
     //this.parentFun.emit(event.point['name']);
-    this.parentFun.emit(event.point['name']);
+    this.parentFun.emit({'type':'actor', 'val':event.point['name']});
   }
 
   ngOnDestroy() {

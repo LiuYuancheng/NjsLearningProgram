@@ -5,6 +5,7 @@ import { jqxGridComponent } from 'jqwidgets-ng/jqxgrid';
 import { Subscription } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
+import {MatCheckboxChange} from '@angular/material/checkbox';
 
 
 import { DashNationalActorsComponent } from "../dash-national-actors/dash-national-actors.component";
@@ -19,8 +20,8 @@ query {
 `;
 
 const SECTOR_QUERY = gql`
-query {
-    threatSector
+query($topN:Int) {
+    threatSector(topN:$topN)
 }
 `;
 
@@ -156,10 +157,10 @@ export class DashNationalComponent implements OnInit, OnDestroy {
                     cursor: 'pointer',
                     dataLabels: {
                         enabled: true,
-                        format: '<b>{point.name}</b>: {point.y:.1f}'
-                        //format: '<b>{point.name}</b>: {point.percentage:.2f}%'
+                        //format: '<b>{point.name}</b>: {point.y:.1f}'
+                        format: '<b>{point.name}</b>: {point.percentage:.2f}%'
                     },
-                    showInLegend: false,
+                    showInLegend: true,
                 },
             },
             series: [{
@@ -181,7 +182,7 @@ export class DashNationalComponent implements OnInit, OnDestroy {
 
         this.feedSecQuery = this.apollo.watchQuery<any>({
             query: SECTOR_QUERY,
-            variables: {},
+            variables: {topN:10},
             fetchPolicy: 'network-only',
         });
         this.fetchSectorQuery();
@@ -236,7 +237,8 @@ export class DashNationalComponent implements OnInit, OnDestroy {
             //console.log('Query sector data:', this.sectorDataSet);
             //console.log('Query sector loading:', loading);
             if (!this.loadingSector) {
-                this.threatSectorTS = 'Dataset timestamp : ' + this.sectorDataSet['timestamp'];
+                //this.threatSectorTS = 'Dataset timestamp : ' + this.sectorDataSet['timestamp'];
+                this.threatSectorTS = 'Chart Display Config : '
                 let data = [];
                 for (let obj of this.sectorDataSet['result']) {
                     let actor = {
@@ -251,27 +253,59 @@ export class DashNationalComponent implements OnInit, OnDestroy {
         });
     }
 
-    showClientPopup(popName: String): void {
-        this.popCliIconPath = "assets/images/icons/cii/icons/" + popName + ".png";
-        this.popName = popName;
-        this.popupType = 'Client';
-        this.popupName = '' + popName;
+    showPopup(popupDic: any) {
+        switch (popupDic['type']) {
+            case 'client': {
+                this.popCliIconPath = "assets/images/icons/cii/icons/" + popupDic['val'] + ".png";
+                this.popupType = 'Client';
+                break;
+            }
+            case 'name': {
+                this.popCliIconPath = "assets/images/icons/cii/icons/hackingtool.png";
+                this.popupType = 'Tname';
+                break;
+            }
+            case 'actor': {
+                this.popCliIconPath = "assets/images/icons/cii/icons/MALWARE.png";
+                this.popupType = 'Actor';
+                break;
+            }
+            default: {
+                console.log("showPopup(): input invalid", popupDic);
+                return;
+            }
+        }
+
+        this.popName = popupDic['val'];
+        this.popupName = '' + popupDic['val'];
         this.popup = true;
     }
 
-    showNamePopup(popName: String): void {
-        this.popCliIconPath = "assets/images/icons/cii/icons/hackingtool.png";
-        this.popName = popName;
-        this.popupType = 'Tname';
-        this.popupName = '' + popName;
-        this.popup = true;
+    selectConfigN(event: any): void {
+        let inputData =  String(event.target.value).split(':');
+        switch(inputData[0]){
+            case 'sector':{
+                this.feedSecQuery = this.apollo.watchQuery<any>({
+                    query: SECTOR_QUERY,
+                    variables: {topN:Number(inputData[1])},
+                    fetchPolicy: 'network-only',
+                });
+                this.fetchSectorQuery();
+                break;
+            }
+            default:{
+                console.log("input not valid");
+            }
+        }
+
     }
 
-    showActorPopup(popName: String): void {
-        this.popCliIconPath = "assets/images/icons/cii/icons/MALWARE.png";
-        this.popName = popName;
-        this.popupType = 'Actor';
-        this.popupName = '' + popName;
-        this.popup = true;
+    showSectorLegend(event:MatCheckboxChange): void {
+        let legendshow = true;
+        if (!event.checked) legendshow=false;
+        this.pieOption.plotOptions.pie.showInLegend = legendshow;
+        this.redrawSector();
     }
+
+
 }

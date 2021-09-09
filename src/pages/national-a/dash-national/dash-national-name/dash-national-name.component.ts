@@ -136,7 +136,7 @@ export class DashNationalNameComponent implements OnInit, OnDestroy{
 
   clickWords(event:any){
     //console.log("---------------", event.point['name']);
-    this.parentFun.emit(event.point['name']);
+    this.parentFun.emit({type:'name', 'val':event.point['name']});
   }
 
 

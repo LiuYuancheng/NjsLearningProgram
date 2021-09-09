@@ -11,18 +11,27 @@
         <tr>
             <td style="width: 30%;">
                 <mat-card style="margin: 5px;">
-                    <app-dash-national-name (showPopup)="showNamePopup($event)"></app-dash-national-name>
+                    <app-dash-national-name (showPopup)="showPopup($event)"></app-dash-national-name>
                 </mat-card>
             </td>
             <td style="width: 35%;">
                 <mat-card style="margin: 5px;">
-                    <app-dash-national-actors (showPopup)="showActorPopup($event)"></app-dash-national-actors>
+                    <app-dash-national-actors (showPopup)="showPopup($event)"></app-dash-national-actors>
                 </mat-card>
             </td>
             <td style="width: 35%;">
                 <mat-card style="margin: 5px;">
-                    <div id="sectorPie" style="width: 100%; height: 100%;"></div>
+                    <div id="sectorPie" style="width: 100%; height: 95%;"></div>
                     {{threatSectorTS}}
+                    &nbsp;
+                    <select (change)="selectConfigN($event)">
+                        <option value="sector:5">Show Top-5</option>
+                        <option value="sector:10" selected="selected">Show Top-10</option>
+                        <option value="sector:15">Show Top-15</option>
+                        <option value="sector:20">Show Top-20</option>
+                      </select>
+                      &nbsp; &nbsp;
+                    <mat-checkbox color="primary" [checked]="true" (change)="showSectorLegend($event)" >Show Legend</mat-checkbox>
                 </mat-card>
             </td>
         <tr>
@@ -33,14 +42,14 @@
     <table style="scroll-behavior: smooth;">
         <tr>
             <td style="width: 25%;" *ngFor="let name of clientArr1">
-                <app-dash-national-client customTitle={{name}} (showPopup)="showClientPopup($event)">
+                <app-dash-national-client customTitle={{name}} (showPopup)="showPopup($event)">
                 </app-dash-national-client>
             </td>
         </tr>
     
         <tr>
             <td style="width: 25%;" *ngFor="let name of clientArr2">
-                <app-dash-national-client customTitle={{name}} (showPopup)="showClientPopup($event)">
+                <app-dash-national-client customTitle={{name}} (showPopup)="showPopup($event)">
                 </app-dash-national-client>
             </td>
     
