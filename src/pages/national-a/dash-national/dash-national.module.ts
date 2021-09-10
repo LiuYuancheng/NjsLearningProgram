@@ -12,17 +12,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { DashNationalClientComponent } from './dash-national-client/dash-national-client.component';
 import { DashNationalNameComponent } from './dash-national-name/dash-national-name.component';
 import { DashNationalPopupComponent } from './dash-national-popup/dash-national-popup.component';
+import { DashNationalSectorComponent } from './dash-national-sector/dash-national-sector.component';
 
 @NgModule({
   declarations: [
     DashNationalComponent,
     DashNationalActorsComponent,
-    DashNationalClientComponent,
     DashNationalNameComponent,
-    DashNationalPopupComponent
+    DashNationalPopupComponent,
+    DashNationalSectorComponent
   ],
   imports: [
     CommonModule,

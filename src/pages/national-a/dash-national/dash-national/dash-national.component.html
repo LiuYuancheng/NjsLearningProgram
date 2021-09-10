@@ -42,15 +42,15 @@
     <table style="scroll-behavior: smooth;">
         <tr>
             <td style="width: 25%;" *ngFor="let name of clientArr1">
-                <app-dash-national-client customTitle={{name}} (showPopup)="showPopup($event)">
-                </app-dash-national-client>
+                <app-dash-national-sector customTitle={{name}} (showPopup)="showPopup($event)">
+                </app-dash-national-sector>
             </td>
         </tr>
     
         <tr>
             <td style="width: 25%;" *ngFor="let name of clientArr2">
-                <app-dash-national-client customTitle={{name}} (showPopup)="showPopup($event)">
-                </app-dash-national-client>
+                <app-dash-national-sector customTitle={{name}} (showPopup)="showPopup($event)">
+                </app-dash-national-sector>
             </td>
     
         </tr>

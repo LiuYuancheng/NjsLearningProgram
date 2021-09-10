@@ -33,11 +33,12 @@ ExportData(Highcharts);
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
-const COUTN_QUERY = gql`
-query {
-    threatHourCounts
+
+const COUNT_QUERY = gql`
+query($queryType:String!, $fieldStr:String, $threatType:String, $limitVal:Int){
+    threatEvents_nationalCount(queryType:$queryType, fieldStr:$fieldStr, threatType:$threatType, limitVal:$limitVal)
 }
-`;
+`
 
 const SECTOR_QUERY = gql`
 query($topN:Int) {
@@ -183,8 +184,10 @@ export class DashNationalComponent implements OnInit, OnDestroy {
     //------------------------------------------------------------------------------
     ngOnInit(): void {
         this.feedCouQuery = this.apollo.watchQuery<any>({
-            query: COUTN_QUERY,
-            variables: {},
+            query: COUNT_QUERY,
+            variables: {
+                queryType:'All'
+            },
             fetchPolicy: 'network-only',
         });
         this.fetchCountQuery();
@@ -206,13 +209,13 @@ export class DashNationalComponent implements OnInit, OnDestroy {
     //------------------------------------------------------------------------------
     fetchCountQuery(): void {
         this.feedCount = this.feedCouQuery.valueChanges.subscribe(({ data, loading }) => {
-            let countDataSet = JSON.parse(data['threatHourCounts']);
+            let countDataSet = data['threatEvents_nationalCount'];
             //console.log('Query count data:', countDataSet);
             //console.log('Query count loading:', loading);
             let countdata = [];
             if (!loading) {
                 for (let obj of countDataSet) {
-                    countdata.push([Number(obj['d0']), Number(obj['a0'])]);
+                    countdata.push([obj["d0"], obj["a0"]]);
                 }
                 let timestamp1 = countdata[0][0];
                 let date1 = new Date(timestamp1).toLocaleDateString("en-us");

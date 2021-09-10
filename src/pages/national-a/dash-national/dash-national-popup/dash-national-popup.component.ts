@@ -30,21 +30,9 @@ const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
 
-const SECTOR_QUERY = gql`
-query($srcSector:String!, $threatType:String!) {
-  threatClient(ClientName:$srcSector, ThreatType:$threatType)
-}
-`;
-
-const NAME_QUERY = gql`
-query($NameStr:String!) {
-    threatName(NameStr:$NameStr)
-}
-`;
-
-const ACTOR_QUERY = gql`
-query($ActorStr:String!) {
-  threatActor(ActorStr:$ActorStr)
+const COUNT_QUERY = gql`
+query($queryType:String!, $fieldStr:String, $threatType:String, $limitVal:Int){
+    threatEvents_nationalCount(queryType:$queryType, fieldStr:$fieldStr, threatType:$threatType, limitVal:$limitVal)
 }
 `;
 
@@ -136,8 +124,8 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         switch (this.popupType) {
             case 'Client': {
-                this.getThreatCount('threatClient', 'Malware');
-                this.getThreatCount('threatClient', 'IntrusionSet');
+                this.getThreatCount('threatSector', 'Malware');
+                this.getThreatCount('threatSector', 'IntrusionSet');
                 this.threatDesStr = 'No infomation from database.'
                 break;
             }
@@ -177,20 +165,30 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
         };
         switch (queryName) {
             case 'threatActor': {
-                queryItem = ACTOR_QUERY;
-                variablesItem = { ActorStr: this.popupName };
+                queryItem = COUNT_QUERY;
+                variablesItem = {
+                    queryType: "threatActor",
+                    fieldStr: this.popupName,
+                    threatType: "IntrusionSet",
+                    limitVal: 100
+                };
                 break;
             }
             case 'threatName': {
-                queryItem = NAME_QUERY;
-                variablesItem = { NameStr: this.popupName };
+                queryItem = COUNT_QUERY;
+                variablesItem = {
+                    queryType: "threatName",
+                    fieldStr: this.popupName,
+                    limitVal: 100
+                };
                 break;
             }
-            case 'threatClient': {
+            case 'threatSector': {
                 if (threatType == null) return; // the input threat type is missing
-                queryItem = SECTOR_QUERY;
+                queryItem = COUNT_QUERY;
                 variablesItem = {
-                    srcSector: this.popupName,
+                    queryType: "threatSector",
+                    fieldStr: this.popupName,
                     threatType: threatType
                 };
                 seriesItem.name = threatType;
@@ -209,7 +207,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
         });
 
         this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-            let dataSet = JSON.parse(data['' + queryName]);
+            let dataSet = data["threatEvents_nationalCount"];
             if (!loading) {
                 let series = seriesItem;
                 for (let obj of dataSet) {
