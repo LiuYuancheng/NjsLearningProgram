@@ -9,7 +9,7 @@ import * as Highcharts from 'highcharts';
 // Name:        dash-national-popup.components.ts
 // Purpose:     This components will show a pop-up dialog in the mid of the page 
 //              with a count area chart of the item selected by user on the left
-//              side and a item description on the right side.
+//              side and item description text on the right side.
 // Author:
 // Created:     2021/09/05
 // Copyright:    n.a    
@@ -95,7 +95,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
             },
             yAxis: {
                 title: {
-                    text: 'Thread Count'
+                    text: 'Thread Counts'
                 }
             },
             legend: {
@@ -159,7 +159,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
     }
 
     //------------------------------------------------------------------------------
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         if (this.feed != null) this.feed.unsubscribe();
         if (this.feedDes != null) this.feedDes.unsubscribe();
     }
@@ -239,106 +239,9 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
     }
 
     //-----------------------------------------------------------------------------
-    redraw():void {
+    redraw(): void {
         let chartG = Highcharts.chart('popupHighChart', this.options);
         chartG.reflow();
     }
 
-    //-----------------------------------------------------------------------------
-    getThreatACount(): void {
-        // this function is not used as it is replace by getThreatCount()
-        // Get the threat actor count by hours (limit 100)
-        this.feedQuery = this.apollo.watchQuery<any>({
-            query: ACTOR_QUERY,
-            variables: {
-                ActorStr: this.popupName,
-            },
-            fetchPolicy: 'network-only',
-        });
-
-        this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-            let dataSet = JSON.parse(data['threatActor']);
-            if (!loading) {
-                let series = {
-                    type: 'area',
-                    name: this.popupName,
-                    data: [],
-                }
-                for (let obj of dataSet) {
-                    series['data'].push([Number(obj['d0']), Number(obj['a0']),]);
-                }
-                this.options['series'].push(series);
-                this.redraw();
-            }
-        });
-    }
-
-    //-----------------------------------------------------------------------------
-    getThreadNCount(): void {
-        // this function is not used as it is replace by getThreatCount()
-        this.feedQuery = this.apollo.watchQuery<any>({
-            query: NAME_QUERY,
-            variables: {
-                NameStr: this.popupName,
-            },
-            fetchPolicy: 'network-only',
-        });
-
-        this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-            let dataSet = JSON.parse(data['threatName']);
-            if (!loading) {
-                let totalCount = 0;
-                let series = {
-                    type: 'area',
-                    name: this.popupName,
-                    data: [],
-                }
-                for (let obj of dataSet) {
-                    let actor = [
-                        Number(obj['d0']),
-                        Number(obj['a0']),
-                    ]
-                    totalCount += actor[1];
-                    series['data'].push(actor);
-                }
-                this.options['series'].push(series);
-                this.redraw();
-            }
-        });
-    }
-
-    //-----------------------------------------------------------------------------
-    getThreatTCount(threatType: String): void {
-        // this function is not used as it is replace by getThreatCount()
-        this.feedQuery = this.apollo.watchQuery<any>({
-            query: SECTOR_QUERY,
-            variables: {
-                srcSector: this.popupName,
-                threatType: threatType,
-            },
-            fetchPolicy: 'network-only',
-        });
-
-        this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-            let dataSet = JSON.parse(data['threatClient']);
-            if (!loading) {
-                let totalCount = 0;
-                let series = {
-                    type: 'area',
-                    name: threatType,
-                    data: [],
-                }
-                for (let obj of dataSet) {
-                    let actor = [
-                        Number(obj['d0']),
-                        Number(obj['a0']),
-                    ]
-                    totalCount += actor[1];
-                    series['data'].push(actor);
-                }
-                this.options['series'].push(series);
-                this.redraw();
-            }
-        });
-    }
 }

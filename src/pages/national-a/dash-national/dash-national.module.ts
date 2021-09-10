@@ -9,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { DashNationalActorsComponent } from './dash-national-actors/dash-national-actors.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {MatCheckboxModule} from '@angular/material/checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { DashNationalClientComponent } from './dash-national-client/dash-national-client.component';

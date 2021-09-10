@@ -1,16 +1,8 @@
-
-<mat-card (click)="doStuff()" style="width: 420px; height:300px; margin: 2px; cursor: pointer;">
-    <!--     <p> [ {{customTitle}} ] {{timestamp}}</p>  -->
+<mat-card (click)="clickPie()" style="width: 420px; height:300px; margin: 2px; cursor: pointer;">
     <img src={{cliIconPath}} style=" position: absolute; top:10px; left:10px; width:30px; height:30px; float:left"
-    mat-raised-button
-        matTooltip="Info about the action"
-        aria-label="Button that displays a tooltip when focused or hovered over"
-    
-    >
-    <!-- <p style=" position: absolute; bottom:5px; left:5px; width:100px; height:20px; float:left"> Threat Type: </p> -->
-
+        mat-raised-button matTooltip="Info about the sector[place hoder]"
+        aria-label="Button that displays a tooltip when focused or hovered over">
     <img src={{malIconPath}} style=" position: absolute; bottom:70px; left:10px; width:20px; height:20px; float:left">
     <img src={{intIconPath}} style=" position: absolute; bottom:40px; left:10px; width:20px; height:20px; float:left">
-    <!--     <div *ngVar=" customTitle as chartID"></div> -->
     <div id={{customTitle}} style=" position: relative;  display: block; width: 100%; height: 95%;"></div>
 </mat-card>

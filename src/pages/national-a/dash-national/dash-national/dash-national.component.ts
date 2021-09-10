@@ -1,29 +1,24 @@
-import { Component, OnInit, ElementRef, OnDestroy } from '@angular/core';
-import * as Highcharts from "highcharts";
-import { jqxGridComponent } from 'jqwidgets-ng/jqxgrid';
-
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Subscription } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
+
 import gql from 'graphql-tag';
-import {MatCheckboxChange} from '@angular/material/checkbox';
+import * as Highcharts from "highcharts";
 
 
-import { DashNationalActorsComponent } from "../dash-national-actors/dash-national-actors.component";
-import { DashNationalClientComponent } from "../dash-national-client/dash-national-client.component";
-import { DashNationalPopupComponent } from "../dash-national-popup/dash-national-popup.component";
+//import { DashNationalActorsComponent } from "../dash-national-actors/dash-national-actors.component";
+//import { DashNationalClientComponent } from "../dash-national-client/dash-national-client.component";
+//import { DashNationalPopupComponent } from "../dash-national-popup/dash-national-popup.component";
 
-
-const COUTN_QUERY = gql`
-query {
-    threatHourCounts
-}
-`;
-
-const SECTOR_QUERY = gql`
-query($topN:Int) {
-    threatSector(topN:$topN)
-}
-`;
+//-----------------------------------------------------------------------------
+// Name:        dash-national.components.ts
+// Purpose:     Show the main dashboard.
+// Author:
+// Created:     2021/08/23
+// Copyright:    n.a    
+// License:      n.a
+//------------------------------------------------------------------------------
 
 declare var require: any;
 const More = require('highcharts/highcharts-more');
@@ -38,25 +33,38 @@ ExportData(Highcharts);
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
+const COUTN_QUERY = gql`
+query {
+    threatHourCounts
+}
+`;
+
+const SECTOR_QUERY = gql`
+query($topN:Int) {
+    threatSector(topN:$topN)
+}
+`;
+
+const ICON_PATH = "assets/images/icons/cii/icons/";
+
+//------------------------------------------------------------------------------
 @Component({
     selector: 'app-dash-national',
     templateUrl: './dash-national.component.html',
     styleUrls: ['./dash-national.component.scss']
 })
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 export class DashNationalComponent implements OnInit, OnDestroy {
     private nativeElement: HTMLElement;
 
     //Total threat count query paramters
-    loadingCount: boolean;  // query data finished flag
-    countDataSet: any;
     public threatCountTS: String;
     private feedCouQuery: QueryRef<any>;
     private feedCount: Subscription;
 
     // top-N sector query parameters
-    loadingSector: boolean;
-    sectorDataSet: any;
     public threatSectorTS: String;
     private feedSecQuery: QueryRef<any>;
     private feedSector: Subscription;
@@ -76,11 +84,12 @@ export class DashNationalComponent implements OnInit, OnDestroy {
     public areOptions: any;
     public pieOption: any;
 
+    //------------------------------------------------------------------------------
     constructor(private apollo: Apollo) {
         this.threatSectorTS = "Loading ...";
         this.clientArr1 = ["GOVERNMENT", "INFOCOMM", "MANUFACTURING", "ENERGY"];
-        this.clientArr2 = ["TRANSPORTATION SERVICES", "HEALTH AND SOCIAL SERVICES", "SECURITY AND EMERGENCY", "BANKING AND FINANCE"];
-        this.sectorDataSet = {};
+        this.clientArr2 = ["TRANSPORTATION SERVICES", "HEALTH AND SOCIAL SERVICES",
+            "SECURITY AND EMERGENCY", "BANKING AND FINANCE"];
         // Init the threat count area highchart option.
         this.areOptions = {
             chart: {
@@ -97,7 +106,7 @@ export class DashNationalComponent implements OnInit, OnDestroy {
             },
             yAxis: {
                 title: {
-                    text: 'Thread count'
+                    text: 'Thread Counts'
                 }
             },
             legend: {
@@ -171,8 +180,8 @@ export class DashNationalComponent implements OnInit, OnDestroy {
         }
     }
 
+    //------------------------------------------------------------------------------
     ngOnInit(): void {
-
         this.feedCouQuery = this.apollo.watchQuery<any>({
             query: COUTN_QUERY,
             variables: {},
@@ -182,7 +191,7 @@ export class DashNationalComponent implements OnInit, OnDestroy {
 
         this.feedSecQuery = this.apollo.watchQuery<any>({
             query: SECTOR_QUERY,
-            variables: {topN:10},
+            variables: { topN: 10 },
             fetchPolicy: 'network-only',
         });
         this.fetchSectorQuery();
@@ -193,31 +202,17 @@ export class DashNationalComponent implements OnInit, OnDestroy {
         if (this.feedCount != null) this.feedCount.unsubscribe();
     }
 
-    redrawTotal(): void {
-        let chartG = Highcharts.chart('totalCount', this.areOptions);
-        chartG.reflow();
-    }
-
-    redrawSector(): void {
-        let chartG = Highcharts.chart('sectorPie', this.pieOption);
-        chartG.reflow();
-    }
-
-
+    // All detail function methods (name sorted by alphabet):
+    //------------------------------------------------------------------------------
     fetchCountQuery(): void {
         this.feedCount = this.feedCouQuery.valueChanges.subscribe(({ data, loading }) => {
-            this.countDataSet = JSON.parse(data['threatHourCounts']);
-            this.loadingCount = loading;
-            //console.log('Query count data:', this.countDataSet);
+            let countDataSet = JSON.parse(data['threatHourCounts']);
+            //console.log('Query count data:', countDataSet);
             //console.log('Query count loading:', loading);
             let countdata = [];
-            if (!this.loadingCount) {
-                for (let obj of this.countDataSet) {
-                    let actor = [
-                        Number(obj['d0']),
-                        Number(obj['a0']),
-                    ]
-                    countdata.push(actor);
+            if (!loading) {
+                for (let obj of countDataSet) {
+                    countdata.push([Number(obj['d0']), Number(obj['a0'])]);
                 }
                 let timestamp1 = countdata[0][0];
                 let date1 = new Date(timestamp1).toLocaleDateString("en-us");
@@ -230,57 +225,25 @@ export class DashNationalComponent implements OnInit, OnDestroy {
         });
     }
 
+    //------------------------------------------------------------------------------
     fetchSectorQuery(): void {
         this.feedSector = this.feedSecQuery.valueChanges.subscribe(({ data, loading }) => {
-            this.sectorDataSet = JSON.parse(data['threatSector'])['0'];
-            this.loadingSector = loading;
-            //console.log('Query sector data:', this.sectorDataSet);
+            let sectorDataSet = JSON.parse(data['threatSector'])['0'];
+            //console.log('Query sector data:', sectorDataSet);
             //console.log('Query sector loading:', loading);
-            if (!this.loadingSector) {
-                //this.threatSectorTS = 'Dataset timestamp : ' + this.sectorDataSet['timestamp'];
+            if (!loading) {
                 this.threatSectorTS = 'Chart Display Config : '
-                let data = [];
-                for (let obj of this.sectorDataSet['result']) {
-                    let actor = {
-                        name: obj['d0'],
-                        y: obj['a0'],
-                    }
-                    data.push(actor);
+                let dataArr = [];
+                for (let obj of sectorDataSet['result']) {
+                    dataArr.push({ name: obj['d0'], y: obj['a0'] });
                 }
-                this.pieOption['series']['0']['data'] = data;
+                this.pieOption['series']['0']['data'] = dataArr;
                 this.redrawSector();
             }
         });
     }
 
-    showPopup(popupDic: any) {
-        switch (popupDic['type']) {
-            case 'client': {
-                this.popCliIconPath = "assets/images/icons/cii/icons/" + popupDic['val'] + ".png";
-                this.popupType = 'Client';
-                break;
-            }
-            case 'name': {
-                this.popCliIconPath = "assets/images/icons/cii/icons/hackingtool.png";
-                this.popupType = 'Tname';
-                break;
-            }
-            case 'actor': {
-                this.popCliIconPath = "assets/images/icons/cii/icons/MALWARE.png";
-                this.popupType = 'Actor';
-                break;
-            }
-            default: {
-                console.log("showPopup(): input invalid", popupDic);
-                return;
-            }
-        }
-
-        this.popName = popupDic['val'];
-        this.popupName = '' + popupDic['val'];
-        this.popup = true;
-    }
-
+    //------------------------------------------------------------------------------
     selectConfigN(event: any): void {
         let inputData =  String(event.target.value).split(':');
         switch(inputData[0]){
@@ -294,18 +257,57 @@ export class DashNationalComponent implements OnInit, OnDestroy {
                 break;
             }
             default:{
-                console.log("input not valid");
+                console.log("selectConfigN(): input not valid",inputData);
             }
         }
-
     }
 
+    //------------------------------------------------------------------------------
+    showPopup(popupDic: any) {
+        switch (popupDic['type']) {
+            case 'client': {
+                this.popCliIconPath = ICON_PATH + popupDic['val'] + ".png";
+                this.popupType = 'Client';
+                break;
+            }
+            case 'name': {
+                this.popCliIconPath = ICON_PATH + "hackingtool.png";
+                this.popupType = 'Tname';
+                break;
+            }
+            case 'actor': {
+                this.popCliIconPath = ICON_PATH + "MALWARE.png";
+                this.popupType = 'Actor';
+                break;
+            }
+            default: {
+                console.log("showPopup(): input invalid", popupDic);
+                return;
+            }
+        }
+        this.popName = popupDic['val'];
+        this.popupName = '' + popupDic['val'];
+        this.popup = true;
+    }
+
+    //------------------------------------------------------------------------------
     showSectorLegend(event:MatCheckboxChange): void {
-        let legendshow = true;
-        if (!event.checked) legendshow=false;
-        this.pieOption.plotOptions.pie.showInLegend = legendshow;
+        this.pieOption.plotOptions.pie.showInLegend = event.checked;
         this.redrawSector();
     }
 
+    //------------------------------------------------------------------------------
+    redrawSector(): void {
+        // Draw sector pie chart.
+        let chartG = Highcharts.chart('sectorPie', this.pieOption);
+        chartG.reflow();
+    }
+
+    //------------------------------------------------------------------------------
+    redrawTotal(): void {
+        // Draw total threat account chart.
+        let chartG = Highcharts.chart('totalCount', this.areOptions);
+        chartG.reflow();
+    }
 
 }
