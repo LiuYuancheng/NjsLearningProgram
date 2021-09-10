@@ -4,12 +4,14 @@
 type Query {
   # Return threat count
   threatEvents_list(
-    dateFrom: DateRangeDuration
+    dateStart: DateTime
+    dateEnd: DateTime
     page: Int! = 0
     rowsPerPage: Int! = 10
     sort: JSON # array
-    filters: JSON # array
-    # filters: JSON
+    # filters: JSON # array
+    filter: JSON
+    having: JSON
   ): ThreatEventPage @authz
   # return the filter lists
   threatEvents_filters(
@@ -20,8 +22,8 @@ type Query {
 # types
 type ThreatEvent {
   eventTime: DateTime!
-  firstSeen: DateTime
-  lastSeen: DateTime
+  # firstSeen: DateTime
+  # lastSeen: DateTime
   srcNodeId: String!
   dstNodeId: String!
   dstPort: Int

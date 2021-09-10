@@ -9,11 +9,15 @@ const druid = require('@lib/druid.js');
 module.exports = {
   Query: {
     threatName: (root, { NameStr, topN }, { user }) => {
-      let feedback = '123';
       let thresholdVal = 10;
       if (topN) thresholdVal = Number(topN);
-      // Top N 
       if (NameStr == 'topN') {
+        // SELECT
+        // threatName, count(*) as threatCount
+        // FROM "ds-suspected-ip-2019"
+        // GROUP BY threatName
+        // ORDER BY threatCount DESC
+        // LIMIT 10
         let query = {
           "queryType": "topN",
           "dataSource": {
@@ -62,8 +66,7 @@ module.exports = {
             for (let obj of res.data) {
               msg.push(obj['result']);
             }
-            feedback = JSON.stringify(msg, '');
-            resolve(feedback);
+            resolve(JSON.stringify(msg, ''));
           }).catch(err => {
             console.error(err)
             reject(err)
@@ -71,6 +74,12 @@ module.exports = {
         });
       }
       else {
+        // SELECT
+        // DATE_TRUNC('hour', __time), count(*) as threatCount
+        // FROM "ds-suspected-ip-2019"
+        // WHERE threatName='APT37'
+        // GROUP BY DATE_TRUNC('hour', __time)
+        // ORDER BY DATE_TRUNC('hour', __time)
         let query = {
           "queryType": "timeseries",
           "dataSource": {
@@ -113,8 +122,8 @@ module.exports = {
             for (let obj of res.data) {
               msg.push(obj['result']);
             }
-            feedback = JSON.stringify(msg, '');
-            console.log('p1', feedback);
+            let feedback = JSON.stringify(msg, '');
+            //console.log('threatName', feedback);
             resolve(feedback);
           }).catch(err => {
             console.error(err)
@@ -122,11 +131,10 @@ module.exports = {
           })
         });
       }
-      //return 'Test Success, GraphQL server is up & running !!' 
     },
 
     threatSector: (root, { topN }, { user }) => {
-      let feedback = '123';
+      let feedback = '';
       let thresholdVal = 10;
       if (topN) thresholdVal = Number(topN);
       let query = {
@@ -174,7 +182,7 @@ module.exports = {
       return new Promise((resolve, reject) => {
         druid.query.post('/', query).then(res => {
           feedback = JSON.stringify(res.data, '');
-          console.log('p1', feedback);
+          //console.log('p1', feedback);
           //resolve(res.data);
           resolve(feedback);
         }).catch(err => {
@@ -186,9 +194,13 @@ module.exports = {
     },
 
     threatClient: (root, { ClientName, ThreatType }, { user }) => {
-      let feedback = '123';
-      //let nameString = '"'+ClientName+'"';
-      console.log('>>>threat Client', ClientName);
+      // SELECT
+      // DATE_TRUNC('hour', __time), count(*) as threatCount
+      // FROM "ds-suspected-ip-2019"
+      // WHERE srcSector='GOVERNMENT' 
+      // GROUP BY DATE_TRUNC('hour', __time)
+      // ORDER BY DATE_TRUNC('hour', __time)
+      //console.log('>>>threat Client', ClientName);
       let filterDict = {
         "type": "selector",
         "dimension": "srcSector",
@@ -254,15 +266,14 @@ module.exports = {
           for (let obj of res.data) {
             msg.push(obj['result']);
           }
-          feedback = JSON.stringify(msg, '');
-          console.log('p1', feedback);
+          let feedback = JSON.stringify(msg, '');
+          //console.log('p1', feedback);
           resolve(feedback);
         }).catch(err => {
           console.error(err)
           reject(err)
         })
       });
-      //return 'Test Success, GraphQL server is up & running !!' 
     },
   }
 }

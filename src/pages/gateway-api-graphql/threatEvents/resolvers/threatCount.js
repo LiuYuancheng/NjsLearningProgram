@@ -13,8 +13,11 @@ const moment = require('moment');
 
 module.exports = {
   Query: {
-    threatEvents_topNThreatNameCountTimeSeries: ( root, { topN, dateFrom, timeseries, sectors }, { user } ) => {
-      logger.debug("threatEvents_topNThreatNameCountTimeSeries", topN, dateFrom, sectors);
+    /**
+     * Resolver for threatEvents_topNThreatNameCountTimeSeries
+     */
+    threatEvents_topNThreatNameCountTimeSeries: ( root, { topN, dateFrom, timeseries, filter, having }, { user } ) => {
+      logger.debug("threatEvents_topNThreatNameCountTimeSeries", topN, dateFrom, filter, having);
 
       // let bindVars = { topN, sectors }
 
@@ -32,7 +35,7 @@ module.exports = {
 
       // let bindVars = { offset:rowsPerPage*page, count: rowsPerPage }
       // filter out synonly connections
-      let filter = {
+      let myfilter = {
         "type": "and",
         "fields": [
           {
@@ -47,7 +50,7 @@ module.exports = {
       }
 
       if (user.isEnterpriseUser) {
-        filter.fields.push({
+        myfilter.fields.push({
           "type": "or",
           "fields": [
             {
@@ -64,6 +67,7 @@ module.exports = {
         })
       }
 
+      /*
       if (sectors) {
         filter.fields.push({
           "type": "or",
@@ -81,6 +85,12 @@ module.exports = {
           ]
         })
       }
+      */
+
+      if (filter) {
+        // myfilter.fields = [...myfilter.fields, filter]
+        myfilter.fields.push(filter)
+      }
 
       // console.log(query)
       let p1 = new Promise((resolve, reject) => {
@@ -90,7 +100,7 @@ module.exports = {
           "granularity": "hour",
           intervals,
           "threshold": topN,
-          filter,
+          filter: myfilter,
           "dimension": "threatName",
           "metric": "threatCount",
           "aggregations": [
@@ -143,7 +153,7 @@ module.exports = {
           "dataSource": druid.ds_suspected_threats,
           "granularity": "all",
           intervals,
-          filter,
+          filter: myfilter,
           "dimensions": [
             "threatName"
           ],
@@ -187,6 +197,111 @@ module.exports = {
 
     }, // threatEvents_topNThreatNameCountTimeSeries
 
+    /**
+     * Resolver for threatEvents_threatCountTimeSeries
+     */
+    threatEvents_threatCountTimeSeries: ( root, { dateStart, dateEnd, filter, having }, { user } ) => {
+      logger.debug("threatEvents_threatCountTimeSeries", dateStart, dateEnd, filter, having);
+      
+      // let intervals = dateFrom?
+      //   [ `${moment().subtract(dateFrom.numUnits, dateFrom.unit).toISOString()}/${moment().toISOString()}` ]:
+      //   [ "0000/3000" ]
+      dateStart = dateStart?moment(dateStart).toISOString():"0000";
+      dateEnd = dateEnd?moment(dateEnd).toISOString():"3000";
+      let intervals = [ `${dateStart}/${dateEnd}` ]
+
+      // let bindVars = { offset:rowsPerPage*page, count: rowsPerPage }
+      // filter out synonly connections
+      let myfilter = {
+        "type": "and",
+        "fields": [
+          {
+            "type": "not",
+            "field": {
+              "type": "selector",
+              "dimension": "app",
+              "value": "synonly"
+            }
+          }
+        ]
+      }
+
+      if (user.isEnterpriseUser) {
+        myfilter.fields.push({
+          "type": "or",
+          "fields": [
+            {
+              "type": "selector",
+              "dimension": "srcEnterpriseId",
+              "value": user.enterpriseId,    
+            },
+            {
+              "type": "selector",
+              "dimension": "dstEnterpriseId",
+              "value": user.enterpriseId,      
+            }
+          ]
+        })
+      }
+
+      if (filter) {
+        // myfilter.fields = [...myfilter.fields, filter]
+        myfilter.fields.push(filter)
+      }
+
+      // console.log(query)
+      return new Promise((resolve, reject) => {
+        let query = {
+          "queryType": "groupBy",
+          "dataSource": druid.ds_suspected_threats,
+          "granularity": "hour",
+          intervals,
+          filter: myfilter,
+          "dimensions": [ "connectionType" ],
+          "aggregations": [
+            { "type": "longSum", "name": "threatCount", "fieldName": "count" }
+          ],
+          context: druid.context,
+        }
+
+        // console.log("query", JSON.stringify(query, null, "  "))
+        druid.query.post('/', query).then(res => {
+          // console.log(`statusCode: ${res.statusCode}`)
+          // console.log("p1", JSON.stringify(res.data, null, "  "))
+          let ip = [];
+          let dns = [];
+          let totalIP = 0;
+          let totalDNS = 0;
+          for (let row of res.data) {
+            let timestamp = moment(row.timestamp).valueOf()
+            if (row.event.connectionType === "IP") {
+              ip.push([ timestamp, row.event.threatCount ]);
+              totalIP += row.event.threatCount
+            } else {
+              dns.push([ timestamp, row.event.threatCount ])
+              totalDNS += row.event.threatCount
+            }
+          }
+          resolve([
+            {
+              "name": "IP",
+              "y": totalIP,
+              "data": ip  
+            },
+            {
+              "name": "DNS",
+              "y": totalDNS,
+              "data": dns
+            },
+          ])
+        })
+        .catch(err => {
+          console.error(err)
+          reject(err)
+        })
+      })
+
+    }, // threatEvents_threatCountTimeSeries
 
   } // Query
 }

@@ -10,11 +10,13 @@ const druid = require('@lib/druid.js')
 var dbconn = require('@lib/arango.js');
 var db = new dbconn();
 
+const moment = require("moment")
+
 module.exports = {
   Query: {
-    threatEvents_list: ( root, { dateFrom, page, rowsPerPage, sort, filters }, { user } ) => {
-      console.log("threatEvents_list", page, rowsPerPage, sort)
-      console.log("threatEvents_list filters", JSON.stringify(filters, null, "  "))
+    threatEvents_list: ( root, { dateStart, dateEnd, page, rowsPerPage, sort, filter, having }, { user } ) => {
+      logger.debug("threatEvents_list", page, rowsPerPage, sort)
+      // console.log("threatEvents_list filters", JSON.stringify(filter, null, "  "))
       const dimensions = [
         "srcNodeId",
         "srcSector",
@@ -22,6 +24,7 @@ module.exports = {
         "dstNodeId",
         "dstPort",
         "dstSector",
+        "protocol",
         "dstEnterpriseId",
         "threatName",
         "threatType",
@@ -31,13 +34,16 @@ module.exports = {
         "connectionType"
       ]      
 
-      let intervals = dateFrom?
-        [ `${moment().subtract(dateFrom.numUnits, dateFrom.unit).toISOString()}/${moment().toISOString()}` ]:
-        [ "0000/3000" ]
+      // let intervals = dateFrom?
+      //   [ `${moment().subtract(dateFrom.numUnits, dateFrom.unit).toISOString()}/${moment().toISOString()}` ]:
+      //   [ "0000/3000" ]
+      dateStart = dateStart?moment(dateStart).toISOString():"0000";
+      dateEnd = dateEnd?moment(dateEnd).toISOString():"3000";
+      let intervals = [ `${dateStart}/${dateEnd}` ]
 
       // let bindVars = { offset:rowsPerPage*page, count: rowsPerPage }
       // filter out synonly connections
-      let filter = {
+      let myfilter = {
         "type": "and",
         "fields": [
           {
@@ -53,7 +59,7 @@ module.exports = {
 
       if (user.isEnterpriseUser) {
         // bindVars.enterpriseId = user.enterpriseId;
-        filter.fields.push({
+        myfilter.fields.push({
           "type": "or",
           "fields": [
             {
@@ -70,7 +76,8 @@ module.exports = {
         })
       }
 
-      let having = null;
+      // let having = null;
+      /*
       if (filters) {
         let [ where, tmpHaving ] = druid.jqxGridFilters(filters, ["threatCount"])
         // console.log("where", JSON.stringify(where, null, "  "))
@@ -96,6 +103,11 @@ module.exports = {
         }
       }
       // console.log("query filter", JSON.stringify(filter, null, " "))
+      */
+      if (filter) {
+        // myfilter.fields = [...myfilter.fields, filter]
+        myfilter.fields.push(filter)
+      }
 
       let columns = null;
       if (sort) {
@@ -104,7 +116,7 @@ module.exports = {
           "direction": sort.sortorder,
         }]
       }
-      // console.log("where", filterscount, where)
+      // console.log("final filter", JSON.stringify(myfilter,null," "))
 
       // get paged events
       let p1 = new Promise((resolve, reject) => {
@@ -119,7 +131,7 @@ module.exports = {
             "offset": rowsPerPage * page,
             columns,
           },
-          filter,
+          filter: myfilter,
           having,
           dimensions,
           "aggregations": [
@@ -128,7 +140,10 @@ module.exports = {
           "context": {
             "sortByDimsFirst": "true"
           },
-          "context": druid.context,
+          "context": {
+            ...druid.context,
+            sortByDimsFirst: true,
+          },
         }
 
         // console.log("query", JSON.stringify(query, null, "  "))
@@ -161,7 +176,7 @@ module.exports = {
               "dataSource": druid.ds_suspected_threats,
               "granularity": "hour",
               intervals,
-              filter,
+              filter: myfilter,
               having,
               dimensions     
             }
