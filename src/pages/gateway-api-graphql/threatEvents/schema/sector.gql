@@ -1,0 +1,14 @@
+#
+# Queries
+#
+type Query {
+  # Return threat details for a specific sector
+  threatEvents_sectorDetails(
+    dateStart: DateTime
+    dateEnd: DateTime
+    sector: String!
+    filter: JSON
+    having: JSON
+    outgoing: Boolean = true
+  ): JSON @authz
+}

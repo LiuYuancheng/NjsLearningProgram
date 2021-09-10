@@ -1,0 +1,11 @@
+#
+# Queries
+#
+type Query  {
+   threatEvents_nationalCount(
+        queryType:String!
+        fieldStr:String
+        threatType:String
+        limitVal:Int
+    ):JSON
+}

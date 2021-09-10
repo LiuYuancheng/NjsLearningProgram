@@ -135,7 +135,7 @@ module.exports = {
                 // SELECT
                 // DATE_TRUNC('hour', __time), count(*) as threatCount
                 // FROM "ds-suspected-ip-2019"
-                // WHERE threatName='ActorStr' and threatType = 'IntrustionSet'
+                // WHERE threatName='ActorStr' and threatType = 'IntrusionSet'
                 // GROUP BY DATE_TRUNC('hour', __time)
                 // ORDER BY DATE_TRUNC('hour', __time)
                 let query = {

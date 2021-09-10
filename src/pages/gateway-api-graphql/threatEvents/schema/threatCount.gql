@@ -25,4 +25,20 @@ type Query {
     filter: JSON
     having: JSON
   ): [TimeSeriesData2] @authz
+  # threat count by sector with time series returns
+  threatEvents_threatCountBySectorTimeSeries(
+    dateStart: DateTime
+    dateEnd: DateTime
+    filter: JSON
+    having: JSON
+    outgoing: Boolean = true
+  ): [TimeSeriesData2] @authz
+  # threat count by country with time series returns
+  threatEvents_threatCountByCountry(
+    dateStart: DateTime
+    dateEnd: DateTime
+    filter: JSON
+    having: JSON
+    outgoing: Boolean = true
+  ): JSON @authz
 }

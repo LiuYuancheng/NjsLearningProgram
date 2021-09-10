@@ -10,6 +10,9 @@ const dbconn = require('@lib/arango.js');
 const druid = require('@lib/druid.js')
 const db = new dbconn();
 const moment = require('moment');
+const lookup = require('country-code-lookup')
+
+// console.log("lookup", lookup)
 
 module.exports = {
   Query: {
@@ -302,6 +305,228 @@ module.exports = {
       })
 
     }, // threatEvents_threatCountTimeSeries
+
+    /**
+     * Resolver for threatEvents_threatCountBySectorTimeSeries
+     */
+    threatEvents_threatCountBySectorTimeSeries: ( root, { dateStart, dateEnd, filter, having, outgoing }, { user } ) => {
+      logger.debug("threatEvents_threatCountBySectorTimeSeries", dateStart, dateEnd, filter, having, outgoing);
+      
+      // let intervals = dateFrom?
+      //   [ `${moment().subtract(dateFrom.numUnits, dateFrom.unit).toISOString()}/${moment().toISOString()}` ]:
+      //   [ "0000/3000" ]
+      dateStart = dateStart?moment(dateStart).toISOString():"0000";
+      dateEnd = dateEnd?moment(dateEnd).toISOString():"3000";
+      let intervals = [ `${dateStart}/${dateEnd}` ]
+
+      let sectorAttr = outgoing?"srcSector":"dstSector";
+
+      // let bindVars = { offset:rowsPerPage*page, count: rowsPerPage }
+      // filter out synonly connections
+      let myfilter = {
+        "type": "and",
+        "fields": [
+          {
+            "type": "not",
+            "field": {
+              "type": "selector",
+              "dimension": "app",
+              "value": "synonly"
+            }
+          },
+          {
+            "type": "not",
+            "field": {
+              "type": "selector",
+              "dimension": "sector",
+              "value": ""
+            }
+          }
+        ]
+      }
+
+      if (user.isEnterpriseUser) {
+        myfilter.fields.push({
+          "type": "or",
+          "fields": [
+            {
+              "type": "selector",
+              "dimension": "srcEnterpriseId",
+              "value": user.enterpriseId,    
+            },
+            {
+              "type": "selector",
+              "dimension": "dstEnterpriseId",
+              "value": user.enterpriseId,      
+            }
+          ]
+        })
+      }
+
+      if (filter) {
+        // myfilter.fields = [...myfilter.fields, filter]
+        myfilter.fields.push(filter)
+      }
+
+      // console.log(query)
+      return new Promise((resolve, reject) => {
+        let query = {
+          "queryType": "groupBy",
+          "dataSource": druid.ds_suspected_threats,
+          "granularity": "hour",
+          intervals,
+          "virtualColumns": [
+            {
+              "type": "expression",
+              "name": "sector",
+              "expression": sectorAttr,
+              "outputType": "STRING"
+            }
+          ],
+          filter: myfilter,
+          "dimensions": [ "sector" ],
+          "aggregations": [
+            { "type": "longSum", "name": "threatCount", "fieldName": "count" }
+          ],
+          context: druid.context,
+        }
+
+        // console.log("query", JSON.stringify(query, null, "  "))
+        druid.query.post('/', query).then(res => {
+          // console.log(`statusCode: ${res.statusCode}`)
+          // console.log("p1", JSON.stringify(res.data, null, "  "))
+          let result = {};
+          for (let row of res.data) {
+            let timestamp = moment(row.timestamp).valueOf()
+            if (result[row.event.sector]) {
+              result[row.event.sector].y += row.event.threatCount;
+              result[row.event.sector].data.push([ timestamp, row.event.threatCount ])
+            } else {
+              result[row.event.sector] = {
+                "name": row.event.sector,
+                "y": row.event.threatCount,
+                "data": [ [ timestamp, row.event.threatCount] ]
+              }
+            }
+          }
+          resolve(Object.values(result))
+        })
+        .catch(err => {
+          logger.error(err)
+          reject(err)
+        })
+      })
+
+    }, // threatEvents_threatCountBySectorTimeSeries
+
+    /**
+     * Resolver for threatEvents_threatCountByCountry
+     */
+    threatEvents_threatCountByCountry: ( root, { dateStart, dateEnd, filter, having, outgoing }, { user } ) => {
+      logger.debug("threatEvents_threatCountByCountry", dateStart, dateEnd, filter, having, outgoing);
+      
+      // let intervals = dateFrom?
+      //   [ `${moment().subtract(dateFrom.numUnits, dateFrom.unit).toISOString()}/${moment().toISOString()}` ]:
+      //   [ "0000/3000" ]
+      dateStart = dateStart?moment(dateStart).toISOString():"0000";
+      dateEnd = dateEnd?moment(dateEnd).toISOString():"3000";
+      let intervals = [ `${dateStart}/${dateEnd}` ]
+
+      // let countryAttr = outgoing?"srcCountry":"dstCountry";
+      let countryAttr = outgoing?"dstCountry":"srcCountry";
+
+      // let bindVars = { offset:rowsPerPage*page, count: rowsPerPage }
+      // filter out synonly connections
+      let myfilter = {
+        "type": "and",
+        "fields": [
+          {
+            "type": "not",
+            "field": {
+              "type": "selector",
+              "dimension": "app",
+              "value": "synonly"
+            }
+          },
+          {
+            "type": "not",
+            "field": {
+              "type": "selector",
+              "dimension": "country",
+              "value": ""
+            }
+          }
+        ]
+      }
+
+      if (user.isEnterpriseUser) {
+        myfilter.fields.push({
+          "type": "or",
+          "fields": [
+            {
+              "type": "selector",
+              "dimension": "srcEnterpriseId",
+              "value": user.enterpriseId,    
+            },
+            {
+              "type": "selector",
+              "dimension": "dstEnterpriseId",
+              "value": user.enterpriseId,      
+            }
+          ]
+        })
+      }
+
+      if (filter) {
+        // myfilter.fields = [...myfilter.fields, filter]
+        myfilter.fields.push(filter)
+      }
+
+      // console.log(query)
+      return new Promise((resolve, reject) => {
+        let query = {
+          "queryType": "groupBy",
+          "dataSource": druid.ds_suspected_threats,
+          "granularity": "all",
+          intervals,
+          "virtualColumns": [
+            {
+              "type": "expression",
+              "name": "country",
+              "expression": countryAttr,
+              "outputType": "STRING"
+            }
+          ],
+          filter: myfilter,
+          "dimensions": [ "country" ],
+          "aggregations": [
+            { "type": "longSum", "name": "threatCount", "fieldName": "count" }
+          ],
+          context: druid.context,
+        }
+
+        // console.log("query", JSON.stringify(query, null, "  "))
+        druid.query.post('/', query).then(res => {
+          // console.log(`statusCode: ${res.statusCode}`)
+          // console.log("p1", JSON.stringify(res.data, null, "  "))
+          let results = res.data.map(e => {
+            let c = lookup.byIso(e.event.country)
+            return {
+              country: c.country,
+              iso2: c.iso2,
+              iso3: c.iso3,
+              threatCount: e.event.threatCount
+            }
+          });
+          resolve(results)
+        })
+        .catch(err => {
+          logger.error(err)
+          reject(err)
+        })
+      })
+
+    }, // threatEvents_threatCountByCountry
 
   } // Query
 }
