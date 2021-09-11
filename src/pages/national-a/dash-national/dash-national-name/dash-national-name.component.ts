@@ -34,9 +34,9 @@ Accessibility(Highcharts);
 const Wordcloud = require('highcharts/modules/wordcloud');
 Wordcloud(Highcharts);
 
-const NAME_QUERY = gql`
-query($NameStr:String!, $topN:Int) {
-    threatName(NameStr:$NameStr, topN:$topN)
+const TOPN_QUERY = gql`
+query($dimension:String!,$filterDimension:String, $filterVal:String, $topN:Int) {
+    threatEvents_nationalTopN(dimension:$dimension, filterDimension:$filterDimension, filterVal:$filterVal, topN:$topN)
 }
 `;
 
@@ -98,8 +98,11 @@ export class DashNationalNameComponent implements OnInit, OnDestroy {
     //------------------------------------------------------------------------------
     ngOnInit(): void {
         this.feedNameQuery = this.apollo.watchQuery<any>({
-            query: NAME_QUERY,
-            variables: { NameStr: "topN" },
+            query: TOPN_QUERY,
+            variables: { 
+                dimension: "threatName",  
+                topN:10,
+        },
             fetchPolicy: 'network-only', // fetchPolicy: 'cache-first',
         });
         // add the chart word click handler
@@ -114,6 +117,7 @@ export class DashNationalNameComponent implements OnInit, OnDestroy {
     // All detail function methods (name sorted by alphabet):
     //-----------------------------------------------------------------------------
     clickWords(event: any): void {
+        //handle word click event.
         //console.log("clickWords(): ", event.point['name']);
         this.parentFun.emit({ type: 'name', 'val': event.point['name'] });
     }
@@ -137,13 +141,12 @@ export class DashNationalNameComponent implements OnInit, OnDestroy {
         switch (inputData[0]) { // use swith if need to add more filter condition.
             case 'name': {
                 this.feedNameQuery = this.apollo.watchQuery<any>({
-                    query: NAME_QUERY,
+                    query: TOPN_QUERY,
                     variables: {
-                        NameStr: "topN",
+                        dimension: "threatName", 
                         topN: Number(inputData[1])
                     },
-                    fetchPolicy: 'network-only',
-                    // fetchPolicy: 'cache-first',
+                    fetchPolicy: 'network-only', // fetchPolicy: 'cache-first',
                 });
                 this.fetchNameQuery();
                 break;
@@ -157,14 +160,15 @@ export class DashNationalNameComponent implements OnInit, OnDestroy {
     //------------------------------------------------------------------------------
     fetchNameQuery(): void {
         this.feedName = this.feedNameQuery.valueChanges.subscribe(({ data, loading }) => {
-            let nameDataSet = JSON.parse(data['threatName'])['0'];
-            //console.log('Query data:', this.nameDataSet);
+            let nameDataSet  = data['threatEvents_nationalTopN']['0']
+
+            console.log('Query name data:', nameDataSet);
             //console.log('Query name loading:', loading);
             let threatNameArr = [];
             if (!loading) {
                 //this.threatNameTS = 'Dataset timestamp : ' + this.nameDataSet['timestamp'];
                 this.threatNameTS = 'Chart Display Config : '
-                for (let obj of nameDataSet) {
+                for (let obj of nameDataSet['result']) {
                     threatNameArr.push([obj['d0'], Number(obj['a0'])]);
                 }
                 this.options['series']['0']['data'] = threatNameArr;

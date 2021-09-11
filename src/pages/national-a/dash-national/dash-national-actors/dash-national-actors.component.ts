@@ -29,9 +29,9 @@ ExportData(Highcharts);
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
-const ACTOR_QUERY = gql`
-query($ActorStr:String!, $topN:Int) {
-  threatActor(ActorStr:$ActorStr, topN:$topN)
+const TOPN_QUERY = gql`
+query($dimension:String!,$filterDimension:String, $filterVal:String, $topN:Int) {
+    threatEvents_nationalTopN(dimension:$dimension, filterDimension:$filterDimension, filterVal:$filterVal, topN:$topN)
 }
 `;
 
@@ -101,8 +101,13 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
     //------------------------------------------------------------------------------
     ngOnInit(): void {
         this.feedQuery = this.apollo.watchQuery<any>({
-            query: ACTOR_QUERY,
-            variables: { ActorStr: "topN" },
+            query: TOPN_QUERY,
+            variables: { 
+                dimension: "threatName",  
+                filterDimension: "threatType",
+                filterVal: "IntrusionSet",
+                topN:10,
+        },
             fetchPolicy: 'network-only', // fetchPolicy: 'cache-first',
         });
         this.options.plotOptions.series.events.click = (event) => this.clickPie(event);
@@ -124,7 +129,7 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
     //------------------------------------------------------------------------------
     fetchActorQuery(): void {
         this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-            let dataSet = JSON.parse(data['threatActor'])['0'];
+            let dataSet = data['threatEvents_nationalTopN']['0'];
             //console.log('Query actor data :', dataSet);
             //console.log('Query actor loading:', loading);
             if (!loading) {
@@ -152,9 +157,11 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
         switch (inputData[0]) {
             case 'name': {
                 this.feedQuery = this.apollo.watchQuery<any>({
-                    query: ACTOR_QUERY,
+                    query: TOPN_QUERY,
                     variables: {
-                        ActorStr: "topN",
+                        dimension: "threatName",  
+                        filterDimension: "threatType",
+                        filterVal: "IntrusionSet",
                         topN: Number(inputData[1])
                     },
                     fetchPolicy: 'network-only',

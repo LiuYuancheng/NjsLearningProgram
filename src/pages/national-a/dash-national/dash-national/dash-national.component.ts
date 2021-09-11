@@ -6,11 +6,6 @@ import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
 import * as Highcharts from "highcharts";
 
-
-//import { DashNationalActorsComponent } from "../dash-national-actors/dash-national-actors.component";
-//import { DashNationalClientComponent } from "../dash-national-client/dash-national-client.component";
-//import { DashNationalPopupComponent } from "../dash-national-popup/dash-national-popup.component";
-
 //-----------------------------------------------------------------------------
 // Name:        dash-national.components.ts
 // Purpose:     Show the main dashboard.
@@ -38,11 +33,11 @@ const COUNT_QUERY = gql`
 query($queryType:String!, $fieldStr:String, $threatType:String, $limitVal:Int){
     threatEvents_nationalCount(queryType:$queryType, fieldStr:$fieldStr, threatType:$threatType, limitVal:$limitVal)
 }
-`
+`;
 
-const SECTOR_QUERY = gql`
-query($topN:Int) {
-    threatSector(topN:$topN)
+const TOPN_QUERY = gql`
+query($dimension:String!,$filterDimension:String, $filterVal:String, $topN:Int) {
+    threatEvents_nationalTopN(dimension:$dimension, filterDimension:$filterDimension, filterVal:$filterVal, topN:$topN)
 }
 `;
 
@@ -193,8 +188,10 @@ export class DashNationalComponent implements OnInit, OnDestroy {
         this.fetchCountQuery();
 
         this.feedSecQuery = this.apollo.watchQuery<any>({
-            query: SECTOR_QUERY,
-            variables: { topN: 10 },
+            query: TOPN_QUERY,
+            variables: { 
+                dimension: 'srcSector',
+                topN: 10 },
             fetchPolicy: 'network-only',
         });
         this.fetchSectorQuery();
@@ -231,14 +228,14 @@ export class DashNationalComponent implements OnInit, OnDestroy {
     //------------------------------------------------------------------------------
     fetchSectorQuery(): void {
         this.feedSector = this.feedSecQuery.valueChanges.subscribe(({ data, loading }) => {
-            let sectorDataSet = JSON.parse(data['threatSector'])['0'];
+            let sectorDataSet = data['threatEvents_nationalTopN']['0']
             //console.log('Query sector data:', sectorDataSet);
             //console.log('Query sector loading:', loading);
             if (!loading) {
                 this.threatSectorTS = 'Chart Display Config : '
                 let dataArr = [];
                 for (let obj of sectorDataSet['result']) {
-                    dataArr.push({ name: obj['d0'], y: obj['a0'] });
+                    dataArr.push({ name: String(obj['d0']), y: obj['a0'] });
                 }
                 this.pieOption['series']['0']['data'] = dataArr;
                 this.redrawSector();
@@ -248,19 +245,22 @@ export class DashNationalComponent implements OnInit, OnDestroy {
 
     //------------------------------------------------------------------------------
     selectConfigN(event: any): void {
-        let inputData =  String(event.target.value).split(':');
-        switch(inputData[0]){
-            case 'sector':{
+        let inputData = String(event.target.value).split(':');
+        switch (inputData[0]) {
+            case 'sector': {
                 this.feedSecQuery = this.apollo.watchQuery<any>({
-                    query: SECTOR_QUERY,
-                    variables: {topN:Number(inputData[1])},
+                    query: TOPN_QUERY,
+                    variables: {
+                        dimension: 'srcSector',
+                        topN: Number(inputData[1])
+                    },
                     fetchPolicy: 'network-only',
                 });
                 this.fetchSectorQuery();
                 break;
             }
-            default:{
-                console.log("selectConfigN(): input not valid",inputData);
+            default: {
+                console.log("selectConfigN(): input not valid", inputData);
             }
         }
     }
