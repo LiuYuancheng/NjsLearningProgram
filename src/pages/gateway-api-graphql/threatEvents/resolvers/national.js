@@ -46,11 +46,10 @@ module.exports = {
             };
 
             let threatTypeVal = "IntrusionSet";
-            if(threatType) threatTypeVal = threatType;
+            if (threatType) threatTypeVal = threatType;
 
-            switch(queryType) {
-                case 'threatActor':{
-                    
+            switch (queryType) {
+                case 'threatActor': {
                     query["filter"] = {
                         "type": "and",
                         "fields": [
@@ -85,7 +84,6 @@ module.exports = {
                     query["context"]["sqlQueryId"] = "06b793c8-c8c6-487b-8e39-723f56aed450";
                     break;
                 }
-
                 case 'threatSector': {
                     if (threatType == 'All') {
                         query["filter"] = {
@@ -94,32 +92,32 @@ module.exports = {
                             "value": fieldStr,
                             "extractionFn": null
                         };
-                    } else{
+                    } else {
                         query["filter"] = {
                             "type": "and",
                             "fields": [
-                              {
-                                "type": "selector",
-                                "dimension": "srcSector",
-                                "value": fieldStr,
-                                "extractionFn": null
-                              },
-                              {
-                                "type": "selector",
-                                "dimension": "threatType",
-                                "value": threatType,
-                                "extractionFn": null
-                              }
+                                {
+                                    "type": "selector",
+                                    "dimension": "srcSector",
+                                    "value": fieldStr,
+                                    "extractionFn": null
+                                },
+                                {
+                                    "type": "selector",
+                                    "dimension": "threatType",
+                                    "value": threatType,
+                                    "extractionFn": null
+                                }
                             ]
-                          }
+                        }
                     }
                     if (limitVal) query["limit"] = limitVal;
                     query["context"]["sqlOuterLimit"] = 100;
                     query["context"]["sqlQueryId"] = "c8e13274-06c7-4c9d-84f8-af30436dddc4";
                     break;
                 }
-                default:{
-                    
+                default: {
+
                 }
             }
 
@@ -134,12 +132,70 @@ module.exports = {
                 })
             });
         },
+        // get the top N based on the input 
+        threatEvents_nationalTopN: (root, { dimension, filterDimension, filterVal, topN }, { user }) => {
+            let thresholdVal = 10;
+            if (topN) thresholdVal = Number(topN);
+            // baic query 
+            let query = {
+                "queryType": "topN",
+                "dataSource": {
+                    "type": "table",
+                    "name": "ds-suspected-ip-2019"
+                },
+                "virtualColumns": [],
+                "dimension": {
+                    "type": "default",
+                    "dimension": dimension,
+                    "outputName": "d0",
+                    "outputType": "STRING"
+                },
+                "metric": {
+                    "type": "numeric",
+                    "metric": "a0"
+                },
+                "threshold": thresholdVal,
+                "intervals": {
+                    "type": "intervals",
+                    "intervals": [
+                        "-146136543-09-08T08:23:32.096Z/146140482-04-24T15:36:27.903Z"
+                    ]
+                },
+                "filter": null,
+                "granularity": {
+                    "type": "all"
+                },
+                "aggregations": [
+                    {
+                        "type": "count",
+                        "name": "a0"
+                    }
+                ],
+                "postAggregations": [],
+                "context": {
+                    "sqlOuterLimit": 100,
+                    "sqlQueryId": "ab7e2e38-ba23-4b15-82bc-a31d052fcdaa"
+                },
+                "descending": false
+            };
 
+            if (filterDimension && filterVal) {
+                query["filter"] = {
+                    "type": "selector",
+                    "dimension": filterDimension,
+                    "value": filterVal,
+                    "extractionFn": null
+                }
+            }
 
-
-
-
-
-
+            return new Promise((resolve, reject) => {
+                druid.query.post('/', query).then(res => {
+                    resolve(res.data);
+                }).catch(err => {
+                    console.error(err)
+                    reject(err)
+                })
+            });
+        }
     }
 }

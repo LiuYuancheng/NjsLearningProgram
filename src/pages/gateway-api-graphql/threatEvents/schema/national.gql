@@ -8,4 +8,11 @@ type Query  {
         threatType:String
         limitVal:Int
     ):JSON
+
+   threatEvents_nationalTopN(
+        dimension:String!
+        filterDimension:String
+        filterVal:String
+        topN:Int
+    ):JSON
 }
