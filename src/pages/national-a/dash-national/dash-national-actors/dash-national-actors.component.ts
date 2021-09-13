@@ -8,8 +8,9 @@ import * as Highcharts from 'highcharts';
 
 //-----------------------------------------------------------------------------
 // Name:        dash-national-actors.components.ts
-// Purpose:     This components will show a mat-card to display the top N theat
-//              actor/type in a highchart pie chart.
+// Purpose:     This components will show a mat-card to display the top N threat
+//              actor/type in a highchart pie chart. 
+//              threatActor:[ThreatName with threatType== 'IntrusionSet']
 // Author:
 // Created:     2021/08/26
 // Copyright:    n.a    
@@ -46,17 +47,18 @@ query($dimension:String!,$filterDimension:String, $filterVal:String, $topN:Int) 
 //------------------------------------------------------------------------------
 export class DashNationalActorsComponent implements OnInit, OnDestroy {
     @Output("showPopup") parentFun: EventEmitter<any> = new EventEmitter();
+    
+    public loadLabel: String;
 
-    timestamp: String;
-
-    // highchart query
+    // top N data query
     private feedQuery: QueryRef<any>;
     private feed: Subscription;
-    public options: any;
+    
+    private options: any;
 
     //------------------------------------------------------------------------------
     constructor(private apollo: Apollo) {
-        this.timestamp = 'loading...';
+        this.loadLabel = 'loading...';
         this.options = {
             chart: {
                 plotBackgroundColor: null,
@@ -78,7 +80,7 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
                     dataLabels: {
                         enabled: true,
                         //format: '<b>{point.name}</b>: {point.y:.1f}'
-                        format: '<b>{point.name}</b>: {point.percentage:.2f}%'
+                        format: '<b>{point.name}</b>: {point.percentage:.2f}%' 
                     },
                     showInLegend: true
                 },
@@ -116,13 +118,14 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         if (this.feed != null) this.feed.unsubscribe();
+        this.feed = null;
     }
 
     // All detail function methods (name sorted by alphabet):
     //------------------------------------------------------------------------------
     clickPie(event: any) {
         //handle Pie chart section click event.
-        console.log("clickPie()", event.point['name']);
+        //console.log("clickPie()", event.point['name']);
         this.parentFun.emit({ 'type': 'actor', 'val': event.point['name'] });
     }
 
@@ -133,11 +136,10 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
             //console.log('Query actor data :', dataSet);
             //console.log('Query actor loading:', loading);
             if (!loading) {
-                //this.timestamp = 'Dataset timestamp : '+this.dataSet['timestamp'];
-                this.timestamp = 'Chart Display Config : '
+                this.loadLabel = 'Chart Display Config : '
                 let dataArr = [];
                 for (let obj of dataSet['result']) {
-                    dataArr.push({ name: obj['d0'], y: obj['a0'] });
+                    dataArr.push({ name: obj['d0'], y: obj['a0'] }); 
                 }
                 this.options['series']['0']['data'] = dataArr;
             }

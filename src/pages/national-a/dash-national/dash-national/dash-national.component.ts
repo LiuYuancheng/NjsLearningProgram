@@ -28,7 +28,6 @@ ExportData(Highcharts);
 const Accessibility = require('highcharts/modules/accessibility');
 Accessibility(Highcharts);
 
-
 const COUNT_QUERY = gql`
 query($queryType:String!, $fieldStr:String, $threatType:String, $limitVal:Int){
     threatEvents_nationalCount(queryType:$queryType, fieldStr:$fieldStr, threatType:$threatType, limitVal:$limitVal)
@@ -55,26 +54,24 @@ const ICON_PATH = "assets/images/icons/cii/icons/";
 export class DashNationalComponent implements OnInit, OnDestroy {
     private nativeElement: HTMLElement;
 
+    public loadLabel: String;
     //Total threat count query paramters
-    public threatCountTS: String;
     private feedCouQuery: QueryRef<any>;
     private feedCount: Subscription;
 
     // top-N sector query parameters
-    public threatSectorTS: String;
     private feedSecQuery: QueryRef<any>;
     private feedSector: Subscription;
 
-    // the client we want to show in the summery section.
-    clientArr1: String[];
-    clientArr2: String[];
+    // the secotrs we want to show in the summery section.
+    public sectorArr: any; // [[row0][row1]]
 
     // pop-up dialog parameters
-    popup = false;
-    popName: String;
-    popCliIconPath: String;
-    popupType: String;
-    popupName: String;
+    public popup = false;
+    public popName: String;
+    public popCliIconPath: String;
+    public popupType: String;
+    public popupName: String;
 
     // high chart options
     public areOptions: any;
@@ -82,10 +79,9 @@ export class DashNationalComponent implements OnInit, OnDestroy {
 
     //------------------------------------------------------------------------------
     constructor(private apollo: Apollo) {
-        this.threatSectorTS = "Loading ...";
-        this.clientArr1 = ["GOVERNMENT", "INFOCOMM", "MANUFACTURING", "ENERGY"];
-        this.clientArr2 = ["TRANSPORTATION SERVICES", "HEALTH AND SOCIAL SERVICES",
-            "SECURITY AND EMERGENCY", "BANKING AND FINANCE"];
+        this.loadLabel = "Loading ...";
+        this.sectorArr = [["GOVERNMENT", "INFOCOMM", "MANUFACTURING", "ENERGY"] ,
+                            ["TRANSPORTATION SERVICES", "HEALTH AND SOCIAL SERVICES","SECURITY AND EMERGENCY", "BANKING AND FINANCE"]];
         // Init the threat count area highchart option.
         this.areOptions = {
             chart: {
@@ -181,7 +177,7 @@ export class DashNationalComponent implements OnInit, OnDestroy {
         this.feedCouQuery = this.apollo.watchQuery<any>({
             query: COUNT_QUERY,
             variables: {
-                queryType:'All'
+                queryType: 'All'
             },
             fetchPolicy: 'network-only',
         });
@@ -189,9 +185,10 @@ export class DashNationalComponent implements OnInit, OnDestroy {
 
         this.feedSecQuery = this.apollo.watchQuery<any>({
             query: TOPN_QUERY,
-            variables: { 
+            variables: {
                 dimension: 'srcSector',
-                topN: 10 },
+                topN: 10
+            },
             fetchPolicy: 'network-only',
         });
         this.fetchSectorQuery();
@@ -200,6 +197,8 @@ export class DashNationalComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         if (this.feedSector != null) this.feedSector.unsubscribe();
         if (this.feedCount != null) this.feedCount.unsubscribe();
+        this.feedSector = null;
+        this.feedCount = null;
     }
 
     // All detail function methods (name sorted by alphabet):
@@ -232,7 +231,7 @@ export class DashNationalComponent implements OnInit, OnDestroy {
             //console.log('Query sector data:', sectorDataSet);
             //console.log('Query sector loading:', loading);
             if (!loading) {
-                this.threatSectorTS = 'Chart Display Config : '
+                this.loadLabel = 'Chart Display Config : '
                 let dataArr = [];
                 for (let obj of sectorDataSet['result']) {
                     dataArr.push({ name: String(obj['d0']), y: obj['a0'] });
@@ -261,6 +260,7 @@ export class DashNationalComponent implements OnInit, OnDestroy {
             }
             default: {
                 console.log("selectConfigN(): input not valid", inputData);
+                return;
             }
         }
     }
@@ -268,14 +268,14 @@ export class DashNationalComponent implements OnInit, OnDestroy {
     //------------------------------------------------------------------------------
     showPopup(popupDic: any) {
         switch (popupDic['type']) {
-            case 'client': {
+            case 'sector': {
                 this.popCliIconPath = ICON_PATH + popupDic['val'] + ".png";
-                this.popupType = 'Client';
+                this.popupType = 'Sector';
                 break;
             }
             case 'name': {
                 this.popCliIconPath = ICON_PATH + "hackingtool.png";
-                this.popupType = 'Tname';
+                this.popupType = 'Name';
                 break;
             }
             case 'actor': {

@@ -123,13 +123,13 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
     //------------------------------------------------------------------------------
     ngOnInit(): void {
         switch (this.popupType) {
-            case 'Client': {
+            case 'Sector': {
                 this.getThreatCount('threatSector', 'Malware');
                 this.getThreatCount('threatSector', 'IntrusionSet');
                 this.threatDesStr = 'No infomation from database.'
                 break;
             }
-            case 'Tname': {
+            case 'Name': {
                 this.getThreatCount('threatName');
                 this.getThreatDes();
                 break;

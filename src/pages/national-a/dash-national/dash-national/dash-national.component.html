@@ -22,7 +22,7 @@
             <td style="width: 35%;">
                 <mat-card style="margin: 5px;">
                     <div id="sectorPie" style="width: 100%; height: 95%;"></div>
-                    {{threatSectorTS}}
+                    {{loadLabel}}
                     &nbsp;
                     <select (change)="selectConfigN($event)">
                         <option value="sector:5">Show Top-5</option>
@@ -40,19 +40,11 @@
     <!-- # row idx 2: 4x2 table show client's threat count  -->
     <!-- <p> Threat Counts Summary </p> -->
     <table style="scroll-behavior: smooth;">
-        <tr>
-            <td style="width: 25%;" *ngFor="let name of clientArr1">
+        <tr *ngFor="let row of sectorArr">
+            <td style="width: 25%;" *ngFor="let name of row">
                 <app-dash-national-sector customTitle={{name}} (showPopup)="showPopup($event)">
                 </app-dash-national-sector>
             </td>
-        </tr>
-    
-        <tr>
-            <td style="width: 25%;" *ngFor="let name of clientArr2">
-                <app-dash-national-sector customTitle={{name}} (showPopup)="showPopup($event)">
-                </app-dash-national-sector>
-            </td>
-    
         </tr>
     </table>
 

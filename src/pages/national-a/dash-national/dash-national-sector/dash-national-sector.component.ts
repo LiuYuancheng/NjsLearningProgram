@@ -6,9 +6,9 @@ import gql from 'graphql-tag';
 import * as Highcharts from 'highcharts';
 
 //-----------------------------------------------------------------------------
-// Name:        dash-national-.components.ts
-// Purpose:     This components will show a mat-card to display the top N theat
-//              sector in a highchart pie chart.
+// Name:        dash-national-sector.components.ts
+// Purpose:     This components will show a mat-card to display the sectors threat
+//              timeseries hour count in a highchart line-area chart. 
 // Author:
 // Created:     2021/09/10
 // Copyright:    n.a    
@@ -50,13 +50,14 @@ export class DashNationalSectorComponent implements OnInit {
     @Input() customTitle: string;
     @Output("showPopup") parentFun: EventEmitter<any> = new EventEmitter();
 
-    cliIconPath: String; // top left icon 
-    malIconPath: String; // malware icon
-    intIconPath: String; // intrustionSet icon
+    public secIconPath: String; // top left icon 
+    public malIconPath: String; // malware icon
+    public intIconPath: String; // intrustionSet icon
 
-    // highchart query
+    // timeseries data query
     private feedQuery: QueryRef<any>;
     private feed: Subscription;
+
     private options: any;
 
     //------------------------------------------------------------------------------
@@ -119,10 +120,11 @@ export class DashNationalSectorComponent implements OnInit {
 
     //------------------------------------------------------------------------------
     ngOnInit(): void {
-        this.cliIconPath = ICON_PATH + this.customTitle + ".png";
+        this.secIconPath = ICON_PATH + this.customTitle + ".png";
         this.malIconPath = ICON_PATH + "MALWARE.png";
         this.intIconPath = ICON_PATH + "hackingtool.png";
-
+        this.options['title']['text'] = this.customTitle;
+        //graphql example: threatEvents_nationalCount(queryType:"threatSector",fieldStr:"GOVERNMENT", threatType:"All", limitVal:1000)
         this.feedQuery = this.apollo.watchQuery<any>({
             query: COUNT_QUERY,
             variables:
@@ -138,29 +140,29 @@ export class DashNationalSectorComponent implements OnInit {
 
     ngOnDestroy(): void {
         if (this.feed != null) this.feed.unsubscribe();
+        this.feed = null;
     }
 
     // All detail function methods (name sorted by alphabet):
     //------------------------------------------------------------------------------
-    clickPie(): void {
-        //handle Pie chart section click event.
-        this.parentFun.emit({ 'type': 'client', 'val': this.customTitle });
+    showPopupDialog(): void {
+        //handle panel click event and show popup dialog.
+        this.parentFun.emit({ 'type': 'sector', 'val': this.customTitle });
     }
     //------------------------------------------------------------------------------
     fetchSectorQuery(): void {
+        // fetch the data with the query and redraw the highchart.
         this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-            //let dataSet = JSON.parse(data['threatClient']);
             let dataSet = data['threatEvents_nationalCount'];
             let dataArr = [];
             if (!loading) {
                 let totalCount = 0;
                 for (let obj of dataSet) {
-                    let actor = [Number(obj['d0']), Number(obj['a0'])]
+                    let actor = [Number(obj['d0']), Number(obj['a0'])] // d0: timestamp, a0:count value
                     totalCount += actor[1];
                     dataArr.push(actor);
                 }
                 this.options['subtitle']['text'] = 'Threat Count : ' + String(totalCount);
-                this.options['title']['text'] = this.customTitle;
                 this.options['series']['0']['data'] = dataArr;
                 this.redraw();
             }

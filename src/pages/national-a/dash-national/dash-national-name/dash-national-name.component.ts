@@ -1,13 +1,14 @@
 import { Component, OnInit, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
+
 import gql from 'graphql-tag';
 import * as Highcharts from "highcharts";
 import wordCloud from "highcharts/modules/wordcloud.js";
 
 //-----------------------------------------------------------------------------
 // Name:        dash-national-name.components.ts
-// Purpose:     This components will show a mat-card to display the top N theat
+// Purpose:     This components will show a mat-card to display the top N threat
 //              name in a highchart word cloud.
 // Author:
 // Created:     2021/08/30
@@ -52,15 +53,16 @@ query($dimension:String!,$filterDimension:String, $filterVal:String, $topN:Int) 
 export class DashNationalNameComponent implements OnInit, OnDestroy {
     @Output("showPopup") parentFun: EventEmitter<any> = new EventEmitter();
 
-    public threatNameTS: String;
-    // highchart query
+    public loadLabel: String;
+    //  top N data query
     private feedNameQuery: QueryRef<any>;
     private feedName: Subscription;
+    
     private options: any;
 
     //------------------------------------------------------------------------------
     constructor(private apollo: Apollo) {
-        this.threatNameTS = "Loading ...";
+        this.loadLabel = "Loading ...";
         this.options = {
             accessibility: {
                 screenReaderSection: {
@@ -112,6 +114,7 @@ export class DashNationalNameComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         if (this.feedName != null) this.feedName.unsubscribe();
+        this.feedName = null;
     }
 
     // All detail function methods (name sorted by alphabet):
@@ -153,6 +156,7 @@ export class DashNationalNameComponent implements OnInit, OnDestroy {
             }
             default: {
                 console.log("selectConfigN() input not valid", inputData);
+                return;
             }
         }
     }
@@ -161,13 +165,12 @@ export class DashNationalNameComponent implements OnInit, OnDestroy {
     fetchNameQuery(): void {
         this.feedName = this.feedNameQuery.valueChanges.subscribe(({ data, loading }) => {
             let nameDataSet  = data['threatEvents_nationalTopN']['0']
-
-            console.log('Query name data:', nameDataSet);
+            //console.log('Query name data:', nameDataSet);
             //console.log('Query name loading:', loading);
             let threatNameArr = [];
             if (!loading) {
-                //this.threatNameTS = 'Dataset timestamp : ' + this.nameDataSet['timestamp'];
-                this.threatNameTS = 'Chart Display Config : '
+                //this.loadLabel = 'Dataset timestamp : ' + this.nameDataSet['timestamp'];
+                this.loadLabel = 'Chart Display Config : '
                 for (let obj of nameDataSet['result']) {
                     threatNameArr.push([obj['d0'], Number(obj['a0'])]);
                 }
