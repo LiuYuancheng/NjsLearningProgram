@@ -1,11 +1,11 @@
-<table>
-    <tr>
-        <td>
-            <div id="popupHighChart" style="height: 85%;"></div>
-        </td>
-        <td style="vertical-align: top;">
-            <h4> Description : </h4>
-            <p style="font-size:12px;"> {{threatDesStr}} </p>
-        </td>
-    </tr>
-</table>
+<div class="p-grid wrap p-mr-1 p-ml-1">
+    <div class="p-col-8">
+        <div id="popupHighChart" style="height: 300px;"></div>
+    </div>
+    <div class="p-col-4">
+        <h4> Description : </h4>
+        <p style="font-size:12px;">
+            <markdown [data]="threatDesStr" style="overflow-y: scroll;"></markdown>
+        </p>
+    </div>
+</div>

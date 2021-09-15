@@ -92,7 +92,7 @@ export class DashNationalNameComponent implements OnInit, OnDestroy {
                 name: 'Occurrences',
             }],
             title: {
-                text: 'TOP-N Threat Names'
+                text: 'Top Threats'
             }
         };
     }
@@ -172,7 +172,8 @@ export class DashNationalNameComponent implements OnInit, OnDestroy {
                 //this.loadLabel = 'Dataset timestamp : ' + this.nameDataSet['timestamp'];
                 this.loadLabel = 'Chart Display Config : '
                 for (let obj of nameDataSet['result']) {
-                    threatNameArr.push([obj['d0'], Number(obj['a0'])]);
+                    if(obj['topNKey']==null) continue;
+                    threatNameArr.push([obj['topNKey'], Number(obj['topNVal'])]);
                 }
                 this.options['series']['0']['data'] = threatNameArr;
                 this.redrawNameChart();

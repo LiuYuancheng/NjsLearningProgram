@@ -46,12 +46,7 @@ Angular Check box event: https://www.concretepage.com/angular-material/angular-m
 
 Angular tool tip: https://material.angular.io/components/tooltip/overview
 
-Crated components: 
-
-```
-ng generate component dash-national-actors
-ng generate component dash-national-sector
-```
+p-card detail: https://www.bookstack.cn/read/PrimeNG/e455a9cbe0018c68.md
 
 
 
@@ -347,11 +342,13 @@ profile_threatName(threatName:"APT37")
 
 - [x] Fix the code document
 
+###### 15/09/2021
 
-
-
-
-
+- [x]  **Todo** changes need to do based on the quick review: 
+  - replace the query hardcode  "context", 'dataSource', 'intervals' with const in druid.js or passed in parameters. remove the un-needed query parameters. 
+  - change the return data field column name ['d0', 'a0'] to ["timestamp","countVal" ] for count query and ['topNKey', 'topNVal'] for top-N query.
+  - filtered the "null" top-N key. 
+  - Change the main page and popup dialog table layout to p-grid flex layout.
 
 
 
@@ -361,4 +358,4 @@ profile_threatName(threatName:"APT37")
 
 ------
 
-> last edited by LiuYuancheng 11/09/2021
+> last edited by LiuYuancheng 15/09/2021

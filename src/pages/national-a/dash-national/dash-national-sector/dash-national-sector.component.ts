@@ -145,11 +145,6 @@ export class DashNationalSectorComponent implements OnInit {
 
     // All detail function methods (name sorted by alphabet):
     //------------------------------------------------------------------------------
-    showPopupDialog(): void {
-        //handle panel click event and show popup dialog.
-        this.parentFun.emit({ 'type': 'sector', 'val': this.customTitle });
-    }
-    //------------------------------------------------------------------------------
     fetchSectorQuery(): void {
         // fetch the data with the query and redraw the highchart.
         this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
@@ -158,15 +153,20 @@ export class DashNationalSectorComponent implements OnInit {
             if (!loading) {
                 let totalCount = 0;
                 for (let obj of dataSet) {
-                    let actor = [Number(obj['d0']), Number(obj['a0'])] // d0: timestamp, a0:count value
-                    totalCount += actor[1];
-                    dataArr.push(actor);
+                    let secotr = [Number(obj['timestamp']), Number(obj['countVal'])] // d0: timestamp, a0:count value
+                    totalCount += secotr[1];
+                    dataArr.push(secotr);
                 }
                 this.options['subtitle']['text'] = 'Threat Count : ' + String(totalCount);
                 this.options['series']['0']['data'] = dataArr;
                 this.redraw();
             }
         });
+    }
+    //------------------------------------------------------------------------------
+    showPopupDialog(): void {
+        //handle panel click event and show popup dialog.
+        this.parentFun.emit({ 'type': 'sector', 'val': this.customTitle });
     }
     //------------------------------------------------------------------------------
     redraw(): void {

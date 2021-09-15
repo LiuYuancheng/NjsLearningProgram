@@ -67,7 +67,7 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
                 type: 'pie',
             },
             title: {
-                text: 'Top-N Threat Actors'
+                text: 'Top Threat Actors'
             },
             tooltip: {
                 //pointFormat: '{series.name}: <b>{point.y:.1f}</b>'
@@ -93,7 +93,7 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
                 }
             },
             series: [{
-                name: 'actors',
+                name: 'Threat Count',
                 colorByPoint: true,
                 data: []
             }]
@@ -139,7 +139,8 @@ export class DashNationalActorsComponent implements OnInit, OnDestroy {
                 this.loadLabel = 'Chart Display Config : '
                 let dataArr = [];
                 for (let obj of dataSet['result']) {
-                    dataArr.push({ name: obj['d0'], y: obj['a0'] }); 
+                    if(obj['topNKey']==null) continue;
+                    dataArr.push({ name: obj['topNKey'], y: obj['topNVal'] }); 
                 }
                 this.options['series']['0']['data'] = dataArr;
             }

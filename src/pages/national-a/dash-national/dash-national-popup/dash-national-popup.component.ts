@@ -87,7 +87,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
                 }
             },
             legend: {
-                enabled: true
+                enabled: false,
             },
             plotOptions: {
                 area: {
@@ -211,7 +211,7 @@ export class DashNationalPopupComponent implements OnInit, OnDestroy {
             if (!loading) {
                 let series = seriesItem;
                 for (let obj of dataSet) {
-                    series['data'].push([Number(obj['d0']), Number(obj['a0'])]);
+                    series['data'].push([Number(obj['timestamp']), Number(obj['countVal'])]);
                 }
                 this.options['series'].push(series);
                 this.redraw();

@@ -14,6 +14,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { DashNationalNameComponent } from './dash-national-name/dash-national-name.component';
 import { DashNationalPopupComponent } from './dash-national-popup/dash-national-popup.component';
+import { GraphSharedModule } from '../graph-shared/graph-shared.module';
+import { MarkdownModule } from 'ngx-markdown';
 import { DashNationalSectorComponent } from './dash-national-sector/dash-national-sector.component';
 
 @NgModule({
@@ -35,6 +37,7 @@ import { DashNationalSectorComponent } from './dash-national-sector/dash-nationa
     MatTooltipModule,
     MatCheckboxModule,
     HighchartsChartModule,
+    MarkdownModule.forChild(), 
   ]
 })
 export class DashNationalModule { }

@@ -6,7 +6,7 @@
   width: 100%;
   height: 100%;
   overflow-y: scroll;
-  scroll-behavior: smooth;
+  // scroll-behavior: smooth;
 }
 
 ::ng-deep .overlay {
@@ -27,7 +27,8 @@
   background: #203848;
   border-radius: 5px;
   width: 50%;
-  height: 60%;
+  // height: 60%;
+  height: 400px;
   position: relative;
   transition: all 5s ease-in-out;
 }

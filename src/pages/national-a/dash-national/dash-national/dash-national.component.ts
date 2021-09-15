@@ -64,12 +64,12 @@ export class DashNationalComponent implements OnInit, OnDestroy {
     private feedSector: Subscription;
 
     // the secotrs we want to show in the summery section.
-    public sectorArr: any; // [[row0][row1]]
+    public sectorArr: String[]; 
 
     // pop-up dialog parameters
     public popup = false;
     public popName: String;
-    public popCliIconPath: String;
+    public popSecIconPath: String;
     public popupType: String;
     public popupName: String;
 
@@ -80,8 +80,8 @@ export class DashNationalComponent implements OnInit, OnDestroy {
     //------------------------------------------------------------------------------
     constructor(private apollo: Apollo) {
         this.loadLabel = "Loading ...";
-        this.sectorArr = [["GOVERNMENT", "INFOCOMM", "MANUFACTURING", "ENERGY"] ,
-                            ["TRANSPORTATION SERVICES", "HEALTH AND SOCIAL SERVICES","SECURITY AND EMERGENCY", "BANKING AND FINANCE"]];
+        this.sectorArr = ["GOVERNMENT", "INFOCOMM", "MANUFACTURING", "ENERGY" ,
+                            "TRANSPORTATION SERVICES", "HEALTH AND SOCIAL SERVICES","SECURITY AND EMERGENCY", "BANKING AND FINANCE"];
         // Init the threat count area highchart option.
         this.areOptions = {
             chart: {
@@ -102,7 +102,7 @@ export class DashNationalComponent implements OnInit, OnDestroy {
                 }
             },
             legend: {
-                enabled: true
+                enabled: false
             },
             plotOptions: {
                 area: {
@@ -147,7 +147,7 @@ export class DashNationalComponent implements OnInit, OnDestroy {
                 type: 'pie',
             },
             title: {
-                text: 'Top-N Threat Sectors'
+                text: 'Top Threat Sectors'
             },
             tooltip: {
                 pointFormat: '{series.name}: <b>{point.y}</b>'
@@ -165,7 +165,7 @@ export class DashNationalComponent implements OnInit, OnDestroy {
                 },
             },
             series: [{
-                name: 'Brands',
+                name: 'Threat Count',
                 colorByPoint: true,
                 data: []
             }]
@@ -211,7 +211,7 @@ export class DashNationalComponent implements OnInit, OnDestroy {
             let countdata = [];
             if (!loading) {
                 for (let obj of countDataSet) {
-                    countdata.push([obj["d0"], obj["a0"]]);
+                    countdata.push([obj["timestamp"], obj["countVal"]]);
                 }
                 let timestamp1 = countdata[0][0];
                 let date1 = new Date(timestamp1).toLocaleDateString("en-us");
@@ -234,7 +234,8 @@ export class DashNationalComponent implements OnInit, OnDestroy {
                 this.loadLabel = 'Chart Display Config : '
                 let dataArr = [];
                 for (let obj of sectorDataSet['result']) {
-                    dataArr.push({ name: String(obj['d0']), y: obj['a0'] });
+                    if(obj['topNKey']==null) continue;
+                    dataArr.push({ name: String(obj['topNKey']), y: obj['topNVal'] });
                 }
                 this.pieOption['series']['0']['data'] = dataArr;
                 this.redrawSector();
@@ -269,17 +270,17 @@ export class DashNationalComponent implements OnInit, OnDestroy {
     showPopup(popupDic: any) {
         switch (popupDic['type']) {
             case 'sector': {
-                this.popCliIconPath = ICON_PATH + popupDic['val'] + ".png";
+                this.popSecIconPath = ICON_PATH + popupDic['val'] + ".png";
                 this.popupType = 'Sector';
                 break;
             }
             case 'name': {
-                this.popCliIconPath = ICON_PATH + "hackingtool.png";
+                this.popSecIconPath = ICON_PATH + "hackingtool.png";
                 this.popupType = 'Name';
                 break;
             }
             case 'actor': {
-                this.popCliIconPath = ICON_PATH + "MALWARE.png";
+                this.popSecIconPath = ICON_PATH + "MALWARE.png";
                 this.popupType = 'Actor';
                 break;
             }

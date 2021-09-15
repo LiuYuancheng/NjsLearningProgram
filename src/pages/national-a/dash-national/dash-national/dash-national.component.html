@@ -7,52 +7,51 @@
     </mat-card>
 
     <!-- # row idx 1: threat name panel, threat actor panel, threat sector panel -->
-    <table style="width: 100%; height:500px">
-        <tr>
-            <td style="width: 30%;">
-                <mat-card style="margin: 5px;">
-                    <app-dash-national-name (showPopup)="showPopup($event)"></app-dash-national-name>
-                </mat-card>
-            </td>
-            <td style="width: 35%;">
-                <mat-card style="margin: 5px;">
-                    <app-dash-national-actors (showPopup)="showPopup($event)"></app-dash-national-actors>
-                </mat-card>
-            </td>
-            <td style="width: 35%;">
-                <mat-card style="margin: 5px;">
-                    <div id="sectorPie" style="width: 100%; height: 95%;"></div>
-                    {{loadLabel}}
-                    &nbsp;
-                    <select (change)="selectConfigN($event)">
-                        <option value="sector:5">Show Top-5</option>
-                        <option value="sector:10" selected="selected">Show Top-10</option>
-                        <option value="sector:15">Show Top-15</option>
-                        <option value="sector:20">Show Top-20</option>
-                      </select>
-                      &nbsp; &nbsp;
-                    <mat-checkbox color="primary" [checked]="true" (change)="showSectorLegend($event)" >Show Legend</mat-checkbox>
-                </mat-card>
-            </td>
-        <tr>
-    </table>
+    <div class="p-grid wrap p-mr-1 p-ml-1">
+        <div class="p-col-4">
+            <mat-card style="margin: 5px;">
+                <app-dash-national-name (showPopup)="showPopup($event)"></app-dash-national-name>
+            </mat-card>
+        </div>
+
+        <div class="p-col-4">
+            <mat-card style="margin: 5px;">
+                <app-dash-national-actors (showPopup)="showPopup($event)"></app-dash-national-actors>
+            </mat-card>
+        </div>
+
+        <div class="p-col-4">
+            <mat-card style="margin: 5px;">
+                <div id="sectorPie" style="width: 100%; height: 95%;"></div>
+                {{loadLabel}}
+                &nbsp;
+                <select (change)="selectConfigN($event)">
+                    <option value="sector:5">Show Top-5</option>
+                    <option value="sector:10" selected="selected">Show Top-10</option>
+                    <option value="sector:15">Show Top-15</option>
+                    <option value="sector:20">Show Top-20</option>
+                  </select>
+                  &nbsp; &nbsp;
+                <mat-checkbox color="primary" [checked]="true" (change)="showSectorLegend($event)" >Show Legend</mat-checkbox>
+            </mat-card>
+        </div>
+    </div>
+
 
     <!-- # row idx 2: 4x2 table show client's threat count  -->
     <!-- <p> Threat Counts Summary </p> -->
-    <table style="scroll-behavior: smooth;">
-        <tr *ngFor="let row of sectorArr">
-            <td style="width: 25%;" *ngFor="let name of row">
-                <app-dash-national-sector customTitle={{name}} (showPopup)="showPopup($event)">
-                </app-dash-national-sector>
-            </td>
-        </tr>
-    </table>
+    <div class="p-grid wrap p-mr-1 p-ml-1">
+        <div *ngFor="let name of sectorArr" class="p-col-3">
+            <app-dash-national-sector customTitle={{name}}>
+            </app-dash-national-sector>
+        </div>
+    </div>
 
     <!-- # pop-up dialog -->
     <div class="overlay" *ngIf="popup" (click)="popup = false">
         <div class="popup">
-            <h3> <img src={{popCliIconPath}} style="top: 5px; left:5px; width:25px; height:25px; float:left"> &nbsp; &nbsp;
-                {{popName}}</h3>
+            <h2> <img src={{popSecIconPath}} style="top: 5px; left:5px; width:25px; height:25px; float:left"> &nbsp; &nbsp;
+                {{popName}}</h2>
             <hr>
             <a class="close" (click)="popup = false">&times;</a>
             <app-dash-national-popup popupType={{popupType}} popupName={{popupName}}></app-dash-national-popup>
