@@ -11,4 +11,13 @@ type Query {
     having: JSON
     outgoing: Boolean = true
   ): JSON @authz
+  # Custom API for SCAM demo
+  threatEvents_sectorScamDetails(
+    dateStart: DateTime
+    dateEnd: DateTime
+    sector: String!
+    filter: JSON
+    having: JSON
+    outgoing: Boolean = true
+  ): JSON @authz
 }

@@ -2,51 +2,44 @@
 
 /**
  * statistics module
- * @module graphql/threatEvents/statistics
+ * @module graphql/threatEvents/national
  */
 
-const dbconn = require('@lib/arango.js');
 const druid = require('@lib/druid.js')
 const moment = require('moment');
+//const testDataSrc = {"type": "table", "name": "ds-suspected-ip-2019"};
 
 module.exports = {
     Query: {
-        // threatEvents_nationalCount(queryType:"Actor", fieldStr:"APT37", threatType:"IntrusionSet", limitVal:1)
-        threatEvents_nationalCount: (root, { queryType, fieldStr, threatType, limitVal }, { user }) => {
+        //graphquery example: threatEvents_nationalCount(queryType:"Actor", fieldStr:"APT37", threatType:"IntrusionSet", limitVal:1)
+        threatEvents_nationalCount: (root, { queryType, fieldStr, threatType, dateStart, dateEnd, limitVal }, { user }) => {
+            // setup the time interval.
+            dateStart = dateStart?moment(dateStart).toISOString():"0000";
+            dateEnd = dateEnd?moment(dateEnd).toISOString():"3000";
+            let intervals =  {
+                "type": "intervals",
+                "intervals": [ `${dateStart}/${dateEnd}`]
+            };
             // Basic query
             let query = {
                 "queryType": "timeseries",
-                "dataSource": {
-                    "type": "table",
-                    "name": "ds-suspected-ip-2019"
-                },
-                "intervals": {
-                    "type": "intervals",
-                    "intervals": [
-                        "-146136543-09-08T08:23:32.096Z/146140482-04-24T15:36:27.903Z"
-                    ]
-                },
+                "dataSource":druid.ds_suspected_ips,
+                "intervals": intervals,
                 "descending": false,
-                "virtualColumns": [],
                 "filter": null,
                 "granularity": "HOUR",
                 "aggregations": [
                     {
                         "type": "count",
-                        "name": "a0"
+                        "name": "countVal"
                     }
                 ],
-                "postAggregations": [],
-                "limit": 2147483647, // no limitation.
+                "limit": limitVal?limitVal:null, // no limitation if the value is not set.
                 "context": {
                     "skipEmptyBuckets": true,
-                    "sqlQueryId": "2324b14f-0397-4697-859c-9aeffec7c32b",
-                    "timestampResultField": "d0"
+                    "timestampResultField": "timestamp"
                 }
             };
-
-            let threatTypeVal = "IntrusionSet";
-            if (threatType) threatTypeVal = threatType;
 
             switch (queryType) {
                 case 'threatActor': {
@@ -56,7 +49,7 @@ module.exports = {
                             {
                                 "type": "selector",
                                 "dimension": "threatType",
-                                "value": threatTypeVal,
+                                "value": threatType? threatType: "IntrusionSet",
                                 "extractionFn": null
                             },
                             {
@@ -67,9 +60,7 @@ module.exports = {
                             }
                         ]
                     };
-                    if (limitVal) query["limit"] = limitVal;
                     query["context"]["sqlOuterLimit"] = 100;
-                    query["context"]["sqlQueryId"] = "452d2e8e-cfd6-4da9-ae22-60ac207d177b";
                     break;
                 }
                 case 'threatName': {
@@ -79,9 +70,7 @@ module.exports = {
                         "value": fieldStr,
                         "extractionFn": null
                     };
-                    if (limitVal) query["limit"] = limitVal;
                     query["context"]["sqlOuterLimit"] = 100;
-                    query["context"]["sqlQueryId"] = "06b793c8-c8c6-487b-8e39-723f56aed450";
                     break;
                 }
                 case 'threatSector': {
@@ -111,14 +100,10 @@ module.exports = {
                             ]
                         }
                     }
-                    if (limitVal) query["limit"] = limitVal;
                     query["context"]["sqlOuterLimit"] = 100;
-                    query["context"]["sqlQueryId"] = "c8e13274-06c7-4c9d-84f8-af30436dddc4";
                     break;
                 }
-                default: {
-
-                }
+                default: { break;}
             }
 
             return new Promise((resolve, reject) => {
@@ -132,35 +117,31 @@ module.exports = {
                 })
             });
         },
-        // get the top N based on the input 
-        threatEvents_nationalTopN: (root, { dimension, filterDimension, filterVal, topN }, { user }) => {
-            let thresholdVal = 10;
-            if (topN) thresholdVal = Number(topN);
+        // get the top N based on the input.
+        threatEvents_nationalTopN: (root, { dimension, filterDimension, filterVal, dateStart, dateEnd, topN }, { user }) => {
+            dateStart = dateStart?moment(dateStart).toISOString():"0000";
+            dateEnd = dateEnd?moment(dateEnd).toISOString():"3000";
+            let intervals =  {
+                "type": "intervals",
+                "intervals": [ `${dateStart}/${dateEnd}` ]
+            };
             // baic query 
             let query = {
                 "queryType": "topN",
-                "dataSource": {
-                    "type": "table",
-                    "name": "ds-suspected-ip-2019"
-                },
+                "dataSource":druid.ds_suspected_ips,
                 "virtualColumns": [],
                 "dimension": {
                     "type": "default",
                     "dimension": dimension,
-                    "outputName": "d0",
+                    "outputName": "topNKey",
                     "outputType": "STRING"
                 },
                 "metric": {
                     "type": "numeric",
-                    "metric": "a0"
+                    "metric": "topNVal"
                 },
-                "threshold": thresholdVal,
-                "intervals": {
-                    "type": "intervals",
-                    "intervals": [
-                        "-146136543-09-08T08:23:32.096Z/146140482-04-24T15:36:27.903Z"
-                    ]
-                },
+                "threshold": topN?topN:10,
+                "intervals":intervals,
                 "filter": null,
                 "granularity": {
                     "type": "all"
@@ -168,14 +149,11 @@ module.exports = {
                 "aggregations": [
                     {
                         "type": "count",
-                        "name": "a0"
+                        "name": "topNVal"
                     }
                 ],
                 "postAggregations": [],
-                "context": {
-                    "sqlOuterLimit": 100,
-                    "sqlQueryId": "ab7e2e38-ba23-4b15-82bc-a31d052fcdaa"
-                },
+                "context": druid.context,
                 "descending": false
             };
 
@@ -187,7 +165,6 @@ module.exports = {
                     "extractionFn": null
                 }
             }
-
             return new Promise((resolve, reject) => {
                 druid.query.post('/', query).then(res => {
                     resolve(res.data);

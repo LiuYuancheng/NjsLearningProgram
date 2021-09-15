@@ -6,6 +6,8 @@ type Query  {
         queryType:String!
         fieldStr:String
         threatType:String
+        dateStart:DateRangeDuration
+        dateEnd:DateRangeDuration
         limitVal:Int
     ):JSON
 
@@ -13,6 +15,8 @@ type Query  {
         dimension:String!
         filterDimension:String
         filterVal:String
+        dateStart:DateRangeDuration
+        dateEnd:DateRangeDuration
         topN:Int
     ):JSON
 }

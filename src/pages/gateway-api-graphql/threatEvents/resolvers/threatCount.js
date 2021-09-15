@@ -11,6 +11,7 @@ const druid = require('@lib/druid.js')
 const db = new dbconn();
 const moment = require('moment');
 const lookup = require('country-code-lookup')
+const trend = require('trend');
 
 // console.log("lookup", lookup)
 
@@ -409,7 +410,13 @@ module.exports = {
               }
             }
           }
-          resolve(Object.values(result))
+          let data = Object.values(result).map(e => {
+            let chart = e.data.map(item => item[1]);
+            // console.log("chart", chart);
+            e.growth = trend(chart)
+            return e;
+          })
+          resolve(data)
         })
         .catch(err => {
           logger.error(err)
