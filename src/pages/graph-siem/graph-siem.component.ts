@@ -10,6 +10,16 @@ import { elements as elementsS } from './data/snort.json';
 import { elements as elementsF } from './data/fortinet.json';
 import { elements as elementsL } from './data/linked.json';
 import { elements as elementsLWSSep2019 } from './data/linked_subgraphs_win_snort_sep_2019.json';
+import { elements as elementsLASep2019 } from './data/linked_subgraphs_all_logs_sep_2019.json';
+import { elements as elementsLSFJun2020 } from './data/linked_subgraphs_snort_forti_june_2020.json';
+import { elements as elementsLSFSep2019 } from './data/linked_subgraphs_snort_forti_sep_2019.json';
+import { elements as elementsLWFJun2020 } from './data/linked_subgraphs_win_forti_june_2020.json';
+import { elements as elementsFJun2020 } from './data/subgraphs_fortinet_june_2020.json';
+import { elements as elementsSJun2020  } from './data/subgraphs_snort_june_2020.json';
+import { elements as elementsSSep2019 } from './data/subgraphs_snort_sep_2019.json';
+import { elements as elementsWJun2020 } from './data/subgraphs_windows_june_2020.json';
+import { elements as elementsFSep2019 } from './data/sugraphs_fortinet_sep_2019.json';
+import { elements as elementsWSep2019 } from './data/sugraphs_windows_sep_2019.json';
 
 //-----------------------------------------------------------------------------
 // Name:        cytoscapte.components.ts
@@ -342,6 +352,56 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
       case 'linked_subgraphs_win_snort_sep_2019':{
         this.nodes = elementsLWSSep2019['nodes'];
         this.edges = elementsLWSSep2019['edges'];
+        break;
+      }
+      case 'linked_subgraphs_all_logs_sep_2019':{
+        this.nodes = elementsLASep2019['nodes'];
+        this.edges = elementsLASep2019['edges'];
+        break;
+      }
+      case 'linked_subgraphs_snort_forti_june_2020':{
+        this.nodes = elementsLSFJun2020['nodes'];
+        this.edges = elementsLSFJun2020['edges'];
+        break;
+      }
+      case 'linked_subgraphs_snort_forti_sep_2019':{
+        this.nodes = elementsLSFSep2019['nodes'];
+        this.edges = elementsLSFSep2019['edges'];
+        break;
+      }
+      case 'linked_subgraphs_win_forti_june_2020':{
+        this.nodes = elementsLWFJun2020['nodes'];
+        this.edges = elementsLWFJun2020['edges'];
+        break;
+      }
+      case 'subgraphs_fortinet_june_2020':{
+        this.nodes = elementsFJun2020['nodes'];
+        this.edges = elementsFJun2020['edges'];
+        break;
+      }
+      case 'subgraphs_snort_june_2020':{
+        this.nodes = elementsSJun2020['nodes'];
+        this.edges = elementsSJun2020['edges'];
+        break;
+      }
+      case 'subgraphs_snort_sep_2019':{
+        this.nodes = elementsSSep2019['nodes'];
+        this.edges = elementsSSep2019['edges'];
+        break;
+      }
+      case 'subgraphs_windows_june_2020':{
+        this.nodes = elementsWJun2020['nodes'];
+        this.edges = elementsWJun2020['edges'];
+        break;
+      }
+      case 'sugraphs_fortinet_sep_2019':{
+        this.nodes = elementsFSep2019['nodes'];
+        this.edges = elementsFSep2019['edges'];
+        break;
+      }
+      case 'sugraphs_windows_sep_2019':{
+        this.nodes = elementsWSep2019['nodes'];
+        this.edges = elementsWSep2019['edges'];
         break;
       }
       default: {
