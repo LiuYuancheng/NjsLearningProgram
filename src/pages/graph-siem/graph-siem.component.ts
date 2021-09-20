@@ -9,6 +9,7 @@ import { elements as elementsW } from './data/windows.json';
 import { elements as elementsS } from './data/snort.json';
 import { elements as elementsF } from './data/fortinet.json';
 import { elements as elementsL } from './data/linked.json';
+import { elements as elementsLWSSep2019 } from './data/linked_subgraphs_win_snort_sep_2019.json';
 
 //-----------------------------------------------------------------------------
 // Name:        cytoscapte.components.ts
@@ -338,6 +339,11 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
         this.edges = elementsF['edges'];
         break;
       }
+      case 'linked_subgraphs_win_snort_sep_2019':{
+        this.nodes = elementsLWSSep2019['nodes'];
+        this.edges = elementsLWSSep2019['edges'];
+        break;
+      }
       default: {
         this.nodes = elementsL['nodes'];
         this.edges = elementsL['edges'];
@@ -614,7 +620,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     // rebuild the current displayed subgraph, node edges table in the landing page.
     this.buildNodesTable(this.subgraphName);
     this.buildEdgesTable(this.subgraphName);
-    this.cygraph.setSubgraphInfo(this.selectedDataSet, this.subgraphName, 0, [])
+    //this.cygraph.setSubgraphInfo(this.selectedDataSet, this.subgraphName, 0, [])
+    this.cygraph.setSubgraphInfo(this.selectedDataSet)
     this.subgraphTitle = this.selectedDataSet + '[' + this.subgraphName + ']';
     this.cygraph.setCrtSubGraph([this.subgraphName], this.nodesDis, this.edgesDis);
     this.cygraph.redraw();
@@ -629,7 +636,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.loadGraphsData();
     // clear the previous graph and its info tag. 
     this.cygraph.clearGraph();
-    this.cygraph.setSubgraphInfo(this.selectedDataSet, '', 0, [])
+    //this.cygraph.setSubgraphInfo(this.selectedDataSet, '', 0, [])
+    this.cygraph.setSubgraphInfo(this.selectedDataSet,)
   }
 
   //-----------------------------------------------------------------------------
@@ -683,8 +691,14 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.buildNodesTable(this.subgraphName);
     this.buildEdgesTable(this.subgraphName);
     // udapte graph and displayed information
+    for (let obj of this.nodes){
+      if (obj['data'].hasOwnProperty('consequences') && obj['data']['id'].includes(this.subgraphName)) {
+        this.cygraph.setSubgraphInfo(this.selectedDataSet, obj['data']);
+      }
+    }
+
     this.subgraphTitle = this.selectedDataSet + '[' + this.subgraphName + ']';
-    this.cygraph.setSubgraphInfo(this.selectedDataSet, this.subgraphName, subgrapshScore, subgrapshCons)
+    //this.cygraph.setSubgraphInfo(this.selectedDataSet, this.subgraphName, subgrapshScore, subgrapshCons)
     this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
     this.cygraph.redraw();
   }

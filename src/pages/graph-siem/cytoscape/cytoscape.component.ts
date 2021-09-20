@@ -99,7 +99,12 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   // def data show in the subgrap graph area
   public subGpar: string = '';
   public subGscore: number = 0;
+  public subGcompNum: number = 0;
+  public subGeventNum: number = 0;
+  public subGmaxIn: String = '';
+  public subGmaxOut: String = '';
   public subGcon: string[] = []; //consequence string array. 
+
   public edgelabelStr: string;  // displayed edges label.
 
 //-----------------------------------------------------------------------------
@@ -544,11 +549,34 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   }
 
   //----------------------------------------------------------------------------- 
-  setSubgraphInfo(subPar: string, subId: string, subScore: number, subCon: string[]): void {
+  setSubgraphInfo_old(subPar: string, subId: string, subScore: number, subCon: string[]): void {
     // Set the subgraph info on the left side. 
     this.subGpar = subPar + ' [ ' + subId + ' ] ';
     this.subGscore = subScore;
     this.subGcon = subCon;
-  }  
+  } 
+
+  setSubgraphInfo(subPar: string, graphInfo?:any): void {
+    // Set the subgraph info on the left side. 
+    if(graphInfo==null){
+      this.subGpar = subPar;
+      this.subGscore = 0;
+      this.subGcompNum = 0;
+      this.subGmaxIn = '';
+      this.subGmaxOut = '';
+      this.subGcon = [];
+      this.subGeventNum = 0;
+    }
+    else {
+      if (graphInfo.hasOwnProperty('id')) this.subGpar = subPar + ' [ ' + graphInfo['id'] + ' ] ';
+      if (graphInfo.hasOwnProperty('score')) this.subGscore = graphInfo['score'];
+      if (graphInfo.hasOwnProperty('consequences')) this.subGcon = graphInfo['consequences'];
+      if (graphInfo.hasOwnProperty('num_components')) this.subGcompNum = graphInfo['num_components'];
+      if (graphInfo.hasOwnProperty('max_in_degree')) this.subGmaxIn = '[' + String(graphInfo['max_in_degree']) + ']';
+      if (graphInfo.hasOwnProperty('max_out_degree')) this.subGmaxOut = '[' + String(graphInfo['max_out_degree']) + ']';
+      if (graphInfo.hasOwnProperty('num_components')) this.subGcompNum = graphInfo['num_components'];
+      if (graphInfo.hasOwnProperty('num_events')) this.subGeventNum = graphInfo['num_events'];
+    }
+  } 
 
 }

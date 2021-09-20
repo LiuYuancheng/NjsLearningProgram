@@ -12,25 +12,16 @@ import {MatInputModule} from '@angular/material/input';
 
 // import other modules: 
 import { jqxGridModule } from 'jqwidgets-ng/jqxgrid';
-
 import { ButtonModule } from 'primeng/button';
 import { SidebarModule } from 'primeng/sidebar';
-
-
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { HelloWorld } from './hello-word/hello-world.component';
 import { GraphSiemComponent } from './graph-siem.component';
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
 import { CardModule } from 'primeng/card';
 import { NodedetailComponent } from './nodedetail/nodedetail.component';
 
-//import cytoscape from 'cytoscape';
-//import cxtmenu from 'cytoscape-cxtmenu';
-//cytoscape.use(cxtmenu);
-
 @NgModule({
   declarations: [
-    HelloWorld,
     CytoscapeComponent,
     GraphSiemComponent,
     NodedetailComponent, 

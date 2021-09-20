@@ -3,6 +3,10 @@
         <p-card header="{{subGpar}}" [style]="{'width': '1050', 'height':'1000px'}" styleClass="panel-background">
             <!-- #Show subgraph information  -->
             <p> <b>Severity score [0-10] : </b> {{subGscore}} </p>
+            <p> <b>Num of components : </b> {{subGcompNum}} </p>
+            <p> <b>Max in degree centrality : </b> {{subGmaxIn}} </p>
+            <p> <b>Max Out degree centrality : </b> {{subGmaxOut}} </p>
+            <p> <b>Num of 2vents : </b> {{subGeventNum}} </p>
             <p> <b>Consequences : </b> </p>
             <div class="vertical-menu" style='height: 300px;'>
                 <a *ngFor="let consequences of subGcon"> - {{consequences}} </a>
