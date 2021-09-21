@@ -6,6 +6,7 @@ import { Colors } from 'src/app/core/common/colors';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 import cxtmenu from 'cytoscape-cxtmenu';
+import { of } from 'rxjs';
 
 //-----------------------------------------------------------------------------
 // Name:        cytoscapte.components.ts
@@ -104,7 +105,6 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   public subGmaxIn: String = '';
   public subGmaxOut: String = '';
   public subGcon: string[] = []; //consequence string array. 
-
   public edgelabelStr: string;  // displayed edges label.
 
 //-----------------------------------------------------------------------------
@@ -185,7 +185,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
           'background-height': '60px',
           "text-wrap": "ellipsis",
           "text-max-width": "100px",
-          "font-size": "8px",
+          "font-size": "10px",
           "text-valign": "bottom",
           "text-halign": "center",
           "background-color": CytoscapeComponent.NODE_COLOR,
@@ -569,14 +569,28 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     }
     else {
       if (graphInfo.hasOwnProperty('id')) this.subGpar = subPar + ' [ ' + graphInfo['id'] + ' ] ';
-      if (graphInfo.hasOwnProperty('score')) this.subGscore = graphInfo['score'];
-      if (graphInfo.hasOwnProperty('consequences')) this.subGcon = graphInfo['consequences'];
+      if (graphInfo.hasOwnProperty('score')) this.subGscore = graphInfo['score'].toFixed(2);
+      if (graphInfo.hasOwnProperty('consequences')) {
+        this.subGcon = graphInfo['consequences'];
+        this.subGcon = this.subGcon.filter(obj => obj !== 'Other'); // remove the 'other' when show in the demo.
+      }
       if (graphInfo.hasOwnProperty('num_components')) this.subGcompNum = graphInfo['num_components'];
-      if (graphInfo.hasOwnProperty('max_in_degree')) this.subGmaxIn = '[' + String(graphInfo['max_in_degree']) + ']';
-      if (graphInfo.hasOwnProperty('max_out_degree')) this.subGmaxOut = '[' + String(graphInfo['max_out_degree']) + ']';
+      if (graphInfo.hasOwnProperty('max_in_degree')) 
+      {
+        graphInfo['max_in_degree'][1] = graphInfo['max_in_degree'][1].toFixed(2); // change to 2 digits
+        this.subGmaxIn = '[' + String(graphInfo['max_in_degree']) + ']';
+      }
+      if (graphInfo.hasOwnProperty('max_out_degree')) 
+      {
+        graphInfo['max_out_degree'][1] = graphInfo['max_out_degree'][1].toFixed(2); // change to 2 digits
+        this.subGmaxOut = '[' + String(graphInfo['max_out_degree']) + ']';
+      }
       if (graphInfo.hasOwnProperty('num_components')) this.subGcompNum = graphInfo['num_components'];
       if (graphInfo.hasOwnProperty('num_events')) this.subGeventNum = graphInfo['num_events'];
     }
-  } 
-
+    // clear the display 
+    this.showNode = false;
+    this.showEdge = false;
+  }
+  
 }

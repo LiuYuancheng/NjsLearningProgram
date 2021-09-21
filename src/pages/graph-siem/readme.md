@@ -154,3 +154,32 @@ Display control
 7. Switch to snort data -> show subgraph filter with IP 172.16.0.116
 8. Switch to linked data -> show subgraph G2. 
 
+
+
+demo time flow:
+
+Todo:
+
+1. Add gini source port.
+2. fixed the information scroll bug, fixed the edges info still show up when switched to another subgraph.
+
+3. consequence list : "other " -> hide.
+
+4. increase the icon label font size from 8 to 12px
+5. Format all the left display area numbers(score max in/out degree ... ) to .2f format
+6. edges signature dropdown display add slider to scroll to the right to show the entire signature string.
+7. Added the node graph display "reset layout" button.
+
+
+
+Snort Sep_2019 -> G0 (G1 as back up)
+
+Fortinet sep2019->G3
+
+Windows sep2019 -> G2 (G0 as back up)
+
+All log sep 2019. Change the color also.
+
+Linked win_snort_sep 2019 -> G1->G0
+
+Node detail: Fortinet sep_2019-> G4-> click node 172.16.0.116

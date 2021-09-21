@@ -2,6 +2,15 @@
 @import 'tippy.js/themes/light.css';
 @import '../../../styles/cygraph.scss';
 
+
+::ng-deep .scroll-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  // scroll-behavior: smooth;
+}
+
+
 // align
 ::ng-deep .vertical-center {
   margin: 0;
@@ -81,8 +90,8 @@ p {
 
 
 ::ng-deep .vertical-menu {
-  width: 180px;
-  height: 300px;
+  //width: 180px;
+  //height: 300px;
   overflow-y: auto;
 }
 

@@ -1,4 +1,4 @@
-<div class="container">
+<div class="scroll-container">
 
   <mat-tab-group [selectedIndex]="selectedTag.value" (selectedIndexChange)="selectedTag.setValue($event)">
 
@@ -17,10 +17,10 @@
             <option value="subgraphs_snort_sep_2019">Snort Subgraphs: sep_2019</option>
             <option value="subgraphs_snort_june_2020">Snort Subgraphs: june_2020</option>
             <option value="windows">Windows Subgraphs: test</option>
-            <option value="sugraphs_windows_sep_2019">Windows Subgraphs: sep_2019</option>
+            <option value="subgraphs_windows_sep_2019">Windows Subgraphs: sep_2019</option>
             <option value="subgraphs_windows_june_2020">Windows Subgraphs: june_2020</option>
             <option value="fortinet">Fortinet Subgraphs: test</option>
-            <option value="sugraphs_fortinet_sep_2019">Fortinet Subgraphs: sep_2019</option>
+            <option value="subgraphs_fortinet_sep_2019">Fortinet Subgraphs: sep_2019</option>
             <option value="subgraphs_fortinet_june_2020">Fortinet Subgraphs: june_2020</option>
 
             <option value="linked">Linked Subgraphs: test</option>
@@ -36,14 +36,14 @@
             <tr>
               <td>Graph Filter:</td>
               <td>
-                <select (change)="selectFilterHandler($event)">
+                <select (change)="selectFilterHandler($event)" >
                   <option value="none"> </option>
                   <option value="nodeIP">Node ID</option>
                   <option value="score">Score</option>
                   <option value="consequences">Consequences</option>
                 </select>
               </td>
-              <td> <input [value]="filterStrExpl" type="text" #subgraphIPfilter> </td>
+              <td> <input [value]="filterStrExpl" type="text" style="width: 160px;" #subgraphIPfilter > </td>
               <td>
                 <div *ngIf="graphFilterKey!=='none'">
                   <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> Query </button>
@@ -178,6 +178,7 @@
                     <option value="sig"> Signature</option>
                     <option value="score"> Final score</option>
                   </select>
+                  <button (click)="reLayoutNodegraph($event)">Reset Graph Layout</button>
                 </p>
               </div>
             </div>

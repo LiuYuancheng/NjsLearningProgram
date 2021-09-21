@@ -18,8 +18,8 @@ import { elements as elementsFJun2020 } from './data/subgraphs_fortinet_june_202
 import { elements as elementsSJun2020  } from './data/subgraphs_snort_june_2020.json';
 import { elements as elementsSSep2019 } from './data/subgraphs_snort_sep_2019.json';
 import { elements as elementsWJun2020 } from './data/subgraphs_windows_june_2020.json';
-import { elements as elementsFSep2019 } from './data/sugraphs_fortinet_sep_2019.json';
-import { elements as elementsWSep2019 } from './data/sugraphs_windows_sep_2019.json';
+import { elements as elementsFSep2019 } from './data/subgraphs_fortinet_sep_2019.json';
+import { elements as elementsWSep2019 } from './data/subgraphs_windows_sep_2019.json';
 
 //-----------------------------------------------------------------------------
 // Name:        cytoscapte.components.ts
@@ -192,7 +192,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   // def edges table drop down detail template: show all the information except src and tgt.
   edgedetailstemplate: any =
     {
-      rowdetails: "<div style='margin: 10px; height: 330px;'></div>",
+      rowdetails: "<div style='margin: 10px; height: 310px;  overflow-x: scroll;'></div>",
       rowdetailsheight: 330
     };
   initedgedetails = (index: any, parentElement: any, gridElement: any, datarecord: any): void => {
@@ -261,15 +261,22 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   //-----------------------------------------------------------------------------
   buildEdgesTable(subgName: string) {
     // update the edges table based on the input subgraph name/ID
+    
+    let nodeIDlist = [];
+    this.edgesDis = [];
+    this.edgesW = [];
+    if(subgName==' ' || subgName=='') {
+      // clear the table if the input data is empty.
+      this.edgesSrc = new jqx.dataAdapter({ localData: this.edgesW });
+      return;
+    }
+
     // find all nodes's id belongs to the sub graph list: 
-    let nodeIDlist = []; 
     for (let obj of this.nodes) {
       if (obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)) nodeIDlist.push(obj['data']['id']);
     }
 
     // find all edges src+tgt nodes are all in the subgraph list.
-    this.edgesDis = [];
-    this.edgesW = [];
     for (let obj of this.edges) {
       if (nodeIDlist.includes(obj['data']['source']) && nodeIDlist.includes(obj['data']['target'])) {
         // convert the span value to string with unit.
@@ -299,6 +306,10 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     console.log('buildNodesTable', subgName)
     this.nodesDis = [];
     this.nodesW = [];
+    if(subgName==' ' || subgName=='') {
+      this.nodesSrc = new jqx.dataAdapter({localData: this.nodesW});
+      return;
+    }
     for (let obj of this.nodes) {
       if (obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)) {
         this.nodesDis.push(obj); // update the graph data.
@@ -394,12 +405,12 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
         this.edges = elementsWJun2020['edges'];
         break;
       }
-      case 'sugraphs_fortinet_sep_2019':{
+      case 'subgraphs_fortinet_sep_2019':{
         this.nodes = elementsFSep2019['nodes'];
         this.edges = elementsFSep2019['edges'];
         break;
       }
-      case 'sugraphs_windows_sep_2019':{
+      case 'subgraphs_windows_sep_2019':{
         this.nodes = elementsWSep2019['nodes'];
         this.edges = elementsWSep2019['edges'];
         break;
@@ -689,6 +700,9 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
 
   reLayoutgraph(event: any): void { this.cygraph.resetLayout(); }
 
+  reLayoutNodegraph(event: any): void {
+    this.nodegraph.redraw();
+  }
   //-----------------------------------------------------------------------------
   selectDataSetHandler(event: any): void {
     // Handle the event when user select new data set.
@@ -698,6 +712,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.cygraph.clearGraph();
     //this.cygraph.setSubgraphInfo(this.selectedDataSet, '', 0, [])
     this.cygraph.setSubgraphInfo(this.selectedDataSet,)
+    this.buildNodesTable('');
+    this.buildEdgesTable('');
   }
 
   //-----------------------------------------------------------------------------
@@ -745,8 +761,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     console.log("selectGraphRow , rowIdx:", args.rowindex)
     this.subgraphName = this.graphGridList.getcelltext(args.rowindex, 'name')
     var subgraphNames = [this.subgraphName]; // leave this as array incase we need support multi graph display
-    var subgrapshScore = Number(this.graphGridList.getcelltext(args.rowindex, 'score'))
-    var subgrapshCons = String(this.graphGridList.getcelltext(args.rowindex, 'consequences')).split(',')
+    //var subgrapshScore = Number(this.graphGridList.getcelltext(args.rowindex, 'score'))
+    //var subgrapshCons = String(this.graphGridList.getcelltext(args.rowindex, 'consequences')).split(',')
     // update tables
     this.buildNodesTable(this.subgraphName);
     this.buildEdgesTable(this.subgraphName);

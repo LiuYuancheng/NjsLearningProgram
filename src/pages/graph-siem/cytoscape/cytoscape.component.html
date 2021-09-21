@@ -5,16 +5,16 @@
             <p> <b>Severity score [0-10] : </b> {{subGscore}} </p>
             <p> <b>Num of components : </b> {{subGcompNum}} </p>
             <p> <b>Max in degree centrality : </b> {{subGmaxIn}} </p>
-            <p> <b>Max Out degree centrality : </b> {{subGmaxOut}} </p>
-            <p> <b>Num of 2vents : </b> {{subGeventNum}} </p>
+            <p> <b>Max out degree centrality : </b> {{subGmaxOut}} </p>
+            <p> <b>Num of events : </b> {{subGeventNum}} </p>
             <p> <b>Consequences : </b> </p>
-            <div class="vertical-menu" style='height: 300px;'>
+            <div class="vertical-menu" style='width: 200px;'>
                 <a *ngFor="let consequences of subGcon"> - {{consequences}} </a>
             </div>
             <!-- #Show selected element information -->
             <div *ngIf="showNode">
                 <h4>Node</h4>
-                <div class="vertical-menu">
+                <div class="vertical-menu" style='width: 200px;'>
                     <a>Node ID : {{selectNode?.id}}</a>
                     <a>Risk score : --</a>
                     <a>Country code: [ {{selectNode?.geo[0]}} ]</a>
@@ -23,10 +23,11 @@
             </div>
             <div *ngIf="showEdge">
                 <h4>Edge</h4>
-                <div class="vertical-menu" style='height: 550px;'>
+                <div class="vertical-menu" style='width: 200px;'>
                     <a>Source : {{selectEdge?.source}}</a>
                     <a>Target : {{selectEdge?.target}}</a>
                     <a>Gini_t_port : {{selectEdge?.gini_t_port}}</a>
+                    <a>Gini_s_port : {{selectEdge?.gini_s_port}}</a>
                     <a>NumOfEvents : {{selectEdge?.NumOfEvents}}</a>
                     <a>Logtype : {{selectEdge?.logtype}}</a>
                     <a>Signature : </a>
