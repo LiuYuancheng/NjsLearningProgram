@@ -208,7 +208,8 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
 
   //------------------------------------------------------------------------------
   evtListener(): void {
-    this.cy.one('tap', (event) => {
+    if(this.cy == null) return;
+    this.cy.on('tap', (event) => {
       var evtTarget = event.target;
       if (evtTarget == null) return;
       if (typeof evtTarget.isNode === "function" && evtTarget.isNode()) {

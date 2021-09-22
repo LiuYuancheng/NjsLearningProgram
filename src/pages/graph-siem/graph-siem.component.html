@@ -1,4 +1,4 @@
-<div class="scroll-container">
+<div class="container">
 
   <mat-tab-group [selectedIndex]="selectedTag.value" (selectedIndexChange)="selectedTag.setValue($event)">
 
@@ -13,17 +13,17 @@
         <div fxFlex="25%" class="right">
           <!-- # data set selection -->
           <select (change)="selectDataSetHandler($event)">
-            <option value="snort">Snort Subgraphs: test</option>
+            <option value="snort">Snort Subgraphs: test_data </option>
             <option value="subgraphs_snort_sep_2019">Snort Subgraphs: sep_2019</option>
             <option value="subgraphs_snort_june_2020">Snort Subgraphs: june_2020</option>
             <option value="windows">Windows Subgraphs: test</option>
             <option value="subgraphs_windows_sep_2019">Windows Subgraphs: sep_2019</option>
             <option value="subgraphs_windows_june_2020">Windows Subgraphs: june_2020</option>
-            <option value="fortinet">Fortinet Subgraphs: test</option>
+            <option value="fortinet">Fortinet Subgraphs: test_data</option>
             <option value="subgraphs_fortinet_sep_2019">Fortinet Subgraphs: sep_2019</option>
             <option value="subgraphs_fortinet_june_2020">Fortinet Subgraphs: june_2020</option>
 
-            <option value="linked">Linked Subgraphs: test</option>
+            <option value="linked">Linked Subgraphs: test_data</option>
             <option value="linked_subgraphs_all_logs_sep_2019">Linked Subgraphs: all_logs_sep_2019</option>
             <option value="linked_subgraphs_snort_forti_sep_2019">Linked Subgraphs: snort_forti_sep_2019</option>
             <option value="linked_subgraphs_win_snort_sep_2019">Linked Subgraphs: win_snort_sep_2019</option>
@@ -105,12 +105,13 @@
                   <td> Edges Label:</td>
                   <td>
                     <select (change)="setGraphEdgeLable($event)">
-                      <option value="none">No Label</option>
+                      <option value="none">No label</option>
                       <option value="signature"> Signature</option>
                       <option value="logtype"> Log type</option>
-                      <option value="port_values"> Port_values</option>
-                      <option value="start_timestamp"> Start_timestamp</option>
-                      <option value="span"> Span Value</option>
+                      <option value="port_values"> Port values</option>
+                      <option value="start_timestamp"> Start timestamp</option>
+                      <option value="span"> Span value</option>
+                      <option value="eventNum"> Num of events</option>
                     </select>
                   </td>
                 </tr>

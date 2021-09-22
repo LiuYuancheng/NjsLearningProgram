@@ -352,8 +352,9 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
 
   //----------------------------------------------------------------------------- 
   evtListener() : void {
+    if (this.cy == null) return;
     // Handle the node and edge click event. 
-    this.cy.one('tap', (event) => {
+    this.cy.on('tap', (event) => {
       var evtTarget = event.target;
       if (evtTarget == null) { return; }
       if ( typeof evtTarget.isNode === "function" && evtTarget.isNode()) {
@@ -491,6 +492,11 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
         this.edgelabelStr = 'data(start_timestamp)';
         break;
       }
+      case 'eventNum': {
+        this.edgelabelStr = 'data(NumOfEvents)';
+        break;
+      }
+
       default: {
         this.edgelabelStr = '';
       }
@@ -577,12 +583,22 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       if (graphInfo.hasOwnProperty('num_components')) this.subGcompNum = graphInfo['num_components'];
       if (graphInfo.hasOwnProperty('max_in_degree')) 
       {
-        graphInfo['max_in_degree'][1] = graphInfo['max_in_degree'][1].toFixed(2); // change to 2 digits
+        try{
+          graphInfo['max_in_degree'][1] = Number(graphInfo['max_in_degree'][1]).toFixed(2); // change to 2 digits
+        }
+        catch{
+          console.log("only one element in the data.", String(graphInfo['max_in_degree']));
+        }
         this.subGmaxIn = '[' + String(graphInfo['max_in_degree']) + ']';
       }
       if (graphInfo.hasOwnProperty('max_out_degree')) 
       {
-        graphInfo['max_out_degree'][1] = graphInfo['max_out_degree'][1].toFixed(2); // change to 2 digits
+        try{
+          graphInfo['max_out_degree'][1] = Number(graphInfo['max_out_degree'][1]).toFixed(2); // change to 2 digits
+        } 
+        catch{
+          console.log("only one element in the data.", String(graphInfo['max_out_degree']));
+        }
         this.subGmaxOut = '[' + String(graphInfo['max_out_degree']) + ']';
       }
       if (graphInfo.hasOwnProperty('num_components')) this.subGcompNum = graphInfo['num_components'];

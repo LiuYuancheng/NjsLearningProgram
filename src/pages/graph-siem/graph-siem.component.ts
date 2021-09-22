@@ -124,7 +124,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   edgesWColumns = [
     { text: 'Source', datafield: 'source', width: '100px' },
     { text: 'Target', datafield: 'target', width: '100px' },
-    { text: 'Signature', datafield: 'signature', width: '200px' },
+    { text: 'Signature', datafield: 'signature', width: '240px' },
     { text: 'Gini_t_port', datafield: 'gini_t_port' },
     { text: 'Logtype', datafield: 'logtype', width: '80px' },
     { text: 'Start_timestamp', datafield: 'start_timestamp' },
@@ -431,6 +431,9 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
         });
       }
     }
+    
+    //this.subgrapSrc.refresh();
+
     this.subgrapSrc = new jqx.dataAdapter({
       localData: this.subgrapsSelected,
       sortcolumn: 'score',
@@ -770,6 +773,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     for (let obj of this.nodes){
       if (obj['data'].hasOwnProperty('consequences') && obj['data']['id'].includes(this.subgraphName)) {
         this.cygraph.setSubgraphInfo(this.selectedDataSet, obj['data']);
+        break;
       }
     }
 
