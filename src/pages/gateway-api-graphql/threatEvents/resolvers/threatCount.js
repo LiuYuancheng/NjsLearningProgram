@@ -212,7 +212,7 @@ module.exports = {
       //   [ "0000/3000" ]
       dateStart = dateStart?moment(dateStart).toISOString():"0000";
       dateEnd = dateEnd?moment(dateEnd).toISOString():"3000";
-      let intervals = [ `${dateStart}/${dateEnd}` ]
+      let intervals = [ `${dateStart}/${dateEnd}` ] // [ "0000/3000" ]
 
       // let bindVars = { offset:rowsPerPage*page, count: rowsPerPage }
       // filter out synonly connections

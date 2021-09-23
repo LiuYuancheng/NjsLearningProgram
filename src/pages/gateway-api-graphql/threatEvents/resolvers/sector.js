@@ -405,5 +405,70 @@ module.exports = {
 
     }, // threatEvents_sectorScamDetails
 
+    threatEvents_sectorScamCount: (root, { countryCode, dateStart, dateEnd, limitVal }, { user }) => {
+      let query = {
+        "queryType": "groupBy",
+        "dataSource": {
+          "type": "table",
+          "name": "ds-findings-scams-matched-results"
+        },
+        "intervals": {
+          "type": "intervals",
+          "intervals": [
+            "-146136543-09-08T08:23:32.096Z/146140482-04-24T15:36:27.903Z"
+          ]
+        },
+        "virtualColumns": [],
+        "filter": {
+          "type": "selector",
+          "dimension": "dstNodeId",
+          "value": "SG",
+          "extractionFn": {
+            "type": "registeredLookup",
+            "lookup": "lookup-ip-country",
+            "retainMissingValue": false,
+            "replaceMissingValueWith": null,
+            "injective": null,
+            "optimize": true
+          }
+        },
+        "granularity": {
+          "type": "all"
+        },
+        "dimensions": [
+          {
+            "type": "default",
+            "dimension": "srcSector",
+            "outputName": "sectorStr",
+            "outputType": "STRING"
+          }
+        ],
+        "aggregations": [
+          {
+            "type": "count",
+            "name": "count"
+          }
+        ],
+        "postAggregations": [],
+        "having": null,
+        "limitSpec": {
+          "type": "NoopLimitSpec"
+        },
+        "context": {
+          "sqlQueryId": "6c6daf36-d347-41da-84f9-7e0f60cb02e6"
+        },
+        "descending": false
+      }
+      return new Promise((resolve, reject) => {
+        druid.query.post('/', query).then(res => {
+            let msgJson = [];
+            for (let obj of res.data) { msgJson.push(obj['event']); }
+            resolve(msgJson);
+        }).catch(err => {
+            console.error(err)
+            reject(err)
+        })
+    });
+    },
   } // Query
 }
