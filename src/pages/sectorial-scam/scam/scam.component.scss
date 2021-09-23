@@ -1,0 +1,55 @@
+::ng-deep .main-container {
+  // position: relative;
+  // overflow-y: auto;
+  overflow: hidden;
+  margin: 0 10px 0 10px;
+}
+
+
+::ng-deep .map-frame {
+  // border: 2px solid black;
+  // position: relative;
+  // margin: 5px;
+  width: 100%;
+  // height: 100%;
+  // width: 800px;
+  height: calc(100vh - 160px);
+  // background-color: blue;
+}
+
+::ng-deep .sector-card {
+  // position: absolute;
+  // top: 0;
+  // left: 0;
+  width: 400px;
+  // background-color: green;
+  // z-index: 5000;
+}
+
+
+::ng-deep #map {
+  height: 100%;
+  width: 100%;
+  // background-color: red;
+}
+
+
+::ng-deep .legend {
+  position: absolute;
+  left: 15px;
+  bottom: 30px;
+  z-index: 1000;
+}
+
+
+::ng-deep .tooltip {
+  background: black;
+  color: white;
+  border: 0;
+}
+::ng-deep .leaflet-tooltip-left.tooltip::before {
+  border-left-color: black;
+}
+::ng-deep .leaflet-tooltip-right.tooltip::before {
+  border-right-color: black;
+}

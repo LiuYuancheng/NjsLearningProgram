@@ -1,0 +1,32 @@
+<p-card *ngIf="sector" styleClass="card-container" (click)="onClick($event)">
+  <ng-template pTemplate="header">
+    {{sector.name}}
+  </ng-template>
+  <div style="margin: auto; text-align: center; margin-bottom: 5px; font-size: 10px;">
+    Threat Count: {{ sector.percentCount }}%<br/>
+    <div *ngIf="sector.growth > 1">
+      Trend:
+      <span style="color: Tomato;">
+        {{ sector.growth | number : '1.2-2' }}
+       <i class="fas fa-arrow-up"></i>
+      </span>
+    </div>
+    <div *ngIf="sector.growth && sector.growth < 1">
+      Trend:
+      <span style="color: Dodgerblue;">
+        {{ sector.growth | number : '1.2-2' }}
+       <i class="fas fa-arrow-down"></i>
+      </span>
+    </div>
+    <div *ngIf="!sector.growth">
+      Trend: -
+    </div>
+  </div>
+  <highcharts-chart 
+    [Highcharts]="Highcharts"
+    [options]="chartOptions"
+    [(update)]="updateFlag"
+    [oneToOne]="oneToOneFlag"
+    style="width: 100%; height: 20px; display: block;">
+  </highcharts-chart>
+</p-card>

@@ -1,0 +1,17 @@
+::ng-deep .card-container {
+  &.p-card {
+    padding: 5px 0 0 0;
+    margin: 0;
+    // background-color: green;
+    cursor: pointer;
+  }
+  .p-card-header {
+    text-align: center;
+    // margin: auto;
+  }
+  .p-card-content {
+    padding: 0;
+    margin: 0;
+    // background-color: blue;
+  }
+}

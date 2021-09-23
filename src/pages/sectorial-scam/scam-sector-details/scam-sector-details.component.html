@@ -1,0 +1,70 @@
+<div class="p-grid wrap" style="width:78vw; margin: auto;">
+  <div class="p-col-3 p-ai-start">
+    <div class="child-panel p-mr-2">
+      <highcharts-chart 
+        [Highcharts]="Highcharts"
+        [options]="chartOptions2"
+        [(update)]="updateFlag2"
+        [oneToOne]="oneToOneFlag"
+        style="height: 350px; width: 100%; z-index: 6000;">
+      </highcharts-chart>
+    </div>
+  </div>
+  <div class="p-col-3 p-ai-start">
+    <div class="child-panel p-mr-2">
+      <highcharts-chart 
+        [Highcharts]="Highcharts"
+        [options]="chartOptions3"
+        [(update)]="updateFlag2"
+        [oneToOne]="oneToOneFlag"
+        style="height: 350px; width: 100%; z-index: 6000;">
+      </highcharts-chart>
+    </div>
+  </div>
+  <div class="p-col-6">
+    <p-card styleClass="scam-box">
+      <p-accordion>
+        <p-accordionTab [header]="info.shortTitle" *ngFor="let info of campaignsInfoArray">
+          <p-scrollPanel [style]="{width: '100%', height: '300px'}">
+            <h4>{{ info.collectionTitle }}</h4>
+              <markdown [data]="info.overview"></markdown>
+            <p>
+              <b>Tags:</b> {{ info.tags }}
+            </p>
+            <p *ngIf="info.threatTypes">
+              <b>Threat Types:</b> {{ info.threatTypes }}
+            </p>
+            <div *ngIf="info.recommendations">
+              <b>Recommendations:</b>
+              <ul class="list-box">
+                <li *ngFor="let item of info.recommendations">
+                  {{ item }}
+                </li>
+              </ul>
+            </div>
+            <div *ngIf="info.references">
+              <b>References:</b>
+              <ul class="list-box">
+                <li *ngFor="let item of info.references">
+                  <a [href]="item" target="_blank">{{ item }}</a>
+                </li>
+              </ul>
+            </div>
+          </p-scrollPanel>
+        </p-accordionTab>
+      </p-accordion>
+    </p-card>
+  </div>
+  <div class="p-col-12 p-mx-auto">
+    <div class="child-panel">
+      <highcharts-chart 
+        [Highcharts]="Highcharts"
+        [constructorType]="'stockChart'"
+        [options]="chartOptions"
+        [(update)]="updateFlag"
+        [oneToOne]="oneToOneFlag"
+        style="height:300px; width: 100%;">
+      </highcharts-chart>
+    </div>
+  </div>
+</div>
