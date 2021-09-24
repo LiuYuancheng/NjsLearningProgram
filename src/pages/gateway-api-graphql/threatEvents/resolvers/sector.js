@@ -19,19 +19,19 @@ module.exports = {
     /**
      * threatEvents_sectorDetails
      */
-    threatEvents_sectorDetails: ( root, { dateStart, dateEnd, sector, filter, having, outgoing }, { user } ) => {
+    threatEvents_sectorDetails: (root, { dateStart, dateEnd, sector, filter, having, outgoing }, { user }) => {
       logger.debug("threatEvents_sectorDetails", dateStart, dateEnd, sector)
 
       // let intervals = dateFrom?
       //   [ `${moment().subtract(dateFrom.numUnits, dateFrom.unit).toISOString()}/${moment().toISOString()}` ]:
       //   [ "0000/3000" ]
-      dateStart = dateStart?moment(dateStart).toISOString():"0000";
-      dateEnd = dateEnd?moment(dateEnd).toISOString():"3000";
-      let intervals = [ `${dateStart}/${dateEnd}` ]
+      dateStart = dateStart ? moment(dateStart).toISOString() : "0000";
+      dateEnd = dateEnd ? moment(dateEnd).toISOString() : "3000";
+      let intervals = [`${dateStart}/${dateEnd}`]
 
-      let sectorAttr = outgoing?"srcSector":"dstSector";
-      let nodeAttr = outgoing?"dstNodeId":"srcNodeId";
-      let countryAttr = outgoing?"dstCountry":"srcCountry";
+      let sectorAttr = outgoing ? "srcSector" : "dstSector";
+      let nodeAttr = outgoing ? "dstNodeId" : "srcNodeId";
+      let countryAttr = outgoing ? "dstCountry" : "srcCountry";
 
       // let bindVars = { offset:rowsPerPage*page, count: rowsPerPage }
       // filter out synonly connections
@@ -61,12 +61,12 @@ module.exports = {
             {
               "type": "selector",
               "dimension": "srcEnterpriseId",
-              "value": user.enterpriseId,    
+              "value": user.enterpriseId,
             },
             {
               "type": "selector",
               "dimension": "dstEnterpriseId",
-              "value": user.enterpriseId,      
+              "value": user.enterpriseId,
             }
           ]
         })
@@ -99,7 +99,7 @@ module.exports = {
             }
           ],
           filter: myfilter,
-          "dimensions": [ "country" ],
+          "dimensions": ["country"],
           "aggregations": [
             { "type": "longSum", "name": "threatCount", "fieldName": "count" }
           ],
@@ -122,10 +122,10 @@ module.exports = {
           results.sort((e1, e2) => e2.threatCount - e1.threatCount)
           resolve(results)
         })
-        .catch(err => {
-          logger.error(err)
-          reject(err)
-        })
+          .catch(err => {
+            logger.error(err)
+            reject(err)
+          })
       }) // p1
 
       // retrieve counts by domain
@@ -134,7 +134,7 @@ module.exports = {
         myfilter2.fields.push({
           "type": "selector",
           "dimension": "connectionType",
-          "value": "HTTP",    
+          "value": "HTTP",
         })
         let query = {
           "queryType": "groupBy",
@@ -150,7 +150,7 @@ module.exports = {
             },
           ],
           filter: myfilter2,
-          "dimensions": [ "domain" ],
+          "dimensions": ["domain"],
           "aggregations": [
             { "type": "longSum", "name": "threatCount", "fieldName": "count" }
           ],
@@ -170,10 +170,10 @@ module.exports = {
           results.sort((e1, e2) => e2.threatCount - e1.threatCount)
           resolve(results)
         })
-        .catch(err => {
-          logger.error(err)
-          reject(err)
-        })
+          .catch(err => {
+            logger.error(err)
+            reject(err)
+          })
       }) // p2
 
       let p3 = new Promise((resolve, reject) => {
@@ -181,7 +181,7 @@ module.exports = {
         myfilter2.fields.push({
           "type": "selector",
           "dimension": "connectionType",
-          "value": "IP",    
+          "value": "IP",
         })
         let query = {
           "queryType": "groupBy",
@@ -203,7 +203,7 @@ module.exports = {
             },
           ],
           filter: myfilter2,
-          "dimensions": [ "dstNodeId" ],
+          "dimensions": ["dstNodeId"],
           "aggregations": [
             { "type": "longSum", "name": "threatCount", "fieldName": "count" }
           ],
@@ -223,10 +223,10 @@ module.exports = {
           results.sort((e1, e2) => e2.threatCount - e1.threatCount)
           resolve(results)
         })
-        .catch(err => {
-          logger.error(err)
-          reject(err)
-        })
+          .catch(err => {
+            logger.error(err)
+            reject(err)
+          })
       }) // p3
 
       return Promise.all([p1, p2, p3]).then(values => {
@@ -242,7 +242,7 @@ module.exports = {
     /**
      * threatEvents_sectorScamDetails
      */
-    threatEvents_sectorScamDetails: ( root, { dateStart, dateEnd, sector, filter, having, outgoing }, { user } ) => {
+    threatEvents_sectorScamDetails: (root, { dateStart, dateEnd, sector, filter, having, outgoing }, { user }) => {
       logger.debug("threatEvents_sectorScamDetails", dateStart, dateEnd, sector)
 
       let dataSource = druid.ds_findings_scams_matched_results;
@@ -250,13 +250,13 @@ module.exports = {
       // let intervals = dateFrom?
       //   [ `${moment().subtract(dateFrom.numUnits, dateFrom.unit).toISOString()}/${moment().toISOString()}` ]:
       //   [ "0000/3000" ]
-      dateStart = dateStart?moment(dateStart).toISOString():"0000";
-      dateEnd = dateEnd?moment(dateEnd).toISOString():"3000";
-      let intervals = [ `${dateStart}/${dateEnd}` ]
+      dateStart = dateStart ? moment(dateStart).toISOString() : "0000";
+      dateEnd = dateEnd ? moment(dateEnd).toISOString() : "3000";
+      let intervals = [`${dateStart}/${dateEnd}`]
 
-      let sectorAttr = outgoing?"srcSector":"dstSector";
-      let nodeAttr = outgoing?"dstNodeId":"srcNodeId";
-      let countryAttr = outgoing?"dstCountry":"srcCountry";
+      let sectorAttr = outgoing ? "srcSector" : "dstSector";
+      let nodeAttr = outgoing ? "dstNodeId" : "srcNodeId";
+      let countryAttr = outgoing ? "dstCountry" : "srcCountry";
 
       // let bindVars = { offset:rowsPerPage*page, count: rowsPerPage }
       // filter out synonly connections
@@ -286,12 +286,12 @@ module.exports = {
             {
               "type": "selector",
               "dimension": "srcEnterpriseId",
-              "value": user.enterpriseId,    
+              "value": user.enterpriseId,
             },
             {
               "type": "selector",
               "dimension": "dstEnterpriseId",
-              "value": user.enterpriseId,      
+              "value": user.enterpriseId,
             }
           ]
         })
@@ -324,7 +324,7 @@ module.exports = {
             }
           ],
           filter: myfilter,
-          "dimensions": [ "country" ],
+          "dimensions": ["country"],
           "aggregations": [
             { "type": "longSum", "name": "threatCount", "fieldName": "count" }
           ],
@@ -347,10 +347,10 @@ module.exports = {
           results.sort((e1, e2) => e2.threatCount - e1.threatCount)
           resolve(results)
         })
-        .catch(err => {
-          logger.error(err)
-          reject(err)
-        })
+          .catch(err => {
+            logger.error(err)
+            reject(err)
+          })
       }) // p1
 
       // retrieve counts by domain
@@ -375,7 +375,7 @@ module.exports = {
             },
           ],
           filter,
-          "dimensions": [ "campaignId" ],
+          "dimensions": ["campaignId"],
           "aggregations": [
             { "type": "longSum", "name": "threatCount", "fieldName": "count" }
           ],
@@ -390,10 +390,10 @@ module.exports = {
           results.sort((e1, e2) => e2.threatCount - e1.threatCount)
           resolve(results)
         })
-        .catch(err => {
-          logger.error(err)
-          reject(err)
-        })
+          .catch(err => {
+            logger.error(err)
+            reject(err)
+          })
       }) // p2
 
       return Promise.all([p1, p2]).then(values => {
@@ -406,23 +406,23 @@ module.exports = {
     }, // threatEvents_sectorScamDetails
 
     threatEvents_sectorScamCount: (root, { countryCode, dateStart, dateEnd, limitVal }, { user }) => {
+      dateStart = dateStart ? moment(dateStart).toISOString() : "0000";
+      dateEnd = dateEnd ? moment(dateEnd).toISOString() : "3000";
+
+      let dataSource = druid.ds_findings_scams_matched_results;
+      let intervals = {
+        "type": "intervals",
+        "intervals": [`${dateStart}/${dateEnd}`]
+      };
       let query = {
         "queryType": "groupBy",
-        "dataSource": {
-          "type": "table",
-          "name": "ds-findings-scams-matched-results"
-        },
-        "intervals": {
-          "type": "intervals",
-          "intervals": [
-            "-146136543-09-08T08:23:32.096Z/146140482-04-24T15:36:27.903Z"
-          ]
-        },
+        "dataSource": dataSource,
+        "intervals": intervals,
         "virtualColumns": [],
         "filter": {
           "type": "selector",
           "dimension": "dstNodeId",
-          "value": "SG",
+          "value": countryCode,
           "extractionFn": {
             "type": "registeredLookup",
             "lookup": "lookup-ip-country",
@@ -461,14 +461,14 @@ module.exports = {
       }
       return new Promise((resolve, reject) => {
         druid.query.post('/', query).then(res => {
-            let msgJson = [];
-            for (let obj of res.data) { msgJson.push(obj['event']); }
-            resolve(msgJson);
+          let msgJson = [];
+          for (let obj of res.data) { msgJson.push(obj['event']); }
+          resolve(msgJson);
         }).catch(err => {
-            console.error(err)
-            reject(err)
+          console.error(err)
+          reject(err)
         })
-    });
+      });
     },
   } // Query
 }
