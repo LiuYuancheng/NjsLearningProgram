@@ -6,9 +6,10 @@
         [options]="chartOptions2"
         [(update)]="updateFlag2"
         [oneToOne]="oneToOneFlag"
-        style="height: 350px; width: 100%; z-index: 6000;">
+        style="height: 420px; width: 100%; z-index: 6000;">
       </highcharts-chart>
     </div>
+    <mat-checkbox color="primary" [checked]="false" (change)="showLegend($event)">Show Legend</mat-checkbox>
   </div>
   <div class="p-col-3 p-ai-start">
     <div class="child-panel p-mr-2">
@@ -17,9 +18,10 @@
         [options]="chartOptions3"
         [(update)]="updateFlag2"
         [oneToOne]="oneToOneFlag"
-        style="height: 350px; width: 100%; z-index: 6000;">
+        style="height: 420px; width: 100%; z-index: 6000;">
       </highcharts-chart>
     </div>
+    <mat-checkbox color="primary" [checked]="true" (change)="showLegend($event)">Show Legend</mat-checkbox>
   </div>
   <div class="p-col-6">
     <p-card styleClass="scam-box">

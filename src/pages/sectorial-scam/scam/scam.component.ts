@@ -10,6 +10,7 @@ import { Colors} from '../../../core/common/colors';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet.zoomhome';
+import {CountryCode} from '../data/countryCode.json'
 
 const Countries = require('src/assets/geojson/countries-geojson.json')
 // console.log("Countries", Countries)
@@ -203,12 +204,11 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
   }
 
   ngOnDestroy(): void {
-    this.feed.unsubscribe();
+    if (this.feed) this.feed.unsubscribe();
   }
 
   // create leaflet map
   createMap(): void {
-    // console.log(">>>>>>>> createMap")
     // add map
     const zoom = 2;
     this.map = L.map("map",{
@@ -249,34 +249,20 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
   }
 
   onLayerClick(event: any, parentRef:any, feature:any) {
-    console.log('..............', 'layerclick');
-    parentRef.selectedSector = {
-      "percentCount": "2.93",
-      "name": feature.properties.name,
-      "type": "Country",
-      "y": 62,
-      "growth": 0.4347826086956522,
-      "data": [
-        [
-          1571421600000,
-          1
-        ],
-        [
-          1572325200000,
-          1
-        ],
-        [
-          1572516000000,
-          1
-        ]
-      ]
-    };
-    //this.parent.onSelectSector(selectedSector);
-    //this.onSelectSector(selectedSector);
-    console.log('..............', parentRef.selectedSector);
+    //console.log('..............', 'layerclick');
+    let countryName = feature.properties.name;
+    console.log('Selected country:', countryName);
+    if (CountryCode.hasOwnProperty(countryName)){
+      parentRef.selectedSector = {
+        "percentCount": "0",
+        "name": countryName,
+        "type": CountryCode[countryName],
+        "y": 0,
+        "growth": 0,
+        "data": []
+      }
+    }
   }
-
-
   getColor(threatCounts): void {
     const threshold = [10000, 1000, 500, 200, 1 ]
     return threatCounts > threshold[0] ? '#540804' :

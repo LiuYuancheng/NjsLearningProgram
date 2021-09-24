@@ -15,6 +15,7 @@ import {TableModule} from 'primeng/table';
 import {TabViewModule} from 'primeng/tabview';
 import {AccordionModule} from 'primeng/accordion';
 import {DividerModule} from 'primeng/divider';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { ScamComponent } from './scam/scam.component';
 import { ScamSectorCardComponent } from './scam-sector-card/scam-sector-card.component';
@@ -28,7 +29,7 @@ import { ScamSectorDetailsComponent } from './scam-sector-details/scam-sector-de
   ],
   imports: [
     CommonModule, HighchartsChartModule, LeafletModule, LeafletMarkerClusterModule,
-    MarkdownModule.forChild(), NgxTippyModule, 
+    MarkdownModule.forChild(), NgxTippyModule, MatCheckboxModule,
     CardModule, ScrollPanelModule, DialogModule, TableModule, TabViewModule, AccordionModule,
     DividerModule,
   ],

@@ -151,7 +151,7 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
         style: { "fontSize": "12px" },
       },
       legend: {
-        enabled: true,
+        enabled: false,
       },
       tooltip: {
         pointFormat: '{series.name}: <b>{point.y}</b>'
@@ -188,7 +188,7 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
         style: { "fontSize": "12px" },
       },
       legend: {
-        enabled: false,
+        enabled: true,
       },
       tooltip: {
         pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -238,16 +238,17 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
     if (this.sector.type == 'Sector') {
       this.buildSectorPopup();
     }
-    else if (this.sector.type == 'Country'){
-      this.buildCountrypopup();
+    else {
+      //if (this.sector.type == 'Country')
+      this.buildCountrypopup(String(this.sector.type));
     }
   }
 
-  buildCountrypopup():void{
+  buildCountrypopup(countryCode:String):void{
     this.feedQuery = this.apollo.watchQuery<any>({
       query: COUNTRY_QUERY,
       variables: {
-        "countryCode":"SG" 
+        "countryCode":countryCode 
       },
       fetchPolicy: 'network-only',
       // fetchPolicy: 'cache-and-network',
@@ -338,6 +339,7 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
         y: e.threatCount,
       }))
       // console.log("pieData", pieData)
+      this.chartOptions2.title.text = "Country Breakdown";
       this.chartOptions2.series = [{ name:"Threat Count", colorByPoint: true, data: pieData }];
 
       // make pie chart by campaign
@@ -351,9 +353,13 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
     });
   }
 
+  showLegend(event:any){
+
+  }
+
 
   ngOnDestroy(): void {
-    this.feed.unsubscribe();
+    if(this.feed) this.feed.unsubscribe();
   }
 
 }
