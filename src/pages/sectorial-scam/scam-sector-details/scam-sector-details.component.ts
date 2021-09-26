@@ -353,10 +353,23 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
     });
   }
 
-  showLegend(event:any){
-
+  showLegend(event:any, pTag:String){
+    switch(pTag){
+      case 'P1':{
+        this.chartOptions2.legend.enabled = event.checked;
+        this.updateFlag2 = true;
+        break;
+      }
+      case 'P2':{
+        this.chartOptions3.legend.enabled = event.checked;
+        this.updateFlag2 = true;
+        break;
+      }
+      default:{
+        console.log("Invalid input p tag:", pTag)
+      }
+    }
   }
-
 
   ngOnDestroy(): void {
     if(this.feed) this.feed.unsubscribe();

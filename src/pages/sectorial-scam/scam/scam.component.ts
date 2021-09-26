@@ -1,18 +1,32 @@
 // @ts-nocheck
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { BaseHighchartsComponent } from '../../../components/base-highcharts/base-highcharts.component';
 
 import { Subscription } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
-import { BaseHighchartsComponent } from '../../../components/base-highcharts/base-highcharts.component';
+
 import moment from "moment";
-import { Colors} from '../../../core/common/colors';
+
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet.zoomhome';
-import {CountryCode} from '../data/countryCode.json'
 
-const Countries = require('src/assets/geojson/countries-geojson.json')
+import { Colors } from '../../../core/common/colors';
+import { CountryCode } from '../data/countryCode.json';
+
+
+//-----------------------------------------------------------------------------
+// Name:        scam.components.ts
+// Purpose:     
+//
+// Author:
+// Created:     2021/09/18
+// Copyright:    n.a    
+// License:      n.a
+//------------------------------------------------------------------------------
+
+const Countries = require('src/assets/geojson/countries-geojson.json');
 // console.log("Countries", Countries)
 
 const QUERY = gql`
@@ -59,10 +73,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
       },
       colors: [ Colors.WATER_COLOR ],
       title: {
-        // text: "Threat Count",
         text: null,
-        // floating: true,
-        // style: { "fontSize": "16px" },
         style: { "fontSize": "12px" },
       },
       legend: {
@@ -82,10 +93,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
       },
       yAxis: {
         // type: 'logarithmic',
-        title: {
-          // text: "Threat Count"
-          text: null,
-        },
+        title: { text: null },
         gridLineWidth: 0,
       },
       plotOptions: {
@@ -93,24 +101,12 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
             connectNulls: false
         },
         spline: {
-          marker: {
-            radius: 1,
-          }
+          marker: { radius: 1 }
         },
-        column: {
-          stacking: 'normal'
-        },
+        column: { stacking: 'normal' },
         area: {
             stacking: 'normal',
-            // lineColor: '#666666',
-            // lineWidth: 1,
-            // marker: {
-            //     lineWidth: 1,
-            //     lineColor: '#666666'
-            // }
-            marker: {
-              radius: 2,
-            }
+            marker: { radius: 2 }
         },
       },
       series: [],
@@ -139,8 +135,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
   }
 
   ngOnInit(): void {
-    if (!this.map)
-      this.createMap()
+    if (!this.map) this.createMap();
 
     this.feedQuery = this.apollo.watchQuery<any>({
       query: QUERY,
@@ -156,8 +151,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
     });
 
     this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
-      if (loading)
-        return;
+      if (loading) return;
 
       let data1 = data.threatEvents_threatCountBySectorTimeSeries.filter(e => e.name !== "OTHERS");
       // console.log("data1", this.data1)
@@ -200,7 +194,6 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
       }, {})
       this.addHeatLayer();
     });
-
   }
 
   ngOnDestroy(): void {
@@ -241,7 +234,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
   }
 
   onMapClick(event: any) {
-
+    // Zoom and focus to the position.
     this.flyTo(event.latlng, 6, {
       animate: true,
       duration: 2 // in seconds
@@ -249,7 +242,6 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
   }
 
   onLayerClick(event: any, parentRef:any, feature:any) {
-    //console.log('..............', 'layerclick');
     let countryName = feature.properties.name;
     console.log('Selected country:', countryName);
     if (CountryCode.hasOwnProperty(countryName)){
