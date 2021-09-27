@@ -26,4 +26,16 @@ type Query {
     dateEnd:DateRangeDuration
     limitVal:Int
   ):JSON
+  threatEvents_campaignScamCount(
+      countryCode:String!
+      dateStart:DateRangeDuration
+      dateEnd:DateRangeDuration
+      limitVal:Int
+  ):JSON
+  threatEvents_countryScamCount(
+      countryCode:String!
+      dateStart:DateRangeDuration
+      dateEnd:DateRangeDuration
+      limitVal:Int
+  ):JSON
 }

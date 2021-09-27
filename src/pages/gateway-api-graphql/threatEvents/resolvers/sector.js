@@ -12,7 +12,8 @@ var db = new dbconn();
 
 const moment = require("moment");
 const lookup = require('country-code-lookup')
-const _ = require("lodash")
+const _ = require("lodash");
+const { query } = require('express');
 
 module.exports = {
   Query: {
@@ -469,6 +470,129 @@ module.exports = {
           reject(err)
         })
       });
-    },
-  } // Query
+    }, // threatEvents_sectorScamCount
+
+    threatEvents_campaignScamCount: (root, { countryCode, dateStart, dateEnd, limitVal }, { user }) => {
+      dateStart = dateStart ? moment(dateStart).toISOString() : "0000";
+      dateEnd = dateEnd ? moment(dateEnd).toISOString() : "3000";
+      let intervals = {
+        "type": "intervals",
+        "intervals": [`${dateStart}/${dateEnd}`]
+      };
+
+      let query = {
+        "queryType": "topN",
+        "dataSource":druid.ds_findings_scams_matched_results,
+        "virtualColumns": [],
+        "dimension": {
+          "type": "default",
+          "dimension": "campaignId",
+          "outputName": "campaignId",
+          "outputType": "STRING"
+        },
+        "metric": {
+          "type": "dimension",
+          "previousStop": null,
+          "ordering": {
+            "type": "lexicographic"
+          }
+        },
+        "threshold": 100,
+        "intervals": intervals,
+        "filter": {
+          "type": "selector",
+          "dimension": "dstNodeId",
+          "value": countryCode,
+          "extractionFn": {
+            "type": "registeredLookup",
+            "lookup": "lookup-ip-country",
+            "retainMissingValue": false,
+            "replaceMissingValueWith": null,
+            "injective": null,
+            "optimize": true
+          }
+        },
+        "granularity": {
+          "type": "all"
+        },
+        "aggregations": [
+          {
+            "type": "count",
+            "name": "count"
+          }
+        ],
+        "postAggregations": [],
+        "context":druid.context,
+        "descending": false
+      };
+
+      return new Promise((resolve, reject) => {
+        druid.query.post('/', query).then(res => {
+          let msgJson = [];
+          for (let obj of res.data) { msgJson.push(obj['result']); }
+          resolve(msgJson);
+        }).catch(err => {
+          console.error(err)
+          reject(err)
+        })
+      });
+
+    }, //threatEvents_sectorScamCount
+
+
+    threatEvents_countryScamCount: (root, { countryCode, dateStart, dateEnd, limitVal }, { user }) => {
+      dateStart = dateStart ? moment(dateStart).toISOString() : "0000";
+      dateEnd = dateEnd ? moment(dateEnd).toISOString() : "3000";
+      let intervals = {
+        "type": "intervals",
+        "intervals": [`${dateStart}/${dateEnd}`]
+      };
+      let query = {
+        "queryType": "timeseries",
+        "dataSource": druid.ds_findings_scams_matched_results,
+        "intervals": intervals,
+        "descending": false,
+        "virtualColumns": [],
+        "filter": {
+          "type": "selector",
+          "dimension": "dstNodeId",
+          "value": countryCode,
+          "extractionFn": {
+            "type": "registeredLookup",
+            "lookup": "lookup-ip-country",
+            "retainMissingValue": false,
+            "replaceMissingValueWith": null,
+            "injective": null,
+            "optimize": true
+          }
+        },
+        "granularity": "HOUR",
+        "aggregations": [
+          {
+            "type": "count",
+            "name": "count"
+          }
+        ],
+        "postAggregations": [],
+        "context": {
+          "skipEmptyBuckets": true,
+          "sqlQueryId": "9c27cf8d-cc7c-469f-b304-794edcd3d9a9",
+          "timestampResultField": "timestamp"
+        }
+      };
+
+      return new Promise((resolve, reject) => {
+        druid.query.post('/', query).then(res => {
+          let msgJson = [];
+          for (let obj of res.data) { msgJson.push(obj['result']); }
+          resolve(msgJson);
+        }).catch(err => {
+          console.error(err)
+          reject(err)
+        })
+      });
+    }, // threatEvents_countryScamCount
+
+  }, // Query
+
 }
