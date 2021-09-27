@@ -5,7 +5,6 @@
   margin: 0 10px 0 10px;
 }
 
-
 ::ng-deep .map-frame {
   // border: 2px solid black;
   // position: relative;
@@ -26,13 +25,11 @@
   // z-index: 5000;
 }
 
-
 ::ng-deep #map {
   height: 100%;
   width: 100%;
   // background-color: red;
 }
-
 
 ::ng-deep .legend {
   position: absolute;
@@ -40,7 +37,6 @@
   bottom: 30px;
   z-index: 1000;
 }
-
 
 ::ng-deep .tooltip {
   background: black;

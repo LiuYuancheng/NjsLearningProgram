@@ -28,3 +28,13 @@ WHERE lookup(dstNodeId, 'lookup-ip-country')='SG'
 GROUP BY srcSector
 ```
 
+campaign cat
+
+```
+SELECT campaignId,
+count(*) as threatCount
+FROM "ds-findings-scams-matched-results"
+WHERE lookup(dstNodeId, 'lookup-ip-country')='RU'
+GROUP BY campaignId
+```
+

@@ -41,37 +41,38 @@ query($filter:JSON) {
 }
 `;
 
+
+
+//------------------------------------------------------------------------------
 @Component({
   selector: 'app-scam',
   templateUrl: './scam.component.html',
   styleUrls: ['./scam.component.scss']
 })
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 export class ScamComponent extends BaseHighchartsComponent implements OnInit, OnDestroy {
   private feedQuery: QueryRef<any>;
   private feed: Subscription;
 
-  data1: [any];
+  public data1: [any];
   private countryThreatCount: any;
   private map: any;
   private geojsonLayer: any;
-  selectedSector: any;
+  public chartOptions: any;
+  public selectedSector: any;
+  public mapLegend: [any]; 
+  public showSamGraph:boolean;
 
-  legend: [any] = [
-    { color: '#ea8c55', max: 1, label: '1 - 200' },
-    { color: '#c75146', max: 200, label: '200 - 500' },
-    { color: '#ad2e24', max: 500, label: '500 - 1000' },
-    { color: '#81171b', max: 1000, label: '1000 - 10000' },
-    { color: '#540804', max: 10000, label: '> 10000' },
-  ]
-
+  //------------------------------------------------------------------------------
   constructor(private apollo: Apollo) {
     super();
-
     this.chartOptions = {
       chart: {
         type: "areaspline",
       },
-      colors: [ Colors.WATER_COLOR ],
+      colors: [Colors.WATER_COLOR],
       title: {
         text: null,
         style: { "fontSize": "12px" },
@@ -88,7 +89,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
           afterSetExtremes: evt => {
             // console.log("afterSetExtremes", evt.min, evt.max)
             // setTimes(evt)
-          }        
+          }
         }
       },
       yAxis: {
@@ -98,15 +99,15 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
       },
       plotOptions: {
         series: {
-            connectNulls: false
+          connectNulls: false
         },
         spline: {
           marker: { radius: 1 }
         },
         column: { stacking: 'normal' },
         area: {
-            stacking: 'normal',
-            marker: { radius: 2 }
+          stacking: 'normal',
+          marker: { radius: 2 }
         },
       },
       series: [],
@@ -132,8 +133,27 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
         inputEnabled: false
       },
     };
+
+    // this.mapLegend = [
+    //   { color: '#ea8c55', max: 1, label: '1 - 200' },
+    //   { color: '#c75146', max: 200, label: '200 - 500' },
+    //   { color: '#ad2e24', max: 500, label: '500 - 1000' },
+    //   { color: '#81171b', max: 1000, label: '1000 - 10000' },
+    //   { color: '#540804', max: 10000, label: '> 10000' },
+    // ];
+
+    this.mapLegend = [
+      { color: '#794a2f', max: 1, label: '1 - 200' },
+      { color: '#682D27', max: 200, label: '200 - 500' },
+      { color: '#81171b', max: 500, label: '500 - 1000' },
+      { color: '#451012', max: 1000, label: '1000 - 10000' },
+      { color: '#2E0806', max: 10000, label: '> 10000' },
+    ];
+
+    this.showSamGraph = false;
   }
 
+  //------------------------------------------------------------------------------
   ngOnInit(): void {
     if (!this.map) this.createMap();
 
@@ -152,7 +172,6 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
 
     this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
       if (loading) return;
-
       let data1 = data.threatEvents_threatCountBySectorTimeSeries.filter(e => e.name !== "OTHERS");
       // console.log("data1", this.data1)
 
@@ -167,7 +186,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
             acc[obj[0]] = obj[1]
         }
         return acc;
-      }, {})
+      }, {});
       // console.log("ts", ts)
       // console.log("totalCount", totalCount)
       // console.log("data", data1)
@@ -176,16 +195,13 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
         let percentCount = (e.y / totalCount * 100).toFixed(2);
         let obj = Object.assign({ percentCount }, e);
         return obj;
-      })
+      });
 
-      let keys = Object.keys(ts).sort()
-      let series0 = {
+      let keys = Object.keys(ts).sort();
+      this.chartOptions.series = {
         "name": "Scam Count",
         "data": keys.map(e => [ parseInt(e), ts[e] ])
-      }
-      // console.log("series0", series0)
-
-      this.chartOptions.series = series0;
+      };
       this.updateFlag = true;
 
       this.countryThreatCount = data.threatEvents_threatCountByCountry.reduce((acc, cur) => {
@@ -196,10 +212,12 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
     });
   }
 
+  //------------------------------------------------------------------------------
   ngOnDestroy(): void {
     if (this.feed) this.feed.unsubscribe();
   }
 
+  //------------------------------------------------------------------------------
   // create leaflet map
   createMap(): void {
     // add map
@@ -233,6 +251,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
     // this.map.fitWorld().zoomIn()
   }
 
+  //------------------------------------------------------------------------------
   onMapClick(event: any) {
     // Zoom and focus to the position.
     this.flyTo(event.latlng, 6, {
@@ -241,20 +260,21 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
     });
   }
 
+  //------------------------------------------------------------------------------
   onLayerClick(event: any, parentRef:any, feature:any) {
     let countryName = feature.properties.name;
     console.log('Selected country:', countryName);
     if (CountryCode.hasOwnProperty(countryName)){
+      parentRef.showSamGraph = true;
       parentRef.selectedSector = {
-        "percentCount": "0",
         "name": countryName,
         "type": CountryCode[countryName],
-        "y": 0,
-        "growth": 0,
         "data": []
-      }
+      };
     }
   }
+
+  //------------------------------------------------------------------------------
   getColor(threatCounts): void {
     const threshold = [10000, 1000, 500, 200, 1 ]
     return threatCounts > threshold[0] ? '#540804' :
@@ -267,6 +287,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
             '#051923'
   }
 
+  //------------------------------------------------------------------------------
   addHeatLayer(): void {
     const style = (feature) => {
       // let fillColor = MAP_COLORS[0]
@@ -283,14 +304,13 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
 
     let onEachFeature = (feature, layer) => {
       // console.log("onEachFeature", feature, layer);
-      layer.bindTooltip(feature.properties.name, { direction: 'bottom', sticky: true, className: 'tooltip' });
+      layer.bindTooltip(feature.properties.name + ' ['+ String(feature.properties.threatCount) +']' , { direction: 'bottom', sticky: true, className: 'tooltip' });
       // layer.bindPopup(popUp(feature), popUpStyle)
       // layer._leaflet_id = feature.id;
       layer.on({
-      //     mouseover: highlightFeature,
-      //     mouseout: resetHighlight,
-          //click: this.onLayerClick
-        click:(event) => this.onLayerClick(event, this, feature)
+        //     mouseover: highlightFeature,
+        //     mouseout: resetHighlight,
+        click: (event) => this.onLayerClick(event, this, feature)
       });
     };
 
@@ -304,9 +324,12 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, On
     });
   }
 
+  //------------------------------------------------------------------------------
   onSelectSector(sector): void {
     console.log("onSelectSector", sector)
+    this.showSamGraph = false
     this.selectedSector = sector;
     this.selectedSector.type = 'Sector';
+    
   }
 }

@@ -21,7 +21,7 @@
         <h3 style="text-align: center; margin-bottom: 2px;">Spam Count</h3>
         <table>
           <tbody>
-            <tr *ngFor="let item of legend">
+            <tr *ngFor="let item of mapLegend">
               <td style="background-color: {{item.color}}; padding-right: 10px; padding-left: 10px;">{{item.label}}</td>
             </tr>
           </tbody>
@@ -33,6 +33,14 @@
     <ng-template pTemplate="header">
       {{selectedSector.type}} : {{selectedSector.name}}
     </ng-template>
-    <app-scam-sector-details [sector]="selectedSector"></app-scam-sector-details>
+    <mat-tab-group>
+      <mat-tab label="Scam Detail">
+        <app-scam-sector-details [sector]="selectedSector"></app-scam-sector-details>
+      </mat-tab>
+      <mat-tab *ngIf="showSamGraph" label="Scam Graph">
+        <p-card header="Connection graph" [style]="{'width': '1050px', 'height':'800px'}" styleClass="panel-background">
+        </p-card>
+      </mat-tab>
+    </mat-tab-group>
   </p-dialog>
 </div>

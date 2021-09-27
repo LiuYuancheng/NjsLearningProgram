@@ -16,11 +16,24 @@ query($filter:JSON, $sector:String!) {
 }
 `;
 
-const COUNTRY_QUERY = gql`
+const COUNTRY_SEC_QUERY = gql`
 query($countryCode:String!, ) {
   threatEvents_sectorScamCount(countryCode:$countryCode)
 }
 `;
+
+const COUNTRY_CAM_QUERY = gql`
+query($countryCode:String!, ) {
+  threatEvents_campaignScamCount(countryCode:$countryCode)
+}
+`;
+
+const COUNTRY_COUNT_QUERY = gql`
+query($countryCode:String!, ) {
+  threatEvents_countryScamCount(countryCode:$countryCode)
+}
+`;
+
 
 @Component({
   selector: 'app-scam-sector-details',
@@ -32,14 +45,30 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
 
   private feedQuery: QueryRef<any>;
   private feed: Subscription;
+
+  private feedCmQuery: QueryRef<any>;
+  private feedCm: Subscription;
+
+  private feedCtQuery: QueryRef<any>;
+  private feedCt: Subscription;
+
+
   countries: [any];
   campaigns: [any];
   campaignsInfo: any = {};
   campaignsInfoArray: [any] = [];
   activeIndex: [number] = [0]
 
+  public updateFlag1:boolean;
+  public updateFlag2:boolean;
+  public updateFlag3:boolean;
+
+
   constructor(private apollo: Apollo) {
     super();
+    this.updateFlag1 = false;
+    this.updateFlag2 = false;
+    this.updateFlag3 = false;
 
     this.chartOptions = {
       chart: {
@@ -246,9 +275,9 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
 
   buildCountrypopup(countryCode:String):void{
     this.feedQuery = this.apollo.watchQuery<any>({
-      query: COUNTRY_QUERY,
+      query: COUNTRY_SEC_QUERY,
       variables: {
-        "countryCode":countryCode 
+        "countryCode": countryCode
       },
       fetchPolicy: 'network-only',
       // fetchPolicy: 'cache-and-network',
@@ -256,20 +285,95 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
 
     this.feed = this.feedQuery.valueChanges.subscribe(({ data, loading }) => {
       let dataSet = data['threatEvents_sectorScamCount'];
-      console.log('Query actor data :', dataSet);
-      console.log('Query actor loading:', loading);
+      //console.log('Query actor data :', dataSet);
+      //console.log('Query actor loading:', loading);
       if (!loading) {
-          let dataArr = [];
-          for (let obj of dataSet) {
-              if(obj['sectorStr']==null) continue;
-              dataArr.push({ name: obj['sectorStr'], y: obj['count'] }); 
-          }
-          this.chartOptions2.title.text = "Sector Breakdown";
-          this.chartOptions2.series = [{ name:"Threat Count", colorByPoint: true, data: dataArr }];
-          this.updateFlag2 = true;
+        let dataArr = [];
+        for (let obj of dataSet) {
+          if (obj['sectorStr'] == null) continue;
+          dataArr.push({ name: obj['sectorStr'], y: obj['count'] });
+        }
+        this.chartOptions2.title.text = "Sector Breakdown";
+        this.chartOptions2.series = [{ name: "Threat Count", colorByPoint: true, data: dataArr }];
+        this.updateFlag2 = true;
       }
-  });
+    });
 
+    this.feedCmQuery = this.apollo.watchQuery<any>({
+      query: COUNTRY_CAM_QUERY,
+      variables: {
+        "countryCode": countryCode
+      },
+      fetchPolicy: 'network-only',
+      // fetchPolicy: 'cache-and-network',
+    });
+
+    this.feedCm = this.feedCmQuery.valueChanges.subscribe(({ data, loading }) => {
+      let dataSet = data['threatEvents_campaignScamCount'][0];
+      console.log('Query campaign data :', dataSet);
+      console.log('Query campaign loading:', loading);
+      if (!loading) {
+        let dataArr = [];
+        for (let obj of dataSet) {
+          dataArr.push({ name: this.campaignsInfo[obj['campaignId']].shortTitle, y: obj['count'] });
+          //dataArr.push({ name: obj['campaignId'], y: obj['count'] });
+        }
+        console.log('Query campaign loading:', dataArr);
+        //this.chartOptions2.title.text = "Sector Breakdown";
+        this.chartOptions3.series = [{ name: "Threat Count", colorByPoint: true, data: dataArr }];
+        this.updateFlag3 = true;
+      }
+    });
+
+    this.feedCtQuery = this.apollo.watchQuery<any>({
+      query: COUNTRY_COUNT_QUERY,
+      variables: {
+        "countryCode": countryCode
+      },
+      fetchPolicy: 'network-only',
+      // fetchPolicy: 'cache-and-network',
+    });
+
+    this.feedCt = this.feedCtQuery.valueChanges.subscribe(({ data, loading }) => {
+      let countDataSet = data['threatEvents_countryScamCount'];
+      //console.log('Query actor data :', dataSet);
+      //console.log('Query actor loading:', loading);
+      let countdata = [];
+      if (!loading) {
+          for (let obj of countDataSet) {
+              countdata.push([obj["timestamp"], obj["count"]]);
+          }
+
+          this.chartOptions.series = [
+            {
+              // ...this.sector,
+              "name": "Threat Count",
+              "data": countdata,
+              "type": "column",
+              "step": true,
+              // "lineWidth": 0,
+              "id": "threatCount",
+              "name": "Threat Count",
+              // "color": Colors.WATER_COLOR,
+              "color": "#073b4c",
+            },
+            {
+              "type": "trendline",
+              "linkedTo": "threatCount",
+              "color": "#d9ed92",
+            },
+            {
+              "type": "sma",
+              "linkedTo": "threatCount",
+              "color": "#f2cc8f",
+              "params": {
+                period: 10,
+              }
+            }
+          ];
+          this.updateFlag1 = true;
+      }
+    });
   }
 
   buildSectorPopup(): void{
@@ -301,7 +405,7 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
         }
       }
     ];
-    this.updateFlag = true;
+    this.updateFlag1 = true;
 
     this.feedQuery = this.apollo.watchQuery<any>({
       query: QUERY,
@@ -341,6 +445,7 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
       // console.log("pieData", pieData)
       this.chartOptions2.title.text = "Country Breakdown";
       this.chartOptions2.series = [{ name:"Threat Count", colorByPoint: true, data: pieData }];
+      this.updateFlag2 = true;
 
       // make pie chart by campaign
       let pieData2 = this.campaigns.map(e => ({
@@ -349,7 +454,7 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
       }))
       this.chartOptions3.series = [{ name:"Threat Count", colorByPoint: true, data: pieData2 }];
 
-      this.updateFlag2 = true;
+      this.updateFlag3 = true;
     });
   }
 
@@ -362,7 +467,7 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
       }
       case 'P2':{
         this.chartOptions3.legend.enabled = event.checked;
-        this.updateFlag2 = true;
+        this.updateFlag3 = true;
         break;
       }
       default:{
@@ -373,6 +478,7 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
 
   ngOnDestroy(): void {
     if(this.feed) this.feed.unsubscribe();
+    if(this.feedCm) this.feedCm.unsubscribe();
   }
 
 }
