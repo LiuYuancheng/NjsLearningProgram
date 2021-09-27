@@ -49,3 +49,11 @@
 ::ng-deep .leaflet-tooltip-right.tooltip::before {
   border-right-color: black;
 }
+
+::ng-deep .cy {
+  width: 1400px;
+  height: 800px;
+  vertical-align: center;
+  float: left;
+  margin: 10px;
+}

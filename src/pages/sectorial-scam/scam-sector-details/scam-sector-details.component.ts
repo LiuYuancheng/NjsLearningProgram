@@ -17,23 +17,22 @@ query($filter:JSON, $sector:String!) {
 `;
 
 const COUNTRY_SEC_QUERY = gql`
-query($countryCode:String!, ) {
+query($countryCode:String!) {
   threatEvents_sectorScamCount(countryCode:$countryCode)
 }
 `;
 
 const COUNTRY_CAM_QUERY = gql`
-query($countryCode:String!, ) {
+query($countryCode:String!) {
   threatEvents_campaignScamCount(countryCode:$countryCode)
 }
 `;
 
 const COUNTRY_COUNT_QUERY = gql`
-query($countryCode:String!, ) {
+query($countryCode:String!) {
   threatEvents_countryScamCount(countryCode:$countryCode)
 }
 `;
-
 
 @Component({
   selector: 'app-scam-sector-details',
@@ -340,38 +339,38 @@ export class ScamSectorDetailsComponent extends BaseHighchartsComponent implemen
       //console.log('Query actor loading:', loading);
       let countdata = [];
       if (!loading) {
-          for (let obj of countDataSet) {
-              countdata.push([obj["timestamp"], obj["count"]]);
-          }
+        for (let obj of countDataSet) {
+          countdata.push([obj["timestamp"], obj["count"]]);
+        }
 
-          this.chartOptions.series = [
-            {
-              // ...this.sector,
-              "name": "Threat Count",
-              "data": countdata,
-              "type": "column",
-              "step": true,
-              // "lineWidth": 0,
-              "id": "threatCount",
-              "name": "Threat Count",
-              // "color": Colors.WATER_COLOR,
-              "color": "#073b4c",
-            },
-            {
-              "type": "trendline",
-              "linkedTo": "threatCount",
-              "color": "#d9ed92",
-            },
-            {
-              "type": "sma",
-              "linkedTo": "threatCount",
-              "color": "#f2cc8f",
-              "params": {
-                period: 10,
-              }
+        this.chartOptions.series = [
+          {
+            // ...this.sector,
+            "name": "Threat Count",
+            "data": countdata,
+            "type": "column",
+            "step": true,
+            // "lineWidth": 0,
+            "id": "threatCount",
+            "name": "Threat Count",
+            // "color": Colors.WATER_COLOR,
+            "color": "#073b4c",
+          },
+          {
+            "type": "trendline",
+            "linkedTo": "threatCount",
+            "color": "#d9ed92",
+          },
+          {
+            "type": "sma",
+            "linkedTo": "threatCount",
+            "color": "#f2cc8f",
+            "params": {
+              period: 10,
             }
-          ];
-          this.updateFlag1 = true;
+          }
+        ];
+        this.updateFlag1 = true;
       }
     });
   }

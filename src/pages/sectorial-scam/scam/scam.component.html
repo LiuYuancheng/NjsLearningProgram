@@ -37,8 +37,10 @@
       <mat-tab label="Scam Detail">
         <app-scam-sector-details [sector]="selectedSector"></app-scam-sector-details>
       </mat-tab>
-      <mat-tab *ngIf="showSamGraph" label="Scam Graph">
-        <p-card header="Connection graph" [style]="{'width': '1050px', 'height':'800px'}" styleClass="panel-background">
+      <mat-tab label="Scam Graph">
+        <button (click)="reLayoutgraph($event)">Reset Graph Layout</button>
+        <p-card header="Enterprise to Node Graph" [style]="{'width': '1450px', 'height':'800px'}" styleClass="panel-background">
+          <div #cygraph [className]="'cy'"> test graph </div>
         </p-card>
       </mat-tab>
     </mat-tab-group>

@@ -31,10 +31,12 @@ GROUP BY srcSector
 campaign cat
 
 ```
-SELECT campaignId,
-count(*) as threatCount
+SELECT
+DATE_TRUNC('hour', __time), count(*) as threatCount
 FROM "ds-findings-scams-matched-results"
-WHERE lookup(dstNodeId, 'lookup-ip-country')='RU'
-GROUP BY campaignId
+WHERE lookup(dstNodeId, 'lookup-ip-country')='SG'
+GROUP BY DATE_TRUNC('hour', __time)
 ```
+
+edges
 
