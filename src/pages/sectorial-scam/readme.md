@@ -40,3 +40,13 @@ GROUP BY DATE_TRUNC('hour', __time)
 
 edges
 
+edges for sector graph
+
+```
+SELECT
+dstNodeId, srcEnterpriseId, srcNodeId, lookup(dstNodeId, 'lookup-ip-country')
+FROM "ds-findings-scams-matched-results"
+WHERE srcSector = 'INFOCOMM'
+GROUP BY dstNodeId, srcEnterpriseId, srcNodeId, lookup(dstNodeId, 'lookup-ip-country')
+```
+
