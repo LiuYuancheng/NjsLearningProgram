@@ -656,7 +656,11 @@ module.exports = {
             }
           }
         ],
-        "aggregations": [],
+        "aggregations": [
+          {
+            "type": "count",
+            "name": "count"
+          }],
         "postAggregations": [],
         "having": null,
         "limitSpec": {
@@ -734,7 +738,12 @@ module.exports = {
             }
           }
         ],
-        "aggregations": [],
+        "aggregations":  [
+          {
+            "type": "count",
+            "name": "count"
+          }
+        ],
         "postAggregations": [],
         "having": null,
         "limitSpec": {
