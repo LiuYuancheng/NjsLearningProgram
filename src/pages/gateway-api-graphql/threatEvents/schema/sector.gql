@@ -38,4 +38,17 @@ type Query {
       dateEnd:DateRangeDuration
       limitVal:Int
   ):JSON
+  threatEvents_countryScamN2N(
+      countryCode:String!
+      dateStart:DateRangeDuration
+      dateEnd:DateRangeDuration
+      limitVal:Int
+  ):JSON
+  threatEvents_sectorScamGraph(
+      sectorName:String!
+      dateStart:DateRangeDuration
+      dateEnd:DateRangeDuration
+      limitVal:Int
+  ):JSON
+
 }

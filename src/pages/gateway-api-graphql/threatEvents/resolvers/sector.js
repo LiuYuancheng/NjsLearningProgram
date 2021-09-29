@@ -593,6 +593,169 @@ module.exports = {
       });
     }, // threatEvents_countryScamCount
 
+    threatEvents_countryScamN2N: (root, { countryCode, dateStart, dateEnd, limitVal }, { user }) => {
+      dateStart = dateStart ? moment(dateStart).toISOString() : "0000";
+      dateEnd = dateEnd ? moment(dateEnd).toISOString() : "3000";
+      let intervals = {
+        "type": "intervals",
+        "intervals": [`${dateStart}/${dateEnd}`]
+      };
+
+      let query = {
+        "queryType": "groupBy",
+        "dataSource":druid.ds_findings_scams_matched_results,
+        "intervals":intervals,
+        "virtualColumns": [],
+        "filter": {
+          "type": "selector",
+          "dimension": "dstNodeId",
+          "value": countryCode,
+          "extractionFn": {
+            "type": "registeredLookup",
+            "lookup": "lookup-ip-country",
+            "retainMissingValue": false,
+            "replaceMissingValueWith": null,
+            "injective": null,
+            "optimize": true
+          }
+        },
+        "granularity": {
+          "type": "all"
+        },
+        "dimensions": [
+          {
+            "type": "default",
+            "dimension": "dstNodeId",
+            "outputName": "dstNodeId",
+            "outputType": "STRING"
+          },
+          {
+            "type": "default",
+            "dimension": "srcEnterpriseId",
+            "outputName": "srcEnterpriseId",
+            "outputType": "STRING"
+          },
+          {
+            "type": "default",
+            "dimension": "srcNodeId",
+            "outputName": "srcNodeId",
+            "outputType": "STRING"
+          },
+          {
+            "type": "extraction",
+            "dimension": "dstNodeId",
+            "outputName": "countryCode",
+            "outputType": "STRING",
+            "extractionFn": {
+              "type": "registeredLookup",
+              "lookup": "lookup-ip-country",
+              "retainMissingValue": false,
+              "replaceMissingValueWith": null,
+              "injective": null,
+              "optimize": true
+            }
+          }
+        ],
+        "aggregations": [],
+        "postAggregations": [],
+        "having": null,
+        "limitSpec": {
+          "type": "NoopLimitSpec"
+        },
+        "context": druid.context,
+        "descending": false
+      }
+
+      return new Promise((resolve, reject) => {
+        druid.query.post('/', query).then(res => {
+          let msgJson = [];
+          for (let obj of res.data) { msgJson.push(obj['event']); }
+          resolve(msgJson);
+        }).catch(err => {
+          console.error(err)
+          reject(err)
+        })
+      });
+    }, // threatEvents_countryScamN2N
+
+    threatEvents_sectorScamGraph: (root, { sectorName, dateStart, dateEnd, limitVal }, { user }) => {
+      dateStart = dateStart ? moment(dateStart).toISOString() : "0000";
+      dateEnd = dateEnd ? moment(dateEnd).toISOString() : "3000";
+      let intervals = {
+        "type": "intervals",
+        "intervals": [`${dateStart}/${dateEnd}`]
+      };
+
+      let query = {
+        "queryType": "groupBy",
+        "dataSource": druid.ds_findings_scams_matched_results,
+        "intervals": intervals,
+        "virtualColumns": [],
+        "filter": {
+          "type": "selector",
+          "dimension": "srcSector",
+          "value": sectorName,
+          "extractionFn": null
+        },
+        "granularity": {
+          "type": "all"
+        },
+        "dimensions": [
+          {
+            "type": "default",
+            "dimension": "dstNodeId",
+            "outputName": "dstNodeId",
+            "outputType": "STRING"
+          },
+          {
+            "type": "default",
+            "dimension": "srcEnterpriseId",
+            "outputName": "srcEnterpriseId",
+            "outputType": "STRING"
+          },
+          {
+            "type": "default",
+            "dimension": "srcNodeId",
+            "outputName": "srcNodeId",
+            "outputType": "STRING"
+          },
+          {
+            "type": "extraction",
+            "dimension": "dstNodeId",
+            "outputName": "countryCode",
+            "outputType": "STRING",
+            "extractionFn": {
+              "type": "registeredLookup",
+              "lookup": "lookup-ip-country",
+              "retainMissingValue": false,
+              "replaceMissingValueWith": null,
+              "injective": null,
+              "optimize": true
+            }
+          }
+        ],
+        "aggregations": [],
+        "postAggregations": [],
+        "having": null,
+        "limitSpec": {
+          "type": "NoopLimitSpec"
+        },
+        "context": druid.context,
+        "descending": false
+      }
+
+      return new Promise((resolve, reject) => {
+        druid.query.post('/', query).then(res => {
+          let msgJson = [];
+          for (let obj of res.data) { msgJson.push(obj['event']); }
+          resolve(msgJson);
+        }).catch(err => {
+          console.error(err)
+          reject(err)
+        })
+      });
+    }// 
+
   }, // Query
 
 }
