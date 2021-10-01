@@ -50,3 +50,19 @@ WHERE srcSector = 'INFOCOMM'
 GROUP BY dstNodeId, srcEnterpriseId, srcNodeId, lookup(dstNodeId, 'lookup-ip-country')
 ```
 
+
+
+country scam graph
+
+
+
+```
+SELECT
+dstNodeId, srcEnterpriseId, srcNodeId, lookup(dstNodeId, 'lookup-ip-country'), count(*) as threatCount
+FROM "ds-findings-scams-matched-results"
+WHERE lookup(dstNodeId, 'lookup-ip-country') = 'SG'
+GROUP BY dstNodeId, srcEnterpriseId, srcNodeId 
+```
+
+
+
