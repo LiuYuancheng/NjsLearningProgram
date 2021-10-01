@@ -231,9 +231,37 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     rowdetails.appendChild(container);
   };
 
+  public userManual = {
+    Introduction: './assets/data/siem-graph/intorduction.md',
+    questions:[
+      {
+        title: 'Q1. How to view list of graphs generated for a particular time period and log source?',
+        path: './assets/data/siem-graph/siem-q1.md',
+      },
+    
+      {
+        title: 'Q2. How to view a particular graph?',
+        path: './assets/data/siem-graph/siem-q2.md',
+      },
+    
+      {
+        title: 'Q3. How to view graph details?',
+        path: './assets/data/siem-graph/siem-q3.md',
+      },
+      {
+        title: 'Q4. How to configure graph visualization?',
+        path: './assets/data/siem-graph/siem-q4.md',
+      },
+      {
+        title: 'Q5. How to view all graphs associated with a node (IP address / ComputerName)',
+        path: './assets/data/siem-graph/siem-q5.md',
+      },
+    ]
+  }
+
   //-----------------------------------------------------------------------------
   constructor() {
-    this.selectedDataSet = 'windows';
+    this.selectedDataSet = 'subgraphs_snort_sep_2019';
     this.nodes = elementsW['nodes'];
     this.edges = elementsW['edges'];
     this.graphFilterKey = 'none';
@@ -416,8 +444,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
         break;
       }
       default: {
-        this.nodes = elementsL['nodes'];
-        this.edges = elementsL['edges'];
+        this.nodes = elementsLASep2019['nodes'];
+        this.edges = elementsLASep2019['edges'];
       }
     }
     // build the subgraphs table in landing page: 

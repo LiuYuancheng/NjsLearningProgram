@@ -13,17 +13,16 @@
         <div fxFlex="25%" class="right">
           <!-- # data set selection -->
           <select (change)="selectDataSetHandler($event)">
-            <option value="snort">Snort Subgraphs: test_data </option>
+            <!-- <option value="snort">Snort Subgraphs: test_data </option> -->
             <option value="subgraphs_snort_sep_2019">Snort Subgraphs: sep_2019</option>
             <option value="subgraphs_snort_june_2020">Snort Subgraphs: june_2020</option>
-            <option value="windows">Windows Subgraphs: test</option>
+            <!-- <option value="windows">Windows Subgraphs: test_data</option> -->
             <option value="subgraphs_windows_sep_2019">Windows Subgraphs: sep_2019</option>
             <option value="subgraphs_windows_june_2020">Windows Subgraphs: june_2020</option>
-            <option value="fortinet">Fortinet Subgraphs: test_data</option>
+            <!-- <option value="fortinet">Fortinet Subgraphs: test_data</option> -->
             <option value="subgraphs_fortinet_sep_2019">Fortinet Subgraphs: sep_2019</option>
             <option value="subgraphs_fortinet_june_2020">Fortinet Subgraphs: june_2020</option>
-
-            <option value="linked">Linked Subgraphs: test_data</option>
+            <!-- <option value="linked">Linked Subgraphs: test_data</option> -->
             <option value="linked_subgraphs_all_logs_sep_2019">Linked Subgraphs: all_logs_sep_2019</option>
             <option value="linked_subgraphs_snort_forti_sep_2019">Linked Subgraphs: snort_forti_sep_2019</option>
             <option value="linked_subgraphs_win_snort_sep_2019">Linked Subgraphs: win_snort_sep_2019</option>
@@ -207,5 +206,36 @@
         </tbody>
       </table>
     </mat-tab>
+
+    <mat-tab label="User Guide and Help">
+      <h3> Graph Based SIEM Analysis User Guide </h3>
+      <hr>
+      <div fxLayout="row" fxLayoutGap="10px" class="parent">
+        <div fxFlex="30%" class="left">
+          <p-card header=" " [style]="{'width': '95%', 'height':'100%'}">
+            <h4> Introduction </h4>
+            <markdown [src]="userManual.Introduction"></markdown>
+        </p-card>
+        </div>
+      
+      <div fxFlex="65%" class="right"> 
+        <p-accordion>
+          <p-accordionTab [header]="info.title" *ngFor="let info of userManual.questions">
+            <p-scrollPanel [style]="{width: '100%', height: '600px'}">
+            <markdown [src]="info.path"></markdown>
+          </p-scrollPanel>
+          </p-accordionTab>
+
+
+
+<!--           <p-accordionTab header="info.shortTitle">
+            <markdown [src]="'./assets/data/siem-graph/siem-q1.md'"></markdown>
+          </p-accordionTab> -->
+        </p-accordion>
+      </div>
+    </div>
+    </mat-tab>
+
+
   </mat-tab-group>
 </div>

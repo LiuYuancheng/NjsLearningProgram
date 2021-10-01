@@ -6,10 +6,12 @@ import { HttpModule } from '@angular/http';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatProgressBarModule } from '@angular/material/progress-bar'
-import {MatInputModule} from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
+import { MarkdownModule } from 'ngx-markdown';
+import { TabViewModule } from 'primeng/tabview';
+import { AccordionModule } from 'primeng/accordion';
 
-
-
+import { ScrollPanelModule } from 'primeng/scrollpanel';
 // import other modules: 
 import { jqxGridModule } from 'jqwidgets-ng/jqxgrid';
 import { ButtonModule } from 'primeng/button';
@@ -37,7 +39,11 @@ import { NodedetailComponent } from './nodedetail/nodedetail.component';
     MatProgressBarModule,
     FlexLayoutModule,
     ButtonModule,
-    SidebarModule
+    SidebarModule,
+    MarkdownModule.forChild(),
+    TabViewModule,
+    ScrollPanelModule,
+    AccordionModule,
   ]
 })
 export class GraphSiemModule { }
