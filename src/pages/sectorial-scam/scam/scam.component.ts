@@ -68,7 +68,7 @@ query($sectorName:String!) {
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 export class ScamComponent extends BaseHighchartsComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('cygraph') cyRef: ElementRef; 
+  @ViewChild('cygraph') cyRef: ElementRef;
 
   static MY_COLOR: string = Colors.COLORS[0];
   static NODE_COLOR: string = Colors.COLORS[3];
@@ -98,6 +98,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
   public showSNode: boolean;
   public cy: any = null;
   dataSet:[any];
+  filterDataSet:[any];
   nodes: cytoscape.NodeDefinition[] = [];
   edges: cytoscape.EdgeDefinition[] = [];
   style: cytoscape.Stylesheet[];
@@ -223,9 +224,10 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
     this.graphType = '';
     this.showSNode = false;
     this.dataSet = [];
+    this.filterDataSet = [];
     this.nodes =  []; 
     this.edges = [];
-    this.filterStrExpl = "123";
+    this.filterStrExpl = '';
 
   }
 
@@ -302,6 +304,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
   //------------------------------------------------------------------------------
   buildGraph() : void {
     // Create the cytoscape graph. 
+    if (this.nodes.length == 0) return;
     this.style = <cytoscape.Stylesheet[]>[
       {
         selector: 'nodes', // default node style
@@ -485,6 +488,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
   }
 
   resetLayout(event?: any): void {
+    if (this.cy == null) return;
     this.cy.zoom({ level: 1 });
     this.cy.pan({ x: 200, y: 200 });
     this.cy.fit()
@@ -505,18 +509,19 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       //console.log('Query campaign loading:', loading);
       if (loading) return;
       this.graphType = 'country';
-      if(this.parseDataSet('')) this.redraw();
+      if(this.parseDataSet(false)) this.redraw();
     });
   }
 
-  parseDataSet(gType:String):boolean{
+  parseDataSet(filter:boolean):boolean{
     this.edges = [];
     this.nodes = [];
+    let dataArr = filter? this.filterDataSet:this.dataSet;
     switch (this.graphType) {
       case 'country': {
         this.nodes = [{ data: { id: 'Malicious-Nodes', type: "country" } }];
         if(this.showSNode){
-          for (let obj of this.dataSet) {
+          for (let obj of dataArr) {
             let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
             let enprNode = { data: { id: enterpriseIdString, type: "enterprise" } }
             if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
@@ -526,7 +531,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
           }
         }
         else {
-          for (let obj of this.dataSet) {
+          for (let obj of dataArr) {
             let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
             let enprNode = { data: { id: enterpriseIdString, type: 'nodeE' } }
             if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
@@ -539,7 +544,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
 
       case 'sector': {
         if(this.showSNode){
-          for (let obj of this.dataSet) {
+          for (let obj of dataArr) {
             //Add country as parent. 
             let countryString = obj.countryCode ? String(obj.countryCode) : '[NF]';
             let ctryNode = { data: { id: countryString, type: "country" } }
@@ -553,7 +558,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
           }
         }
         else {
-          for (let obj of this.dataSet) {
+          for (let obj of dataArr) {
             //Add country as parent. 
             let countryString = obj.countryCode ? String(obj.countryCode) : '[NF]';
             let ctryNode = { data: { id: countryString, type: "country" } }
@@ -587,7 +592,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       //console.log('Query campaign loading:', loading);
       if (loading) return;
       this.graphType = 'sector';
-      if(this.parseDataSet('')) this.redraw();
+      if(this.parseDataSet(false)) this.redraw();
     });
 
   }
@@ -599,7 +604,41 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
 
   selectGraphType(event:any):void{
     this.showSNode = event.target.value == 'subscriber'? true: false;
-    if(this.parseDataSet('')) this.redraw();
+    if(this.parseDataSet(false)) this.redraw();
+  }
+
+  onSubGraphFilter(input:String):void{
+    let foundNum = input.match(/[+-]?\d+(\.\d+)?/g); // get the float number from the string.
+    if (foundNum == null || foundNum.length == 0) return;
+    let filterScore = parseInt(''+foundNum[0]);
+
+    if (input.includes('<=')) {
+        this.filterDataSet = this.dataSet.filter(e => e.count <= filterScore);
+    } else if (input.includes('<')) {
+      this.filterDataSet = this.dataSet.filter(e => e.count < filterScore);
+    } else if (input.includes('==')) {
+      this.filterDataSet = this.dataSet.filter(e => e.count == filterScore);
+    } else if (input.includes('>=')) {
+      this.filterDataSet = this.dataSet.filter(e => e.count >= filterScore);
+    }
+    else {
+      this.filterDataSet = this.dataSet.filter(e => e.count > filterScore);
+    }
+    if(this.parseDataSet(true)) this.redraw();
+  }
+
+  selectFilterHandler(event:any):void{
+    let graphFilterKey = event.target.value;
+    switch (graphFilterKey) {
+      case 'count':{
+        this.filterStrExpl = 'Example:>=6';
+        break;
+      }
+      default:{
+        this.filterStrExpl = '';
+        if(this.parseDataSet(false)) this.redraw();
+      }
+    }
   }
 
   //------------------------------------------------------------------------------
