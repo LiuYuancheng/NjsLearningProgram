@@ -35,27 +35,84 @@
         <app-scam-sector-details [sector]="selectedSector"></app-scam-sector-details>
       </mat-tab>
       <mat-tab label="Scam Graph">
-        &nbsp;
-        <mat-checkbox color="primary" [checked]="true" (change)="showScamCount($event)">Show Scam Count </mat-checkbox> 
-        &nbsp; 
-        <button (click)="resetLayout($event)">Reset Graph Layout</button>
-        <p-card header=" " [style]="{'width': '1450px', 'height':'800px'}"
-          styleClass="panel-background">
-          <div #cygraph [className]="'cy'"> test graph </div>
+        <table>
+          <tr>
+            <td style="border: 1px solid #fff; margin: 5px;">
+              &nbsp;
+              Graph Type Config :
+              <select (change)="selectGraphType($event)">
+                <option value="enterprise">Enterprise Graph</option>
+                <option value="subscriber">Subscriber Graph</option>
+              </select>
+              &nbsp;
+            </td>
 
+            <td style="border: 1px solid #fff; margin: 5px;">
+              &nbsp;
+              Graph Legend Config :
+              <mat-checkbox color="primary" [checked]="true" (change)="showScamCount($event)">Show Scam Count
+              </mat-checkbox>
+              &nbsp;
+            </td>
+
+            <td style="border: 1px solid #fff; margin: 5px;">
+              &nbsp;
+              Graph Layout Config :
+              <button (click)="resetLayout($event)">Reset Graph Layout</button>
+              &nbsp;
+            </td>
+
+            <td style="border: 1px solid #fff; margin: 5px;">
+              &nbsp;
+              Graph Filter COnfig :
+              <select>
+                <option value="none"> </option>
+                <option value="enterprise"> Scam count </option>
+              </select>
+              &nbsp;
+              <input [value]="filterStrExpl" type="text" style="width: 160px;" #subgraphIPfilter>
+              &nbsp;
+              <button> Query </button>
+              &nbsp;
+            </td>
+          </tr>
+        </table>
+        <p-card header=" " [style]="{'width': '1450px', 'height':'800px'}" styleClass="panel-background">
+          <div #cygraph [className]="'cy'"> test graph </div>
         </p-card>
-        <div style=" position: absolute; top:40px; left:10px; "> 
-          <h3> Scam Nodes Graph </h3>
+        <div style=" position: absolute; top:40px; left:10px; ">
+          <div *ngIf="showSNode">
+            <h3> Scam Subscriber Nodes Graph </h3>
+          </div>
+          <div *ngIf="!showSNode">
+            <h3> Scam Enterprise Nodes Graph </h3>
+          </div>
           <h4>Filter: </h4>
           <p> - {{graphFilterStr}}</p>
           <h4> Nodes: </h4>
-          <p> - Malware </p>
-          <p> - Subscriber</p>
+          <p> - Malicious Nodes </p>
+
+          <img src="assets/images/stix/stix2-ttp-icons-png/malware-noback-flat-300-dpi.png"
+            style="width:30px;height:30px;background-color:#FEE89A ;">
+          <div *ngIf="showSNode">
+            <p> - Subscriber Node</p>
+            <img src="assets/images/icons/sn.png" style="width:30px;height:30px;background-color:#FEE89A ;">
+          </div>
+
+          <div *ngIf="!showSNode">
+            <p> - Enterprise Node </p>
+            <img src="assets/images/icons/ep.png" style="width:30px;height:30px;background-color:#FEE89A ;">
+          </div>
+          
           <h4>Group by: </h4>
           <p> - Geo-Location[Country]</p>
-          <div style="width:100px;height:40px;border:2px solid #81171b; background-color:#794a2f;"> Grouped by Country</div>
-          <p> - Enterprise Hash ID</p> 
-          <div style="width:100px;height:40px;border:2px solid #ffff; background-color:#1E1E1E;"> Grouped by Enterprise Hash</div>
+          <div style="width:100px;height:40px;border:2px solid #81171b; background-color:#794a2f;"> Grouped by Country
+          </div>
+          <div *ngIf="showSNode">
+            <p> - Enterprise Hash ID</p>
+            <div style="width:100px;height:40px;border:2px solid #ffff; background-color:#1E1E1E;"> Grouped by
+              Enterprise Hash</div>
+          </div>
         </div>
       </mat-tab>
     </mat-tab-group>

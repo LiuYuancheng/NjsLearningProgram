@@ -94,7 +94,10 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
   public graphFilterStr:String;
 
   // cytoscape graph parameters.
+  public graphType: String;
+  public showSNode: boolean;
   public cy: any = null;
+  dataSet:[any];
   nodes: cytoscape.NodeDefinition[] = [];
   edges: cytoscape.EdgeDefinition[] = [];
   style: cytoscape.Stylesheet[];
@@ -109,6 +112,8 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
     nodeSep: 120,
     fit: true,
   }
+  public filterStrExpl: String;
+
 
   //------------------------------------------------------------------------------
   constructor(private apollo: Apollo, element: ElementRef) {
@@ -215,17 +220,13 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       stop: undefined, // callback on layoutstop
       transform: function (node, position) { return position; } // transform a given node position. Useful for changing flow direction in discrete layouts 
     };
+    this.graphType = '';
+    this.showSNode = false;
+    this.dataSet = [];
+    this.nodes =  []; 
+    this.edges = [];
+    this.filterStrExpl = "123";
 
-    this.nodes =  [
-      { data: { id: 'R1', name: 'Resistor', value: 1000,  type:'node', line1:'missing', line2:0} },
-      { data: { id: 'C1', name: 'Capacitor', value: 1001, type:'node', line1:0, line2:1} },
-      { data: { id: 'I1', name: 'Inductor', value: 1002, type:'node', line1:1, line2:'missing' } }
-    ]; 
-
-    this.edges = [
-      { data: { id: 0, source: 'R1', target: 'C1', type: "bendPoint"} },
-      { data: { id: 1, source: 'C1', target: 'I1', type: "bendPoint"} }
-    ];
   }
 
   //------------------------------------------------------------------------------
@@ -335,11 +336,17 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
           "text-outline-color": "#e76f51"
         }
       },
-
       {
-        selector: 'node[type = "other"]',
+        selector: 'node[type = "nodeE"]',
         style: {
           'background-image': 'assets/images/icons/ep.png',
+        }
+      },
+
+      {
+        selector: 'node[type = "nodeS"]',
+        style: {
+          'background-image': 'assets/images/icons/sn.png',
         }
       },
       // The parent we draw it as a big node.
@@ -493,26 +500,79 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       fetchPolicy: 'network-only',
     });
     this.feedNg = this.feedNgQuery.valueChanges.subscribe(({ data, loading }) => {
-      let dataSet = data['threatEvents_countryScamN2N'];
+      this.dataSet = data['threatEvents_countryScamN2N'];
       //console.log('Query campaign data :', dataSet);
       //console.log('Query campaign loading:', loading);
       if (loading) return;
-      this.nodes = [{ data: { id: 'Malware-Nodes', type: "country" } }];
-      this.edges = [];
-      for (let obj of dataSet) {
-        
-        let enterpriseIdString = obj.srcEnterpriseId? String(obj.srcEnterpriseId): 'undefined';
-
-        let enprNode = { data: { id: enterpriseIdString, type: "enterprise" } }
-        if(!this.nodes.includes(enprNode))  this.nodes.push(enprNode);
-
-        this.nodes.push({ data: { id: obj.srcNodeId, type: 'other', parent: enterpriseIdString } });
-
-        this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: 'Malware-Nodes' } });
-        this.edges.push({ data: { source: obj.srcNodeId, target: obj.dstNodeId, value:String(obj.count) ,type: "bendPoint" } });
-      }
-      this.redraw();
+      this.graphType = 'country';
+      if(this.parseDataSet('')) this.redraw();
     });
+  }
+
+  parseDataSet(gType:String):boolean{
+    this.edges = [];
+    this.nodes = [];
+    switch (this.graphType) {
+      case 'country': {
+        this.nodes = [{ data: { id: 'Malicious-Nodes', type: "country" } }];
+        if(this.showSNode){
+          for (let obj of this.dataSet) {
+            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
+            let enprNode = { data: { id: enterpriseIdString, type: "enterprise" } }
+            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
+            this.nodes.push({ data: { id: obj.srcNodeId, type: 'nodeS', parent: enterpriseIdString } });
+            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: 'Malicious-Nodes' } });
+            this.edges.push({ data: { source: obj.srcNodeId, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
+          }
+        }
+        else {
+          for (let obj of this.dataSet) {
+            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
+            let enprNode = { data: { id: enterpriseIdString, type: 'nodeE' } }
+            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
+            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: 'Malicious-Nodes' } });
+            this.edges.push({ data: { source: enterpriseIdString, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
+          }
+        }
+        break;
+      }
+
+      case 'sector': {
+        if(this.showSNode){
+          for (let obj of this.dataSet) {
+            //Add country as parent. 
+            let countryString = obj.countryCode ? String(obj.countryCode) : '[NF]';
+            let ctryNode = { data: { id: countryString, type: "country" } }
+            if (!this.nodes.includes(ctryNode)) this.nodes.push(ctryNode);
+            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
+            let enprNode = { data: { id: enterpriseIdString, type: "enterprise" } }
+            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
+            this.nodes.push({ data: { id: obj.srcNodeId, type: 'nodeS', parent: enterpriseIdString } });
+            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: countryString } });
+            this.edges.push({ data: { source: obj.srcNodeId, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
+          }
+        }
+        else {
+          for (let obj of this.dataSet) {
+            //Add country as parent. 
+            let countryString = obj.countryCode ? String(obj.countryCode) : '[NF]';
+            let ctryNode = { data: { id: countryString, type: "country" } }
+            if (!this.nodes.includes(ctryNode)) this.nodes.push(ctryNode);
+            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
+            let enprNode = { data: { id: enterpriseIdString, type: "nodeE" } }
+            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
+            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: countryString } });
+            this.edges.push({ data: { source: enterpriseIdString, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
+          }
+        }
+        break;
+      }
+      default: {
+        console.log("parseDataSet: invalid graph type:", this.graphType)
+        return false;
+      }
+    }
+    return true;
   }
 
   querySectorGraph(sectorName: String): void {
@@ -522,27 +582,12 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       fetchPolicy: 'network-only',
     });
     this.feedSg = this.feedSgQuery.valueChanges.subscribe(({ data, loading }) => {
-      let dataSet = data['threatEvents_sectorScamGraph'];
+      this.dataSet = data['threatEvents_sectorScamGraph'];
       //console.log('Query campaign data :', dataSet);
       //console.log('Query campaign loading:', loading);
       if (loading) return;
-      this.nodes = [];
-      this.edges = [];
-      for (let obj of dataSet) {
-
-        //Add country as parent. 
-        let countryString = obj.countryCode?String(obj.countryCode): '[NF]';
-        let ctryNode = { data: { id: countryString, type: "country" } }
-        if(!this.nodes.includes(ctryNode))  this.nodes.push(ctryNode); 
-        let enterpriseIdString = obj.srcEnterpriseId? String(obj.srcEnterpriseId): 'undefined';
-        let enprNode = { data: { id: enterpriseIdString, type: "enterprise" } }
-        if(!this.nodes.includes(enprNode))  this.nodes.push(enprNode);
-
-        this.nodes.push({ data: { id: obj.srcNodeId, type: 'other', parent: enterpriseIdString } });
-        this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: countryString } });
-        this.edges.push({ data: { source: obj.srcNodeId, target: obj.dstNodeId, value:String(obj.count), type: "bendPoint" } });
-      }
-      this.redraw();
+      this.graphType = 'sector';
+      if(this.parseDataSet('')) this.redraw();
     });
 
   }
@@ -550,6 +595,11 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
   showScamCount(event:any){
     this.edgelabelStr = event.checked? 'data(value)' : '';
     this.redraw();
+  }
+
+  selectGraphType(event:any):void{
+    this.showSNode = event.target.value == 'subscriber'? true: false;
+    if(this.parseDataSet('')) this.redraw();
   }
 
   //------------------------------------------------------------------------------
