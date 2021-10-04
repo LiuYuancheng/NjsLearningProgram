@@ -30,6 +30,8 @@ import { elements as elementsWSep2019 } from './data/subgraphs_windows_sep_2019.
 // License:      n.a
 //------------------------------------------------------------------------------
 
+const QNA_PATH = './assets/data/siem-graph/';
+
 // Define the data type used in jqxGrid table: 
 type subgraphType = Array<{
   name: string,
@@ -232,29 +234,29 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   };
 
   public userManual = {
-    Introduction: './assets/data/siem-graph/intorduction.md',
-    questions:[
+    Introduction: QNA_PATH + 'intorduction.md',
+    questions: [
       {
         title: 'Q1. How to view list of graphs generated for a particular time period and log source?',
-        path: './assets/data/siem-graph/siem-q1.md',
+        path: QNA_PATH + 'siem-q1.md',
       },
-    
+
       {
         title: 'Q2. How to view a particular graph?',
-        path: './assets/data/siem-graph/siem-q2.md',
+        path: QNA_PATH + 'siem-q2.md',
       },
-    
+
       {
         title: 'Q3. How to view graph details?',
-        path: './assets/data/siem-graph/siem-q3.md',
+        path: QNA_PATH + 'siem-q3.md',
       },
       {
         title: 'Q4. How to configure graph visualization?',
-        path: './assets/data/siem-graph/siem-q4.md',
+        path: QNA_PATH + 'siem-q4.md',
       },
       {
         title: 'Q5. How to view all graphs associated with a node (IP address / ComputerName)',
-        path: './assets/data/siem-graph/siem-q5.md',
+        path: QNA_PATH + 'siem-q5.md',
       },
     ]
   }
