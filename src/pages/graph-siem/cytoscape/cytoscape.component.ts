@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, Output, EventEmitter, AfterViewInit} from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, Output, EventEmitter, AfterViewInit } from '@angular/core';
 import { PrimeNGConfig } from 'primeng/api';
 // import { SidebarModule } from 'primeng/sidebar';
 import { Colors } from 'src/app/core/common/colors';
@@ -12,7 +12,7 @@ import { of } from 'rxjs';
 // Name:        cytoscapte.components.ts
 // Purpose:     This module is used to generate a nodes-edges graph based on 
 //              the input data of SIEM experiment. 
-// Author:
+// Author:      Liu Yuancheng
 // Created:     2021/07/25
 // Copyright:    n.a    
 // License:      n.a
@@ -68,22 +68,24 @@ export interface EdgeDataType {
 export class CytoscapeComponent implements OnInit, AfterViewInit {
   @ViewChild('cygraph') cyRef: ElementRef;
   @Output("parentFun") parentFun: EventEmitter<any> = new EventEmitter();
+
   static MY_COLOR: string = Colors.COLORS[0];
   static NODE_COLOR: string = Colors.COLORS[3];
   private nativeElement: HTMLElement;
+  
   // define data storage parameters : 
-  nodes: cytoscape.NodeDefinition[] = []; // nodes data will shown in the graph. 
-  edges: cytoscape.EdgeDefinition[] = []; // edges data will shown in the graph. 
-  style: cytoscape.Stylesheet[];
-  subgraphNameArr: string[];
+  public nodes: cytoscape.NodeDefinition[] = []; // nodes data will shown in the graph. 
+  public edges: cytoscape.EdgeDefinition[] = []; // edges data will shown in the graph. 
+  public style: cytoscape.Stylesheet[];
+  public subgraphNameArr: string[];
   // def cytoscapte used parameters
-  cy: any = null;
+  public cy: any = null;
   private options: any;
-  customEdgeStyle: any = [];
-  selectNode: NodeDataType; 
-  selectEdge: EdgeDataType;
+  public customEdgeStyle: any = [];
+  public selectNode: NodeDataType; 
+  public selectEdge: EdgeDataType;
   private selectEdgeIdx: Number = -1;
-  nodePopperRef: any = null;
+  public nodePopperRef: any = null;
   protected layoutOptions: any = {
     name: 'fcose',
     nodeDimensionsIncludeLabels: true,
@@ -94,9 +96,9 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
     fit: true,
   }
   // def display flag
-  showNode: boolean = false
-  showContry: boolean = false
-  showEdge: boolean = false
+  public showNode: boolean = false
+  public showContry: boolean = false
+  public showEdge: boolean = false
   // def data show in the subgrap graph area
   public subGpar: string = '';
   public subGscore: number = 0;
@@ -162,12 +164,13 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
 
   //-----------------------------------------------------------------------------
   ngOnInit(): void {
-    //this.redraw();
+    //this.redraw(); // can not call redraw during init. 
   }
 
   //-----------------------------------------------------------------------------
   ngAfterViewInit(): void {
-    //this.redraw()
+    //this.redraw() // need to call redraw after init as the parameter 
+    //# <this.cyRef.nativeElement> will be init after Init.
   }
 
   // All detail function methods (name sorted by alphabet):
@@ -211,9 +214,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
 
       {
         selector: 'node[type = "other"]',
-        style: {
-          'background-image': 'assets/images/icons/ep.png',
-        }
+        style: { 'background-image': 'assets/images/icons/ep.png',}
       },
 
       {
@@ -373,16 +374,12 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   redraw(): void {
     // Redraw the graph.
     this.buildGraph();
-    this.cy.zoom({ level: 2 });
-    this.cy.pan({ x: 200, y: 200 });
-    this.cy.fit()
-    let layout = this.cy.elements().layout(this.layoutOptions);
-    layout.run();
+    this.resetLayout();
   }
   
   //----------------------------------------------------------------------------- 
   resetLayout(): void {
-    this.cy.zoom({ level: 1 });
+    this.cy.zoom({ level: 2 });
     this.cy.pan({ x: 200, y: 200 });
     this.cy.fit()
     let layout = this.cy.elements().layout(this.layoutOptions);

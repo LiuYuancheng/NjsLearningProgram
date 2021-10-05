@@ -6,7 +6,7 @@ import fcose from 'cytoscape-fcose';
 // Name:        nodedetail.components.ts
 // Purpose:     This module is used to generate a graph to show the nodes and edges
 //              connected to the selected node. 
-// Author:
+// Author:      Liu Yuancheng
 // Created:     2021/07/28
 // Copyright:    n.a    
 // License:      n.a
@@ -27,14 +27,14 @@ export class NodedetailComponent implements OnInit, AfterViewInit {
   @ViewChild('cygraph') cyRef: ElementRef;
   private nativeElement: HTMLElement;
   // define data storage parameters : 
-  nodes: cytoscape.NodeDefinition[] = [];
-  edges: cytoscape.EdgeDefinition[] = [];
-  style: cytoscape.Stylesheet[];
+  public nodes: cytoscape.NodeDefinition[] = [];
+  public edges: cytoscape.EdgeDefinition[] = [];
+  public style: cytoscape.Stylesheet[];
   // def cytoscapte used parameters
-  cy: any = null;
+  public cy: any = null;
   private defaultoptions: any; // default layout option.
-  edgelabelStr: string; // displayed edge label tamplet in the graph
-  nodeName: String;     // Selected node's name. 
+  public edgelabelStr: string; // displayed edge label tamplet in the graph
+  public nodeName: String;     // Selected node's name. 
   protected layoutOptions: any = {
     name: 'fcose',
     nodeDimensionsIncludeLabels: true,

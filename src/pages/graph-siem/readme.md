@@ -48,7 +48,12 @@ Text icon generator:
 
 https://cooltext.com/Logo-Design-Simple
 
-
+```
+http header:
+{
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkZjMzOWRhZWUyZTBiMTU5MTMxYmRkMiIsImlhdCI6MTYzMzQwNTE1NCwiZXhwIjoxNjM1OTk3MTU0fQ.5orXZv_jKBavM3Nyf1zhehVMofu0IqMxFwmQu4qrXNc"
+}
+```
 
 
 
