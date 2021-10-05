@@ -104,7 +104,7 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
   public subGeventNum: number = 0;
   public subGmaxIn: String = '';
   public subGmaxOut: String = '';
-  public subGcon: string[] = []; //consequence string array. 
+  public subGcon: String[] = []; //consequence string array. 
   public edgelabelStr: string;  // displayed edges label.
 
 //-----------------------------------------------------------------------------
@@ -577,8 +577,9 @@ export class CytoscapeComponent implements OnInit, AfterViewInit {
       if (graphInfo.hasOwnProperty('id')) this.subGpar = subPar + ' [ ' + graphInfo['id'] + ' ] ';
       if (graphInfo.hasOwnProperty('score')) this.subGscore = graphInfo['score'].toFixed(2);
       if (graphInfo.hasOwnProperty('consequences')) {
-        this.subGcon = graphInfo['consequences'];
+        this.subGcon = graphInfo['consequences']; 
         this.subGcon = this.subGcon.filter(obj => obj !== 'Other'); // remove the 'other' when show in the demo.
+        this.subGcon = this.subGcon.filter((item, index) => this.subGcon.indexOf(item) === index); // remove the duplicate item.
       }
       if (graphInfo.hasOwnProperty('num_components')) this.subGcompNum = graphInfo['num_components'];
       if (graphInfo.hasOwnProperty('max_in_degree')) 

@@ -35,14 +35,14 @@
             <tr>
               <td>Graph Filter:</td>
               <td>
-                <select (change)="selectFilterHandler($event)" >
+                <select (change)="selectFilterHandler($event)">
                   <option value="none"> </option>
                   <option value="nodeIP">Node ID</option>
                   <option value="score">Score</option>
                   <option value="consequences">Consequences</option>
                 </select>
               </td>
-              <td> <input [value]="filterStrExpl" type="text" style="width: 160px;" #subgraphIPfilter > </td>
+              <td> <input [value]="filterStrExpl" type="text" style="width: 160px;" #subgraphIPfilter> </td>
               <td>
                 <div *ngIf="graphFilterKey!=='none'">
                   <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> Query </button>
@@ -84,7 +84,7 @@
                     <select (change)="filterSelHandler($event)">
                       <option value="null"> </option>
                       <option value="nodes">Node ID</option>
-                      <option value="edges">Edges Signature</option>
+                      <option value="edges">Edge Signature</option>
                     </select>
                   </td>
                 </tr>
@@ -172,9 +172,9 @@
                   [sortable]="true" [columns]="subgraphColumns" [rowdetails]="true" [initrowdetails]="initconqdetails"
                   [rowdetailstemplate]="sugbraphdetailstemplate">
                 </jqxGrid>
-                <p> <b> Edges label : </b>
+                <p> <b> Edges Label : </b>
                   <select (change)="selectEdgeLabel($event)">
-                    <option value="none">No Label</option>
+                    <option value="none">No label</option>
                     <option value="sig"> Signature</option>
                     <option value="score"> Final score</option>
                   </select>
@@ -206,7 +206,7 @@
         </tbody>
       </table>
     </mat-tab>
-
+     <!-- 2. Help and User Manual page -->
     <mat-tab label="User Guide and Help">
       <h3> Graph Based SIEM Analysis User Guide </h3>
       <hr>
@@ -215,27 +215,18 @@
           <p-card header=" " [style]="{'width': '95%', 'height':'100%'}">
             <h4> Introduction </h4>
             <markdown [src]="userManual.Introduction"></markdown>
-        </p-card>
+          </p-card>
         </div>
-      
-      <div fxFlex="65%" class="right"> 
-        <p-accordion>
-          <p-accordionTab [header]="info.title" *ngFor="let info of userManual.questions">
-            <p-scrollPanel [style]="{width: '100%', height: '600px'}">
-            <markdown [src]="info.path"></markdown>
-          </p-scrollPanel>
-          </p-accordionTab>
-
-
-
-<!--           <p-accordionTab header="info.shortTitle">
-            <markdown [src]="'./assets/data/siem-graph/siem-q1.md'"></markdown>
-          </p-accordionTab> -->
-        </p-accordion>
+        <div fxFlex="65%" class="right">
+          <p-accordion>
+            <p-accordionTab [header]="info.title" *ngFor="let info of userManual.questions">
+              <p-scrollPanel [style]="{width: '100%', height: '600px'}">
+                <markdown [src]="info.path"></markdown>
+              </p-scrollPanel>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
       </div>
-    </div>
     </mat-tab>
-
-
   </mat-tab-group>
 </div>

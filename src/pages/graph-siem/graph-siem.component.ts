@@ -15,7 +15,7 @@ import { elements as elementsLSFJun2020 } from './data/linked_subgraphs_snort_fo
 import { elements as elementsLSFSep2019 } from './data/linked_subgraphs_snort_forti_sep_2019.json';
 import { elements as elementsLWFJun2020 } from './data/linked_subgraphs_win_forti_june_2020.json';
 import { elements as elementsFJun2020 } from './data/subgraphs_fortinet_june_2020.json';
-import { elements as elementsSJun2020  } from './data/subgraphs_snort_june_2020.json';
+import { elements as elementsSJun2020 } from './data/subgraphs_snort_june_2020.json';
 import { elements as elementsSSep2019 } from './data/subgraphs_snort_sep_2019.json';
 import { elements as elementsWJun2020 } from './data/subgraphs_windows_june_2020.json';
 import { elements as elementsFSep2019 } from './data/subgraphs_fortinet_sep_2019.json';
@@ -23,8 +23,8 @@ import { elements as elementsWSep2019 } from './data/subgraphs_windows_sep_2019.
 
 //-----------------------------------------------------------------------------
 // Name:        cytoscapte.components.ts
-// Purpose:     
-// Author:
+// Purpose:     Create main SIEM graph web dashboard page host program.
+// Author:      Liu Yuancheng
 // Created:     2021/07/29
 // Copyright:    n.a    
 // License:      n.a
@@ -37,7 +37,7 @@ type subgraphType = Array<{
   name: string,
   score: number,
   consequences: string[]
-}>; 
+}>;
 
 type nodeType = Array<{
   id: string,
@@ -86,44 +86,44 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   @ViewChild('nodegraph') nodegraph: NodedetailComponent; // node detail page cytoscapte graph 
   @ViewChild('filterValue', { read: ElementRef }) filterValue: ElementRef<HTMLElement>;
   // def tag/page switch parameters
-  landPageSelected = false; 
-  selectedTag = new FormControl(0);
-  
+  public landPageSelected = false;
+  public selectedTag = new FormControl(0);
+
   // def data source for the tables
-  subgrapsSelected: subgraphType = []; // landing page subgraph table data src
-  subgrapSrc: any;
-  nodesW: nodeType = []; // landing page node table data src
-  nodesSrc: any;
-  edgesW: edgesType = []; // landing page edge table data src
-  edgesSrc: any;
-  nodePrtList: subgraphType = []; // node detail page subgraph table data src
-  nodePrtSrc: any;
-  nodeRelList: nodeRelType = []; // node detail page nodes table data src 
-  nodeRelSrc: any;
-  edgeRelList: edgesType = [];  // node detail page edges data src 
-  edgeRelSrc: any;
-  
+  public subgrapsSelected: subgraphType = []; // landing page subgraph table data src
+  public subgrapSrc: any;
+  public nodesW: nodeType = []; // landing page node table data src
+  public nodesSrc: any;
+  public edgesW: edgesType = []; // landing page edge table data src
+  public edgesSrc: any;
+  public nodePrtList: subgraphType = []; // node detail page subgraph table data src
+  public nodePrtSrc: any;
+  public nodeRelList: nodeRelType = []; // node detail page nodes table data src 
+  public nodeRelSrc: any;
+  public edgeRelList: edgesType = [];  // node detail page edges data src 
+  public edgeRelSrc: any;
+
   // def column tag for the tables: 
-  subgraphColumns = [
+  public subgraphColumns = [
     { text: 'ID', datafield: 'name', width: '50px' },
     { text: 'Score', datafield: 'score', width: '60px' },
     { text: 'Consequences', datafield: 'consequences' },
   ]; // landing page subgraph table
 
-  nodesLColums = [
+  public nodesLColums = [
     { text: 'ID', datafield: 'id', width: '100px' },
     { text: 'Type', datafield: 'type' },
     { text: 'Subgraph', datafield: 'subgraphs' },
     { text: 'Country', datafield: 'geo' },
   ]; // landing page node table
 
-  nodesWColumns = [
+  public nodesWColumns = [
     { text: 'NodeID', datafield: 'name', width: '80px' },
     { text: 'Risk score', datafield: 'score', width: '80px' },
     { text: 'Subgraph', datafield: 'subgraphs' }
   ]; // node detail page nodes table
 
-  edgesWColumns = [
+  public edgesWColumns = [
     { text: 'Source', datafield: 'source', width: '100px' },
     { text: 'Target', datafield: 'target', width: '100px' },
     { text: 'Signature', datafield: 'signature', width: '240px' },
@@ -143,32 +143,32 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     { text: 'Key', datafield: 'key', width: '40px' },
     { text: 'Idx', datafield: 'idx' }
   ];
-  
+
   // def data set parameters
-  selectedDataSet: string; // selected data set name
-  nodes:any;  // store all the nodes data in the selected data set. 
-  edges:any;  // store all the edges data in the selected data set.
+  public selectedDataSet: string; // selected data set name
+  public nodes: any;  // store all the nodes data in the selected data set. 
+  public edges: any;  // store all the edges data in the selected data set.
 
   // def displayed graph paramters
-  subgraphName:string = '';
-  nodesDis = []; // nodes show in the graph.
-  edgesDis = []; // edges show in the graph.
-  
+  public subgraphName: string = '';
+  public nodesDis = []; // nodes show in the landing page graph.
+  public edgesDis = []; // edges show in the landing page graph.
+
   // def data set filter tab parameter
-  subgraphTitle: String = ''; // filter subgraph title show in the config page.
-  graphFilterKey: String = '';  
-  filterStrExpl: String = ' ';
-  edgesColor:string = '';
+  public subgraphTitle: String = ''; // filter subgraph title show in the config page.
+  public graphFilterKey: String = '';
+  public filterStrExpl: String = ' ';
+  public edgesColor: string = '';
 
   // def Node detail page parameters
-  selectednodeID: String = '';
-  
+  public selectednodeID: String = '';
+
   // def subgraph fileter parameter:
-  selectedfilter: String = '';
-  selectedCat: String = '';
+  public selectedfilter: String = '';
+  public selectedCat: String = '';
 
   // def subgraph table drop down detail template: show consequence 
-  sugbraphdetailstemplate: any =
+  public sugbraphdetailstemplate: any =
     {
       rowdetails: "<div class=\"vertical-menu\" style='width:90%; height: 250px;'> Consquences:  </div>",
       rowdetailsheight: 150
@@ -192,7 +192,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   };
 
   // def edges table drop down detail template: show all the information except src and tgt.
-  edgedetailstemplate: any =
+  public edgedetailstemplate: any =
     {
       rowdetails: "<div style='margin: 10px; height: 310px;  overflow-x: scroll;'></div>",
       rowdetailsheight: 330
@@ -233,6 +233,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     rowdetails.appendChild(container);
   };
 
+  // list of the markdown file to show on the help and 
   public userManual = {
     Introduction: QNA_PATH + 'intorduction.md',
     questions: [
@@ -255,7 +256,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
         path: QNA_PATH + 'siem-q4.md',
       },
       {
-        title: 'Q5. How to view all graphs associated with a node (IP address / ComputerName)',
+        title: 'Q5. How to view all graphs associated with a node (IP address / ComputerName)?',
         path: QNA_PATH + 'siem-q5.md',
       },
     ]
@@ -291,21 +292,18 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   //-----------------------------------------------------------------------------
   buildEdgesTable(subgName: string) {
     // update the edges table based on the input subgraph name/ID
-    
     let nodeIDlist = [];
     this.edgesDis = [];
     this.edgesW = [];
-    if(subgName==' ' || subgName=='') {
-      // clear the table if the input data is empty.
+    // clear the table if the input data is empty.
+    if (subgName == ' ' || subgName == '') {
       this.edgesSrc = new jqx.dataAdapter({ localData: this.edgesW });
       return;
     }
-
     // find all nodes's id belongs to the sub graph list: 
     for (let obj of this.nodes) {
       if (obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)) nodeIDlist.push(obj['data']['id']);
     }
-
     // find all edges src+tgt nodes are all in the subgraph list.
     for (let obj of this.edges) {
       if (nodeIDlist.includes(obj['data']['source']) && nodeIDlist.includes(obj['data']['target'])) {
@@ -336,45 +334,39 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     console.log('buildNodesTable', subgName)
     this.nodesDis = [];
     this.nodesW = [];
-    if(subgName==' ' || subgName=='') {
-      this.nodesSrc = new jqx.dataAdapter({localData: this.nodesW});
+    if (subgName == ' ' || subgName == '') {
+      this.nodesSrc = new jqx.dataAdapter({ localData: this.nodesW });
       return;
     }
     for (let obj of this.nodes) {
       if (obj['data'].hasOwnProperty('subgraphs') && obj['data']['subgraphs'].includes(subgName)) {
         this.nodesDis.push(obj); // update the graph data.
+        // Add the nodes.(only node have teh geo tag)
         if (obj['data'].hasOwnProperty("geo")) {
-          // remove the GPS postion as currently we are not using it.
-          let ctString = obj['data']['geo'];
-          if (ctString[0] == 'unknown') {
-            ctString = [''];
-          } else {
-            ctString.pop();
-          }
           this.nodesW.push({
             "id": obj['data']["id"],
             "subgraphs": obj['data']['subgraphs'],
             "type": obj['data']['type'],
-            "geo": ctString
+            "geo": obj['data']['geo'][0] // only add the country code.
           });
         }
       }
     }
     // udpate the table data source.
-    this.nodesSrc = new jqx.dataAdapter({localData: this.nodesW});
+    this.nodesSrc = new jqx.dataAdapter({ localData: this.nodesW });
   }
 
-//-----------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------
   filterSelHandler(event: any) {
     // handle the subgraph filter catergory selection.
     this.selectedfilter = event.target.value;
     if (this.selectedfilter == 'null') this.rebuildSubgraph(); // clear the rebuild if user select <blanl>
   }
 
-//-----------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------
   loadGraphsData(): void {
     // load subgraphs data based on user's selection:  
-    switch(this.selectedDataSet) {
+    switch (this.selectedDataSet) {
       case 'windows': {
         this.nodes = elementsW['nodes'];
         this.edges = elementsW['edges'];
@@ -385,62 +377,62 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
         this.edges = elementsS['edges'];
         break;
       }
-      case 'fortinet':{
+      case 'fortinet': {
         this.nodes = elementsF['nodes'];
         this.edges = elementsF['edges'];
         break;
       }
-      case 'linked_subgraphs_win_snort_sep_2019':{
+      case 'linked_subgraphs_win_snort_sep_2019': {
         this.nodes = elementsLWSSep2019['nodes'];
         this.edges = elementsLWSSep2019['edges'];
         break;
       }
-      case 'linked_subgraphs_all_logs_sep_2019':{
+      case 'linked_subgraphs_all_logs_sep_2019': {
         this.nodes = elementsLASep2019['nodes'];
         this.edges = elementsLASep2019['edges'];
         break;
       }
-      case 'linked_subgraphs_snort_forti_june_2020':{
+      case 'linked_subgraphs_snort_forti_june_2020': {
         this.nodes = elementsLSFJun2020['nodes'];
         this.edges = elementsLSFJun2020['edges'];
         break;
       }
-      case 'linked_subgraphs_snort_forti_sep_2019':{
+      case 'linked_subgraphs_snort_forti_sep_2019': {
         this.nodes = elementsLSFSep2019['nodes'];
         this.edges = elementsLSFSep2019['edges'];
         break;
       }
-      case 'linked_subgraphs_win_forti_june_2020':{
+      case 'linked_subgraphs_win_forti_june_2020': {
         this.nodes = elementsLWFJun2020['nodes'];
         this.edges = elementsLWFJun2020['edges'];
         break;
       }
-      case 'subgraphs_fortinet_june_2020':{
+      case 'subgraphs_fortinet_june_2020': {
         this.nodes = elementsFJun2020['nodes'];
         this.edges = elementsFJun2020['edges'];
         break;
       }
-      case 'subgraphs_snort_june_2020':{
+      case 'subgraphs_snort_june_2020': {
         this.nodes = elementsSJun2020['nodes'];
         this.edges = elementsSJun2020['edges'];
         break;
       }
-      case 'subgraphs_snort_sep_2019':{
+      case 'subgraphs_snort_sep_2019': {
         this.nodes = elementsSSep2019['nodes'];
         this.edges = elementsSSep2019['edges'];
         break;
       }
-      case 'subgraphs_windows_june_2020':{
+      case 'subgraphs_windows_june_2020': {
         this.nodes = elementsWJun2020['nodes'];
         this.edges = elementsWJun2020['edges'];
         break;
       }
-      case 'subgraphs_fortinet_sep_2019':{
+      case 'subgraphs_fortinet_sep_2019': {
         this.nodes = elementsFSep2019['nodes'];
         this.edges = elementsFSep2019['edges'];
         break;
       }
-      case 'subgraphs_windows_sep_2019':{
+      case 'subgraphs_windows_sep_2019': {
         this.nodes = elementsWSep2019['nodes'];
         this.edges = elementsWSep2019['edges'];
         break;
@@ -461,8 +453,6 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
         });
       }
     }
-    
-    //this.subgrapSrc.refresh();
 
     this.subgrapSrc = new jqx.dataAdapter({
       localData: this.subgrapsSelected,
@@ -472,7 +462,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   }
 
   //-----------------------------------------------------------------------------
-  onRebuild(value: string):void {
+  onRebuild(value: string): void {
     // filter all the subgraphs and rebuild the tables and graph ( current this function is 
     // not used), this function was replaced by onSubGraphFilter(value: string).
     var subgraphNames = ['filtered'];
@@ -540,7 +530,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.cygraph.setCrtSubGraph(subgraphNames, this.nodesDis, this.edgesDis);
   }
 
-//-----------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------
   onSubGraphFilter(value: string): void {
     // filter the subgraphs based on the input value.
     this.filterStrExpl = value;
@@ -563,8 +553,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
       case 'score': {
         let foundNum = this.filterStrExpl.match(/[+-]?\d+(\.\d+)?/g); // get the float number from the string.
         if (foundNum == null || foundNum.length == 0) break;
-        let filterScore = parseFloat(''+foundNum[0]);
-        console.log("Score fileter: ",filterScore);
+        let filterScore = parseFloat('' + foundNum[0]);
+        console.log("Score fileter: ", filterScore);
         // compare the score
         if (this.filterStrExpl.includes('<=')) {
           for (let obj of this.subgrapsSelected) {
@@ -593,7 +583,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
       case 'consequences': {
         for (let obj of this.subgrapsSelected) {
           console.log('consequences loop:', obj["consequences"]);
-          if (obj["consequences"].includes(''+this.filterStrExpl)) SubgraphList.push(obj);
+          if (obj["consequences"].includes('' + this.filterStrExpl)) SubgraphList.push(obj);
         }
       }
       default: {
@@ -656,9 +646,9 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.nodegraph.setCrtSubGraph(nodeID, nodesToNP, edgesToNP);
 
     // update all the tables in the node detail page: 
-    this.nodePrtSrc = new jqx.dataAdapter({localData: this.nodePrtList,});
-    this.nodeRelSrc = new jqx.dataAdapter({localData: this.nodeRelList,});
-    this.edgeRelSrc = new jqx.dataAdapter({localData: this.edgeRelList,});
+    this.nodePrtSrc = new jqx.dataAdapter({ localData: this.nodePrtList, });
+    this.nodeRelSrc = new jqx.dataAdapter({ localData: this.nodeRelList, });
+    this.edgeRelSrc = new jqx.dataAdapter({ localData: this.edgeRelList, });
   }
 
   //-----------------------------------------------------------------------------
@@ -697,17 +687,11 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     for (let obj of this.nodesDis) {
       if (NodeArr.includes(obj['data']['id'])) {
         nodesFilDis.push(obj);
-        let ctString = obj['data']['geo'];
-        if (ctString[0] == 'unknown') {
-          ctString = ['']
-        } else {
-          ctString.pop();
-        }
         nodesFilW.push({
           "id": obj['data']["id"],
           "subgraphs": obj['data']['subgraphs'],
           "type": obj['data']['type'],
-          "geo": ctString
+          "geo": obj['data']['geo'][0]
         });
       }
     }
@@ -732,10 +716,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   }
 
   reLayoutgraph(event: any): void { this.cygraph.resetLayout(); }
-
-  reLayoutNodegraph(event: any): void {
-    this.nodegraph.redraw();
-  }
+  reLayoutNodegraph(event: any): void { this.nodegraph.redraw(); }
+  
   //-----------------------------------------------------------------------------
   selectDataSetHandler(event: any): void {
     // Handle the event when user select new data set.
@@ -757,7 +739,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   }
 
   //-----------------------------------------------------------------------------
-  selectFilterHandler(event: any):void {
+  selectFilterHandler(event: any): void {
     // fill the filter text field with filter example str or reset the filtered graph
     // table.
     this.graphFilterKey = event.target.value;
@@ -800,7 +782,7 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
     this.buildNodesTable(this.subgraphName);
     this.buildEdgesTable(this.subgraphName);
     // udapte graph and displayed information
-    for (let obj of this.nodes){
+    for (let obj of this.nodes) {
       if (obj['data'].hasOwnProperty('consequences') && obj['data']['id'].includes(this.subgraphName)) {
         this.cygraph.setSubgraphInfo(this.selectedDataSet, obj['data']);
         break;
