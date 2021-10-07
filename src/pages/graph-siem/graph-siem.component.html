@@ -13,21 +13,24 @@
         <div fxFlex="25%" class="right">
           <!-- # data set selection -->
           <select (change)="selectDataSetHandler($event)">
+
+            <option value="{{info.key}}" *ngFor="let info of graphDict | keyvalue"> {{info.key}}</option>
+
             <!-- <option value="snort">Snort Subgraphs: test_data </option> -->
-            <option value="subgraphs_snort_sep_2019">Snort Subgraphs: sep_2019</option>
-            <option value="subgraphs_snort_june_2020">Snort Subgraphs: june_2020</option>
+            <!-- <option value="subgraphs_snort_sep_2019">Snort Subgraphs: sep_2019</option> -->
+            <!-- <option value="subgraphs_snort_june_2020">Snort Subgraphs: june_2020</option> -->
             <!-- <option value="windows">Windows Subgraphs: test_data</option> -->
-            <option value="subgraphs_windows_sep_2019">Windows Subgraphs: sep_2019</option>
-            <option value="subgraphs_windows_june_2020">Windows Subgraphs: june_2020</option>
+            <!-- <option value="subgraphs_windows_sep_2019">Windows Subgraphs: sep_2019</option> -->
+            <!-- <option value="subgraphs_windows_june_2020">Windows Subgraphs: june_2020</option> -->
             <!-- <option value="fortinet">Fortinet Subgraphs: test_data</option> -->
-            <option value="subgraphs_fortinet_sep_2019">Fortinet Subgraphs: sep_2019</option>
-            <option value="subgraphs_fortinet_june_2020">Fortinet Subgraphs: june_2020</option>
+            <!-- <option value="subgraphs_fortinet_sep_2019">Fortinet Subgraphs: sep_2019</option> -->
+            <!-- <option value="subgraphs_fortinet_june_2020">Fortinet Subgraphs: june_2020</option> -->
             <!-- <option value="linked">Linked Subgraphs: test_data</option> -->
-            <option value="linked_subgraphs_all_logs_sep_2019">Linked Subgraphs: all_logs_sep_2019</option>
-            <option value="linked_subgraphs_snort_forti_sep_2019">Linked Subgraphs: snort_forti_sep_2019</option>
-            <option value="linked_subgraphs_win_snort_sep_2019">Linked Subgraphs: win_snort_sep_2019</option>
-            <option value="linked_subgraphs_snort_forti_june_2020">Linked Subgraphs: snort_forti_june_2020</option>
-            <option value="linked_subgraphs_win_forti_june_2020">Linked Subgraphs: win_forti_june_2020</option>
+            <!-- <option value="linked_subgraphs_all_logs_sep_2019">Linked Subgraphs: all_logs_sep_2019</option> -->
+            <!-- <option value="linked_subgraphs_snort_forti_sep_2019">Linked Subgraphs: snort_forti_sep_2019</option> -->
+            <!-- <option value="linked_subgraphs_win_snort_sep_2019">Linked Subgraphs: win_snort_sep_2019</option> -->
+            <!-- <option value="linked_subgraphs_snort_forti_june_2020">Linked Subgraphs: snort_forti_june_2020</option> -->
+            <!-- <option value="linked_subgraphs_win_forti_june_2020">Linked Subgraphs: win_forti_june_2020</option> -->
           </select>
           <p> </p>
           <!-- # graph table filter  -->

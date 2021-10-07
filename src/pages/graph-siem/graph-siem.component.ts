@@ -1,25 +1,26 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ViewChildren } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { HttpClient } from "@angular/common/http";
 import { jqxGridComponent } from 'jqwidgets-ng/jqxgrid';
 // import function components
 import { CytoscapeComponent } from './cytoscape/cytoscape.component';
 import { NodedetailComponent } from './nodedetail/nodedetail.component';
 // import data.
-import { elements as elementsW } from './data/windows.json';
-import { elements as elementsS } from './data/snort.json';
-import { elements as elementsF } from './data/fortinet.json';
-import { elements as elementsL } from './data/linked.json';
-import { elements as elementsLWSSep2019 } from './data/linked_subgraphs_win_snort_sep_2019.json';
-import { elements as elementsLASep2019 } from './data/linked_subgraphs_all_logs_sep_2019.json';
-import { elements as elementsLSFJun2020 } from './data/linked_subgraphs_snort_forti_june_2020.json';
-import { elements as elementsLSFSep2019 } from './data/linked_subgraphs_snort_forti_sep_2019.json';
-import { elements as elementsLWFJun2020 } from './data/linked_subgraphs_win_forti_june_2020.json';
-import { elements as elementsFJun2020 } from './data/subgraphs_fortinet_june_2020.json';
-import { elements as elementsSJun2020 } from './data/subgraphs_snort_june_2020.json';
-import { elements as elementsSSep2019 } from './data/subgraphs_snort_sep_2019.json';
-import { elements as elementsWJun2020 } from './data/subgraphs_windows_june_2020.json';
-import { elements as elementsFSep2019 } from './data/subgraphs_fortinet_sep_2019.json';
-import { elements as elementsWSep2019 } from './data/subgraphs_windows_sep_2019.json';
+// import { elements as elementsW } from './data/windows.json';
+// import { elements as elementsS } from './data/snort.json';
+// import { elements as elementsF } from './data/fortinet.json';
+// import { elements as elementsL } from './data/linked.json';
+// import { elements as elementsLWSSep2019 } from './data/linked_subgraphs_win_snort_sep_2019.json';
+// import { elements as elementsLASep2019 } from './data/linked_subgraphs_all_logs_sep_2019.json';
+// import { elements as elementsLSFJun2020 } from './data/linked_subgraphs_snort_forti_june_2020.json';
+// import { elements as elementsLSFSep2019 } from './data/linked_subgraphs_snort_forti_sep_2019.json';
+// import { elements as elementsLWFJun2020 } from './data/linked_subgraphs_win_forti_june_2020.json';
+// import { elements as elementsFJun2020 } from './data/subgraphs_fortinet_june_2020.json';
+// import { elements as elementsSJun2020 } from './data/subgraphs_snort_june_2020.json';
+// import { elements as elementsSSep2019 } from './data/subgraphs_snort_sep_2019.json';
+// import { elements as elementsWJun2020 } from './data/subgraphs_windows_june_2020.json';
+// import { elements as elementsFSep2019 } from './data/subgraphs_fortinet_sep_2019.json';
+// import { elements as elementsWSep2019 } from './data/subgraphs_windows_sep_2019.json';
 
 //-----------------------------------------------------------------------------
 // Name:        cytoscapte.components.ts
@@ -31,6 +32,47 @@ import { elements as elementsWSep2019 } from './data/subgraphs_windows_sep_2019.
 //------------------------------------------------------------------------------
 
 const QNA_PATH = './assets/data/siem-graph/';
+
+const DEMO_DATA = {
+  'subgraphs_snort_sep_2019': QNA_PATH+'demo_data/subgraphs_snort_sep_2019.json',
+  'subgraphs_snort_june_2020': QNA_PATH+'demo_data/subgraphs_snort_june_2020.json',
+  'subgraphs_windows_sep_2019': QNA_PATH+'demo_data/subgraphs_windows_sep_2019.json',
+  'subgraphs_windows_june_2020': QNA_PATH+'demo_data/subgraphs_windows_june_2020.json',
+  'subgraphs_fortinet_sep_2019': QNA_PATH+'demo_data/subgraphs_fortinet_sep_2019.json',
+  'subgraphs_fortinet_june_2020': QNA_PATH+'demo_data/subgraphs_fortinet_june_2020.json',
+  'linked_subgraphs_all_logs_sep_2019': QNA_PATH+'demo_data/linked_subgraphs_all_logs_sep_2019.json',
+  'linked_subgraphs_win_snort_sep_2019': QNA_PATH+'demo_data/linked_subgraphs_win_snort_sep_2019.json', 
+  'linked_subgraphs_snort_forti_june_2020': QNA_PATH+'demo_data/linked_subgraphs_snort_forti_june_2020.json',
+  'linked_subgraphs_snort_forti_sep_2019': QNA_PATH+'demo_data/linked_subgraphs_snort_forti_sep_2019.json',
+  'linked_subgraphs_win_forti_june_2020':QNA_PATH+'demo_data/linked_subgraphs_win_forti_june_2020.json',
+};
+
+const SONIC_DATA = {
+  'case_1':QNA_PATH+'sonic_data/case_1.json',
+  'case_2':QNA_PATH+'sonic_data/case_2.json',
+  'case_4':QNA_PATH+'sonic_data/case_4.json',
+  'case_5_1':QNA_PATH+'sonic_data/case_5_1.json',
+  'case_5_2':QNA_PATH+'sonic_data/case_5_2.json',
+  'case_5_4':QNA_PATH+'sonic_data/case_5_4.json',
+  'case_6a_6b':QNA_PATH+'sonic_data/case_6a_6b.json',
+  'case_6c_1':QNA_PATH+'sonic_data/case_6c_1.json',
+  'case_6c_2':QNA_PATH+'sonic_data/case_6c_2.json',
+  'case_6c_3':QNA_PATH+'sonic_data/case_6c_3.json',
+  'case_6c_4':QNA_PATH+'sonic_data/case_6c_4.json',
+  'case_7':QNA_PATH+'sonic_data/case_7.json',
+  'case_8':QNA_PATH+'sonic_data/case_8.json',
+  'case_9_1':QNA_PATH+'sonic_data/case_9_1.json',
+  'case_9_2':QNA_PATH+'sonic_data/case_9_2.json',
+  'case_9_3':QNA_PATH+'sonic_data/case_9_3.json',
+  'case_10_snort_logs':QNA_PATH+'sonic_data/case_10_snort_logs.json',
+  'case_10_windows_logs':QNA_PATH+'sonic_data/case_10_windows_logs.json',
+  'case_11':QNA_PATH+'sonic_data/case_11.json',
+  'case_12':QNA_PATH+'sonic_data/case_12.json',
+  'linked_graphs_sep_2019_all_logs':QNA_PATH+'sonic_data/linked_graphs_sep_2019_all_logs.json',
+  'subgraphs_sep_2019_fortinet':QNA_PATH+'sonic_data/subgraphs_sep_2019_fortinet.json',
+  'subgraphs_sep_2019_snort':QNA_PATH+'sonic_data/subgraphs_sep_2019_snort.json',
+  'subgraphs_sep_2019_windows':QNA_PATH+'sonic_data/subgraphs_sep_2019_windows.json',
+}
 
 // Define the data type used in jqxGrid table: 
 type subgraphType = Array<{
@@ -88,6 +130,8 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   // def tag/page switch parameters
   public landPageSelected = false;
   public selectedTag = new FormControl(0);
+  //public graphDict = DEMO_DATA; 
+  public graphDict = SONIC_DATA
 
   // def data source for the tables
   public subgrapsSelected: subgraphType = []; // landing page subgraph table data src
@@ -263,13 +307,14 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
   }
 
   //-----------------------------------------------------------------------------
-  constructor() {
-    this.selectedDataSet = 'subgraphs_snort_sep_2019';
-    this.nodes = elementsW['nodes'];
-    this.edges = elementsW['edges'];
+  constructor(private httpClient: HttpClient) {
+    this.selectedDataSet = 'case_1';
+    this.nodes = [] // elementsW['nodes'];
+    this.edges = []// elementsW['edges'];
     this.graphFilterKey = 'none';
     this.edgesColor = 'gray';
     this.selectedCat = 'null';
+
     // build the subgraphs table in node detail page
     this.nodePrtSrc = new jqx.dataAdapter({ localData: this.nodePrtList, });
     //  build the related nodes table in node detail page
@@ -365,100 +410,130 @@ export class GraphSiemComponent implements AfterViewInit, OnInit {
 
   //-----------------------------------------------------------------------------
   loadGraphsData(): void {
-    // load subgraphs data based on user's selection:  
-    switch (this.selectedDataSet) {
-      case 'windows': {
-        this.nodes = elementsW['nodes'];
-        this.edges = elementsW['edges'];
-        break;
+    console.log("graph select:", this.graphDict[this.selectedDataSet]);
+    if(this.graphGridList) this.graphGridList.selectionmode('none');
+    if(!this.graphDict.hasOwnProperty(this.selectedDataSet)) return;
+    this.httpClient.get(this.graphDict[this.selectedDataSet]).subscribe(data =>{
+      //console.log(data);
+      let products = data['elements'];
+      this.nodes = products['nodes'];
+      this.edges = products['edges'];
+      // the below code must be put in the subscribe section.
+      this.subgrapsSelected = [];
+      for (let obj of this.nodes) {
+        if (!obj['data'].hasOwnProperty('subgraphs')) {
+          this.subgrapsSelected.push({
+            "name": obj['data']["id"],
+            "score": Number(obj['data']["score"].toFixed(2)),
+            "consequences": obj['data']["consequences"]
+          });
+        }
       }
-      case 'snort': {
-        this.nodes = elementsS['nodes'];
-        this.edges = elementsS['edges'];
-        break;
-      }
-      case 'fortinet': {
-        this.nodes = elementsF['nodes'];
-        this.edges = elementsF['edges'];
-        break;
-      }
-      case 'linked_subgraphs_win_snort_sep_2019': {
-        this.nodes = elementsLWSSep2019['nodes'];
-        this.edges = elementsLWSSep2019['edges'];
-        break;
-      }
-      case 'linked_subgraphs_all_logs_sep_2019': {
-        this.nodes = elementsLASep2019['nodes'];
-        this.edges = elementsLASep2019['edges'];
-        break;
-      }
-      case 'linked_subgraphs_snort_forti_june_2020': {
-        this.nodes = elementsLSFJun2020['nodes'];
-        this.edges = elementsLSFJun2020['edges'];
-        break;
-      }
-      case 'linked_subgraphs_snort_forti_sep_2019': {
-        this.nodes = elementsLSFSep2019['nodes'];
-        this.edges = elementsLSFSep2019['edges'];
-        break;
-      }
-      case 'linked_subgraphs_win_forti_june_2020': {
-        this.nodes = elementsLWFJun2020['nodes'];
-        this.edges = elementsLWFJun2020['edges'];
-        break;
-      }
-      case 'subgraphs_fortinet_june_2020': {
-        this.nodes = elementsFJun2020['nodes'];
-        this.edges = elementsFJun2020['edges'];
-        break;
-      }
-      case 'subgraphs_snort_june_2020': {
-        this.nodes = elementsSJun2020['nodes'];
-        this.edges = elementsSJun2020['edges'];
-        break;
-      }
-      case 'subgraphs_snort_sep_2019': {
-        this.nodes = elementsSSep2019['nodes'];
-        this.edges = elementsSSep2019['edges'];
-        break;
-      }
-      case 'subgraphs_windows_june_2020': {
-        this.nodes = elementsWJun2020['nodes'];
-        this.edges = elementsWJun2020['edges'];
-        break;
-      }
-      case 'subgraphs_fortinet_sep_2019': {
-        this.nodes = elementsFSep2019['nodes'];
-        this.edges = elementsFSep2019['edges'];
-        break;
-      }
-      case 'subgraphs_windows_sep_2019': {
-        this.nodes = elementsWSep2019['nodes'];
-        this.edges = elementsWSep2019['edges'];
-        break;
-      }
-      default: {
-        this.nodes = elementsLASep2019['nodes'];
-        this.edges = elementsLASep2019['edges'];
-      }
-    }
-    // build the subgraphs table in landing page: 
-    this.subgrapsSelected = [];
-    for (let obj of this.nodes) {
-      if (!obj['data'].hasOwnProperty('subgraphs')) {
-        this.subgrapsSelected.push({
-          "name": obj['data']["id"],
-          "score": Number(obj['data']["score"].toFixed(2)),
-          "consequences": obj['data']["consequences"]
-        });
-      }
-    }
+  
+      this.subgrapSrc = new jqx.dataAdapter({
+        localData: this.subgrapsSelected,
+        sortcolumn: 'score',
+        sortdirection: 'dsc',
+      });
+      if(this.graphGridList) this.graphGridList.selectionmode('singlerow');
+    })
 
-    this.subgrapSrc = new jqx.dataAdapter({
-      localData: this.subgrapsSelected,
-      sortcolumn: 'score',
-      sortdirection: 'dsc',
-    });
+    return;
+
+    // load subgraphs data based on user's selection:  
+    // switch (this.selectedDataSet) {
+    //   case 'windows': {
+    //     this.nodes = elementsW['nodes'];
+    //     this.edges = elementsW['edges'];
+    //     break;
+    //   }
+    //   case 'snort': {
+    //     this.nodes = elementsS['nodes'];
+    //     this.edges = elementsS['edges'];
+    //     break;
+    //   }
+    //   case 'fortinet': {
+    //     this.nodes = elementsF['nodes'];
+    //     this.edges = elementsF['edges'];
+    //     break;
+    //   }
+    //   case 'linked_subgraphs_win_snort_sep_2019': {
+    //     this.nodes = elementsLWSSep2019['nodes'];
+    //     this.edges = elementsLWSSep2019['edges'];
+    //     break;
+    //   }
+    //   case 'linked_subgraphs_all_logs_sep_2019': {
+    //     this.nodes = elementsLASep2019['nodes'];
+    //     this.edges = elementsLASep2019['edges'];
+    //     break;
+    //   }
+    //   case 'linked_subgraphs_snort_forti_june_2020': {
+    //     this.nodes = elementsLSFJun2020['nodes'];
+    //     this.edges = elementsLSFJun2020['edges'];
+    //     break;
+    //   }
+    //   case 'linked_subgraphs_snort_forti_sep_2019': {
+    //     this.nodes = elementsLSFSep2019['nodes'];
+    //     this.edges = elementsLSFSep2019['edges'];
+    //     break;
+    //   }
+    //   case 'linked_subgraphs_win_forti_june_2020': {
+    //     this.nodes = elementsLWFJun2020['nodes'];
+    //     this.edges = elementsLWFJun2020['edges'];
+    //     break;
+    //   }
+    //   case 'subgraphs_fortinet_june_2020': {
+    //     this.nodes = elementsFJun2020['nodes'];
+    //     this.edges = elementsFJun2020['edges'];
+    //     break;
+    //   }
+    //   case 'subgraphs_snort_june_2020': {
+    //     this.nodes = elementsSJun2020['nodes'];
+    //     this.edges = elementsSJun2020['edges'];
+    //     break;
+    //   }
+    //   case 'subgraphs_snort_sep_2019': {
+    //     this.nodes = elementsSSep2019['nodes'];
+    //     this.edges = elementsSSep2019['edges'];
+    //     break;
+    //   }
+    //   case 'subgraphs_windows_june_2020': {
+    //     this.nodes = elementsWJun2020['nodes'];
+    //     this.edges = elementsWJun2020['edges'];
+    //     break;
+    //   }
+    //   case 'subgraphs_fortinet_sep_2019': {
+    //     this.nodes = elementsFSep2019['nodes'];
+    //     this.edges = elementsFSep2019['edges'];
+    //     break;
+    //   }
+    //   case 'subgraphs_windows_sep_2019': {
+    //     this.nodes = elementsWSep2019['nodes'];
+    //     this.edges = elementsWSep2019['edges'];
+    //     break;
+    //   }
+    //   default: {
+    //     this.nodes = elementsLASep2019['nodes'];
+    //     this.edges = elementsLASep2019['edges'];
+    //   }
+    // }
+    // // build the subgraphs table in landing page: 
+    // this.subgrapsSelected = [];
+    // for (let obj of this.nodes) {
+    //   if (!obj['data'].hasOwnProperty('subgraphs')) {
+    //     this.subgrapsSelected.push({
+    //       "name": obj['data']["id"],
+    //       "score": Number(obj['data']["score"].toFixed(2)),
+    //       "consequences": obj['data']["consequences"]
+    //     });
+    //   }
+    // }
+
+    // this.subgrapSrc = new jqx.dataAdapter({
+    //   localData: this.subgrapsSelected,
+    //   sortcolumn: 'score',
+    //   sortdirection: 'dsc',
+    // });
   }
 
   //-----------------------------------------------------------------------------
