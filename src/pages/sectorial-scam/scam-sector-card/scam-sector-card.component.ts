@@ -1,14 +1,13 @@
 // @ts-nocheck
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-
 import { BaseHighchartsComponent } from '../../../components/base-highcharts/base-highcharts.component';
 import { Colors} from '../../../core/common/colors';
 
 //-----------------------------------------------------------------------------
 // Name:        scam-sector.components.ts
-// Purpose:     
+// Purpose:     create the sectors' panel show on the left. 
 //
-// Author:
+// Author:      
 // Created:     2021/09/18
 // Copyright:    n.a    
 // License:      n.a

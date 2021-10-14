@@ -22,9 +22,10 @@ import { entries } from 'lodash';
 
 //-----------------------------------------------------------------------------
 // Name:        scam.components.ts
-// Purpose:     
+// Purpose:     Creat the main landing page of the scam dashboard and popup dialog
+//              when user click the sector panel or the country on the heat map.
 //
-// Author:
+// Author:      Liu Yuancheng
 // Created:     2021/09/18
 // Copyright:    n.a    
 // License:      n.a
@@ -89,19 +90,18 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
   public chartOptions: any;
   public selectedSector: any;
   public mapLegend: [any];
-  public showSamGraph: boolean;
-  public edgelabelStr:String;
-  public graphFilterStr:String;
+  public edgelabelStr: String;
+  public graphFilterStr: String;
 
   // cytoscape graph parameters.
   public graphType: String;
-  public showSNode: boolean;
+  public showSNode: boolean; // true: show sector node, false show country node.
   public cy: any = null;
-  dataSet:[any];
-  filterDataSet:[any];
-  nodes: cytoscape.NodeDefinition[] = [];
-  edges: cytoscape.EdgeDefinition[] = [];
-  style: cytoscape.Stylesheet[];
+  private dataSet: [any];
+  private filterDataSet: [any];
+  private nodes: cytoscape.NodeDefinition[] = [];
+  private edges: cytoscape.EdgeDefinition[] = [];
+  private style: cytoscape.Stylesheet[];
   public options: any;
   public customEdgeStyle: any = [];
   protected layoutOptions: any = {
@@ -115,16 +115,15 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
   }
   public filterStrExpl: String;
 
-
   //------------------------------------------------------------------------------
   constructor(private apollo: Apollo, element: ElementRef) {
     super();
     this.nativeElement = element.nativeElement;
     this.edgelabelStr = 'data(value)';
     this.graphFilterStr = '';
-    //this.nativeElement = document.getElementById('cy'),
+
     this.chartOptions = {
-      chart: { type: "areaspline"},
+      chart: { type: "areaspline" },
       colors: [Colors.WATER_COLOR],
       title: {
         text: null,
@@ -204,8 +203,6 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       { color: '#2E0806', max: 10000, label: '> 10000' },
     ];
 
-    this.showSamGraph = false;
-
     this.options = {
       name: 'fcose',
       positions: undefined, // map of (node id) => (position obj); or function(node){ return somPos; }
@@ -221,11 +218,12 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       stop: undefined, // callback on layoutstop
       transform: function (node, position) { return position; } // transform a given node position. Useful for changing flow direction in discrete layouts 
     };
+
     this.graphType = '';
     this.showSNode = false;
     this.dataSet = [];
     this.filterDataSet = [];
-    this.nodes =  []; 
+    this.nodes = [];
     this.edges = [];
     this.filterStrExpl = '';
 
@@ -238,10 +236,10 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
     this.feedQuery = this.apollo.watchQuery<any>({
       query: QUERY,
       variables: {
-         "filter": {
-          "type":"selector",
-          "dimension":"threatType",
-          "value":"Scam"
+        "filter": {
+          "type": "selector",
+          "dimension": "threatType",
+          "value": "Scam"
         }
       },
       // fetchPolicy: 'network-only',
@@ -277,7 +275,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       let keys = Object.keys(ts).sort();
       this.chartOptions.series = {
         "name": "Scam Count",
-        "data": keys.map(e => [ parseInt(e), ts[e] ])
+        "data": keys.map(e => [parseInt(e), ts[e]])
       };
       this.updateFlag = true;
 
@@ -289,10 +287,8 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
     });
   }
 
-  ngAfterViewInit(): void {
-    this.redraw();
-  }
-
+  //------------------------------------------------------------------------------
+  ngAfterViewInit(): void { this.redraw(); }
 
   //------------------------------------------------------------------------------
   ngOnDestroy(): void {
@@ -301,8 +297,9 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
     if (this.feedSg) this.feedSg.unsubscribe();
   }
 
+  // All detail function methods (name sorted by alphabet):
   //------------------------------------------------------------------------------
-  buildGraph() : void {
+  buildGraph(): void {
     // Create the cytoscape graph. 
     if (this.nodes.length == 0) return;
     this.style = <cytoscape.Stylesheet[]>[
@@ -341,16 +338,12 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       },
       {
         selector: 'node[type = "nodeE"]',
-        style: {
-          'background-image': 'assets/images/icons/ep.png',
-        }
+        style: { 'background-image': 'assets/images/icons/ep.png', }
       },
 
       {
         selector: 'node[type = "nodeS"]',
-        style: {
-          'background-image': 'assets/images/icons/sn.png',
-        }
+        style: { 'background-image': 'assets/images/icons/sn.png', }
       },
       // The parent we draw it as a big node.
       {
@@ -419,14 +412,14 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
         }
       },
     ];
-    
+
     this.cy = cytoscape({
       container: this.cyRef.nativeElement,
       boxSelectionEnabled: false,
       elements: {
         nodes: this.nodes,
         edges: this.edges,
-      },    
+      },
       style: this.style,
       layout: this.options,
       autoungrabify: true,
@@ -434,219 +427,13 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       minZoom: 0.1,
       maxZoom: 5,
     });
-
-    let defaults = {
-      menuRadius: function(ele){ return 60; }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
-      selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
-      commands: [ // an array of commands to list in the menu or a function that returns the array
-        
-        { 
-          fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-          content: 'View Node Detail', // html/text content to be displayed in the menu
-          contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-          select: ele => { this.showNodeDetail(ele.id()); },
-          enabled: true // whether the command is selectablele
-        },
-
-        {
-          content: 'Zoom To',
-          select: ele => {
-            // console.log("Zoom", ele.id())
-            let cy = ele.cy();
-            cy.zoom({ level: 1 });
-            cy.center(ele);
-          },
-          enabled: true // whether the command is selectable
-        }
-
-      ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
-      fillColor: 'rgba(0, 0, 0, 0.75)', // the background colour of the menu
-      activeFillColor: 'rgba(1, 105, 217, 0.75)', // the colour used to indicate the selected command
-      activePadding: 10, // additional size in pixels for the active command
-      indicatorSize: 24, // the size in pixels of the pointer to the active command, will default to the node size if the node size is smaller than the indicator size, 
-      separatorWidth: 3, // the empty spacing in pixels between successive commands
-      spotlightPadding: 4, // extra spacing in pixels between the element and the spotlight
-      adaptativeNodeSpotlightRadius: false, // specify whether the spotlight radius should adapt to the node size
-      minSpotlightRadius: 15, // the minimum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
-      maxSpotlightRadius: 20, // the maximum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
-      openMenuEvents: 'cxttapstart taphold', // space-separated cytoscape events that will open the menu; only `cxttapstart` and/or `taphold` work here
-      itemColor: 'white', // the colour of text in the command's content
-      itemTextShadowColor: 'transparent', // the text shadow colour of the command's content
-      zIndex: 9999, // the z-index of the ui div
-      atMouse: false, // draw menu at mouse position
-      outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given
-    };
-
-  }
-
-//------------------------------------------------------------------------------
-  redraw(): void {
-    // Redraw the graph.
-    //console.log("graph init", this.cyRef.nativeElement);
-    this.buildGraph();
-    this.resetLayout();
-  }
-
-  resetLayout(event?: any): void {
-    if (this.cy == null) return;
-    this.cy.zoom({ level: 1 });
-    this.cy.pan({ x: 200, y: 200 });
-    this.cy.fit()
-    let layout = this.cy.elements().layout(this.layoutOptions);
-    layout.run();
   }
 
   //------------------------------------------------------------------------------
-  queryNodeGraph(countryCode: String): void {
-    this.feedNgQuery = this.apollo.watchQuery<any>({
-      query: GRAPH_QUERY,
-      variables: { "countryCode": countryCode },
-      fetchPolicy: 'network-only',
-    });
-    this.feedNg = this.feedNgQuery.valueChanges.subscribe(({ data, loading }) => {
-      this.dataSet = data['threatEvents_countryScamN2N'];
-      //console.log('Query campaign data :', dataSet);
-      //console.log('Query campaign loading:', loading);
-      if (loading) return;
-      this.graphType = 'country';
-      if(this.parseDataSet(false)) this.redraw();
-    });
-  }
-
-  parseDataSet(filter:boolean):boolean{
-    this.edges = [];
-    this.nodes = [];
-    let dataArr = filter? this.filterDataSet:this.dataSet;
-    switch (this.graphType) {
-      case 'country': {
-        this.nodes = [{ data: { id: 'Malicious-Nodes', type: "country" } }];
-        if(this.showSNode){
-          for (let obj of dataArr) {
-            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
-            let enprNode = { data: { id: enterpriseIdString, type: "enterprise" } }
-            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
-            this.nodes.push({ data: { id: obj.srcNodeId, type: 'nodeS', parent: enterpriseIdString } });
-            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: 'Malicious-Nodes' } });
-            this.edges.push({ data: { source: obj.srcNodeId, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
-          }
-        }
-        else {
-          for (let obj of dataArr) {
-            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
-            let enprNode = { data: { id: enterpriseIdString, type: 'nodeE' } }
-            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
-            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: 'Malicious-Nodes' } });
-            this.edges.push({ data: { source: enterpriseIdString, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
-          }
-        }
-        break;
-      }
-
-      case 'sector': {
-        if(this.showSNode){
-          for (let obj of dataArr) {
-            //Add country as parent. 
-            let countryString = obj.countryCode ? String(obj.countryCode) : '[NF]';
-            let ctryNode = { data: { id: countryString, type: "country" } }
-            if (!this.nodes.includes(ctryNode)) this.nodes.push(ctryNode);
-            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
-            let enprNode = { data: { id: enterpriseIdString, type: "enterprise" } }
-            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
-            this.nodes.push({ data: { id: obj.srcNodeId, type: 'nodeS', parent: enterpriseIdString } });
-            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: countryString } });
-            this.edges.push({ data: { source: obj.srcNodeId, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
-          }
-        }
-        else {
-          for (let obj of dataArr) {
-            //Add country as parent. 
-            let countryString = obj.countryCode ? String(obj.countryCode) : '[NF]';
-            let ctryNode = { data: { id: countryString, type: "country" } }
-            if (!this.nodes.includes(ctryNode)) this.nodes.push(ctryNode);
-            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
-            let enprNode = { data: { id: enterpriseIdString, type: "nodeE" } }
-            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
-            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: countryString } });
-            this.edges.push({ data: { source: enterpriseIdString, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
-          }
-        }
-        break;
-      }
-      default: {
-        console.log("parseDataSet: invalid graph type:", this.graphType)
-        return false;
-      }
-    }
-    return true;
-  }
-
-  querySectorGraph(sectorName: String): void {
-    this.feedSgQuery = this.apollo.watchQuery<any>({
-      query: SEC_GRAPH_QUERY,
-      variables: { "sectorName": sectorName },
-      fetchPolicy: 'network-only',
-    });
-    this.feedSg = this.feedSgQuery.valueChanges.subscribe(({ data, loading }) => {
-      this.dataSet = data['threatEvents_sectorScamGraph'];
-      //console.log('Query campaign data :', dataSet);
-      //console.log('Query campaign loading:', loading);
-      if (loading) return;
-      this.graphType = 'sector';
-      if(this.parseDataSet(false)) this.redraw();
-    });
-
-  }
-
-  showScamCount(event:any){
-    this.edgelabelStr = event.checked? 'data(value)' : '';
-    this.redraw();
-  }
-
-  selectGraphType(event:any):void{
-    this.showSNode = event.target.value == 'subscriber'? true: false;
-    if(this.parseDataSet(false)) this.redraw();
-  }
-
-  onSubGraphFilter(input:String):void{
-    let foundNum = input.match(/[+-]?\d+(\.\d+)?/g); // get the float number from the string.
-    if (foundNum == null || foundNum.length == 0) return;
-    let filterScore = parseInt(''+foundNum[0]);
-
-    if (input.includes('<=')) {
-        this.filterDataSet = this.dataSet.filter(e => e.count <= filterScore);
-    } else if (input.includes('<')) {
-      this.filterDataSet = this.dataSet.filter(e => e.count < filterScore);
-    } else if (input.includes('==')) {
-      this.filterDataSet = this.dataSet.filter(e => e.count == filterScore);
-    } else if (input.includes('>=')) {
-      this.filterDataSet = this.dataSet.filter(e => e.count >= filterScore);
-    }
-    else {
-      this.filterDataSet = this.dataSet.filter(e => e.count > filterScore);
-    }
-    if(this.parseDataSet(true)) this.redraw();
-  }
-
-  selectFilterHandler(event:any):void{
-    let graphFilterKey = event.target.value;
-    switch (graphFilterKey) {
-      case 'count':{
-        this.filterStrExpl = 'Example:>=6';
-        break;
-      }
-      default:{
-        this.filterStrExpl = '';
-        if(this.parseDataSet(false)) this.redraw();
-      }
-    }
-  }
-
-  //------------------------------------------------------------------------------
-  // create leaflet map
   createMap(): void {
-    // add map
+    // create leaflet map
     const zoom = 2;
-    this.map = L.map("map",{
+    this.map = L.map("map", {
       preferCanvas: true,
       dragging: true,
       zoomControl: false,
@@ -667,7 +454,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
     }).addTo(this.map);
 
     let zoomHome = L.Control.zoomHome();
-    zoomHome.setHomeCoordinates([0,0])
+    zoomHome.setHomeCoordinates([0, 0])
     zoomHome.setHomeZoom(zoom)
     zoomHome.addTo(this.map);
     this.map.on('click', this.onMapClick);
@@ -675,45 +462,8 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
   }
 
   //------------------------------------------------------------------------------
-  onMapClick(event: any) {
-    // Zoom and focus to the position.
-    this.flyTo(event.latlng, 6, {
-      animate: true,
-      duration: 2 // in seconds
-    });
-  }
-
-  //------------------------------------------------------------------------------
-  onLayerClick(event: any, parentRef:any, feature:any) {
-    let countryName = feature.properties.name;
-    console.log('Selected country:', countryName);
-    if (CountryCode.hasOwnProperty(countryName)){
-      parentRef.showSamGraph = true;
-      parentRef.selectedSector = {
-        "name": countryName,
-        "type": CountryCode[countryName],
-        "data": []
-      };
-    }
-    parentRef.queryNodeGraph(CountryCode[countryName]);
-    parentRef.graphFilterStr = "Country [ " + countryName +" ]";
-  }
-
-  //------------------------------------------------------------------------------
-  getColor(threatCounts): void {
-    const threshold = [10000, 1000, 500, 200, 1 ]
-    return threatCounts > threshold[0] ? '#540804' :
-           threatCounts > threshold[1] ? '#81171b' :
-           threatCounts > threshold[2] ? '#ad2e24' :
-           threatCounts > threshold[3] ? '#c75146' :
-           threatCounts > threshold[4] ? '#ea8c55' :
-            // Colors.WATER_COLOR;
-            // '#FFEDA0'; 
-            '#051923'
-  }
-
-  //------------------------------------------------------------------------------
   addHeatLayer(): void {
+    // Add the scam count heat layer.
     const style = (feature) => {
       // let fillColor = MAP_COLORS[0]
       let fillColor = 'black'
@@ -729,7 +479,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
 
     let onEachFeature = (feature, layer) => {
       // console.log("onEachFeature", feature, layer);
-      layer.bindTooltip(feature.properties.name , { direction: 'bottom', sticky: true, className: 'tooltip' });
+      layer.bindTooltip(feature.properties.name, { direction: 'bottom', sticky: true, className: 'tooltip' });
       // layer.bindPopup(popUp(feature), popUpStyle)
       // layer._leaflet_id = feature.id;
       layer.on({
@@ -743,20 +493,230 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
     this.geojsonLayer.clearLayers();
     Countries.features.forEach(item => {
       // console.log("test", item);
-      item.properties.threatCount = this.countryThreatCount[item.id]?this.countryThreatCount[item.id]:0;
+      item.properties.threatCount = this.countryThreatCount[item.id] ? this.countryThreatCount[item.id] : 0;
       // console.log("item", item.properties)
       this.geojsonLayer.addData(item);
     });
   }
 
   //------------------------------------------------------------------------------
+  getColor(threatCounts): void {
+    const threshold = [10000, 1000, 500, 200, 1]
+    return threatCounts > threshold[0] ? '#540804' :
+      threatCounts > threshold[1] ? '#81171b' :
+        threatCounts > threshold[2] ? '#ad2e24' :
+          threatCounts > threshold[3] ? '#c75146' :
+            threatCounts > threshold[4] ? '#ea8c55' :
+              // Colors.WATER_COLOR;
+              // '#FFEDA0'; 
+              '#051923'
+  }
+
+  //------------------------------------------------------------------------------
+  onMapClick(event: any) {
+    // Zoom and focus to the position.
+    this.flyTo(event.latlng, 6, {
+      animate: true,
+      duration: 2 // in seconds
+    });
+  }
+
+  //------------------------------------------------------------------------------
+  onLayerClick(event: any, parentRef: any, feature: any) {
+    let countryName = feature.properties.name;
+    console.log('Selected country:', countryName);
+    if (CountryCode.hasOwnProperty(countryName)) {
+      parentRef.selectedSector = {
+        "name": countryName,
+        "type": CountryCode[countryName],
+        "data": []
+      };
+    }
+    parentRef.queryNodeGraph(CountryCode[countryName]);
+    parentRef.graphFilterStr = "Country [ " + countryName + " ]";
+  }
+
+  //------------------------------------------------------------------------------
   onSelectSector(sector): void {
     console.log("onSelectSector", sector)
-    this.showSamGraph = false
     this.selectedSector = sector;
     this.selectedSector.type = 'Sector';
     this.querySectorGraph(this.selectedSector.name);
-    this.graphFilterStr = "Sector [ " + this.selectedSector.name +" ]";
+    this.graphFilterStr = "Sector [ " + this.selectedSector.name + " ]";
+  }
+
+  //------------------------------------------------------------------------------
+  onSubGraphFilter(input: String): void {
+    let foundNum = input.match(/[+-]?\d+(\.\d+)?/g); // get the float number from the string.
+    if (foundNum == null || foundNum.length == 0) return;
+    let filterScore = parseInt('' + foundNum[0]);
+
+    if (input.includes('<=')) {
+      this.filterDataSet = this.dataSet.filter(e => e.count <= filterScore);
+    } else if (input.includes('<')) {
+      this.filterDataSet = this.dataSet.filter(e => e.count < filterScore);
+    } else if (input.includes('==')) {
+      this.filterDataSet = this.dataSet.filter(e => e.count == filterScore);
+    } else if (input.includes('>=')) {
+      this.filterDataSet = this.dataSet.filter(e => e.count >= filterScore);
+    }
+    else {
+      this.filterDataSet = this.dataSet.filter(e => e.count > filterScore);
+    }
+    if (this.parseDataSet(true)) this.redraw();
+  }
+
+  //------------------------------------------------------------------------------
+  parseDataSet(filter: boolean): boolean {
+    // parse the current data set and create the node and edges information in the 
+    // node and edge array. 
+    this.edges = [];
+    this.nodes = [];
+    let dataArr = filter ? this.filterDataSet : this.dataSet;
+    switch (this.graphType) {
+      case 'country': {
+        this.nodes = [{ data: { id: 'Malicious-Nodes', type: "country" } }];
+        if (this.showSNode) {
+          // create the subscriber node and edges graph when the user select a country on the map.
+          for (let obj of dataArr) {
+            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
+            let enprNode = { data: { id: enterpriseIdString, type: "enterprise" } }
+            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
+            this.nodes.push({ data: { id: obj.srcNodeId, type: 'nodeS', parent: enterpriseIdString } });
+            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: 'Malicious-Nodes' } });
+            this.edges.push({ data: { source: obj.srcNodeId, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
+          }
+        }
+        else {
+          // create the enterprise node and edges graph when the user select a country on the map.
+          for (let obj of dataArr) {
+            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
+            let enprNode = { data: { id: enterpriseIdString, type: 'nodeE' } }
+            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
+            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: 'Malicious-Nodes' } });
+            this.edges.push({ data: { source: enterpriseIdString, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
+          }
+        }
+        break;
+      }
+
+      case 'sector': {
+        if (this.showSNode) {
+          for (let obj of dataArr) {
+            // create the subscriber node and edges graph when the user select sector.
+            let countryString = obj.countryCode ? String(obj.countryCode) : '[NF]'; //Add country as parent. 
+            let ctryNode = { data: { id: countryString, type: "country" } }
+            if (!this.nodes.includes(ctryNode)) this.nodes.push(ctryNode);
+            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
+            let enprNode = { data: { id: enterpriseIdString, type: "enterprise" } }
+            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
+            this.nodes.push({ data: { id: obj.srcNodeId, type: 'nodeS', parent: enterpriseIdString } });
+            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: countryString } });
+            this.edges.push({ data: { source: obj.srcNodeId, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
+          }
+        }
+        else {
+          for (let obj of dataArr) {
+            // create the enterprise node and edges graph when the user select sector.
+            let countryString = obj.countryCode ? String(obj.countryCode) : '[NF]'; //Add country as parent.
+            let ctryNode = { data: { id: countryString, type: "country" } }
+            if (!this.nodes.includes(ctryNode)) this.nodes.push(ctryNode);
+            let enterpriseIdString = obj.srcEnterpriseId ? String(obj.srcEnterpriseId) : 'undefined';
+            let enprNode = { data: { id: enterpriseIdString, type: "nodeE" } }
+            if (!this.nodes.includes(enprNode)) this.nodes.push(enprNode);
+            this.nodes.push({ data: { id: obj.dstNodeId, type: 'ip', parent: countryString } });
+            this.edges.push({ data: { source: enterpriseIdString, target: obj.dstNodeId, value: String(obj.count), type: "bendPoint" } });
+          }
+        }
+        break;
+      }
+      default: {
+        console.log("parseDataSet: invalid graph type:", this.graphType)
+        return false;
+      }
+    }
+    return true;
+  }
+
+  //------------------------------------------------------------------------------
+  queryNodeGraph(countryCode: String): void {
+    this.feedNgQuery = this.apollo.watchQuery<any>({
+      query: GRAPH_QUERY,
+      variables: { "countryCode": countryCode },
+      fetchPolicy: 'network-only',
+    });
+    this.feedNg = this.feedNgQuery.valueChanges.subscribe(({ data, loading }) => {
+      this.dataSet = data['threatEvents_countryScamN2N'];
+      //console.log('Query campaign data :', dataSet);
+      //console.log('Query campaign loading:', loading);
+      if (loading) return;
+      this.graphType = 'country';
+      if (this.parseDataSet(false)) this.redraw();
+    });
+  }
+
+  //------------------------------------------------------------------------------
+  querySectorGraph(sectorName: String): void {
+    this.feedSgQuery = this.apollo.watchQuery<any>({
+      query: SEC_GRAPH_QUERY,
+      variables: { "sectorName": sectorName },
+      fetchPolicy: 'network-only',
+    });
+    this.feedSg = this.feedSgQuery.valueChanges.subscribe(({ data, loading }) => {
+      this.dataSet = data['threatEvents_sectorScamGraph'];
+      //console.log('Query campaign data :', dataSet);
+      //console.log('Query campaign loading:', loading);
+      if (loading) return;
+      this.graphType = 'sector';
+      if (this.parseDataSet(false)) this.redraw();
+    });
+
+  }
+
+  //------------------------------------------------------------------------------
+  redraw(): void {
+    // Redraw the graph.
+    //console.log("graph init", this.cyRef.nativeElement);
+    this.buildGraph();
+    this.resetLayout();
+  }
+
+  resetLayout(event?: any): void {
+    if (this.cy == null) return;
+    this.cy.zoom({ level: 1 });
+    this.cy.pan({ x: 200, y: 200 });
+    this.cy.fit()
+    let layout = this.cy.elements().layout(this.layoutOptions);
+    layout.run();
+  }
+
+  //------------------------------------------------------------------------------
+  showScamCount(event: any) {
+    // Show scam count on the edge label
+    this.edgelabelStr = event.checked ? 'data(value)' : '';
+    this.redraw();
+  }
+
+  //------------------------------------------------------------------------------
+  selectGraphType(event: any): void {
+    // switch grap type enterprise graph or the subscriber graph. 
+    this.showSNode = event.target.value == 'subscriber' ? true : false;
+    if (this.parseDataSet(false)) this.redraw();
+  }
+
+  //------------------------------------------------------------------------------
+  selectFilterHandler(event: any): void {
+    let graphFilterKey = event.target.value;
+    switch (graphFilterKey) {
+      case 'count': {
+        this.filterStrExpl = 'Example:>=6';
+        break;
+      }
+      default: {
+        this.filterStrExpl = '';
+        if (this.parseDataSet(false)) this.redraw();
+      }
+    }
   }
 
 }
