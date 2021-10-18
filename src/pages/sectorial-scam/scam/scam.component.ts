@@ -442,7 +442,7 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
       zoom,
       // minZoom: zoom,
       // maxZoom: zoom,
-    })
+    });
     // .setView([1.352083, 50], 1.6);
     const map_darkall = 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
     const map_midnight = 'https://cartocdn_{s}.global.ssl.fastly.net/base-midnight/{z}/{x}/{y}.png';
@@ -454,8 +454,8 @@ export class ScamComponent extends BaseHighchartsComponent implements OnInit, Af
     }).addTo(this.map);
 
     let zoomHome = L.Control.zoomHome();
-    zoomHome.setHomeCoordinates([0, 0])
-    zoomHome.setHomeZoom(zoom)
+    zoomHome.setHomeCoordinates([0, 0]);
+    zoomHome.setHomeZoom(zoom);
     zoomHome.addTo(this.map);
     this.map.on('click', this.onMapClick);
     // this.map.fitWorld().zoomIn()

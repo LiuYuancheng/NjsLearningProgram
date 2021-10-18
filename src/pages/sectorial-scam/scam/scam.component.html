@@ -72,13 +72,13 @@
               &nbsp;
               <input [value]="filterStrExpl" type="text" style="width: 160px;" #subgraphIPfilter>
               &nbsp;
-                <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> Query </button>
+              <button (click)="onSubGraphFilter(subgraphIPfilter.value)"> Query </button>
               &nbsp;
             </td>
           </tr>
         </table>
         <p-card header=" " [style]="{'width': '1450px', 'height':'800px'}" styleClass="panel-background">
-          <div #cygraph [className]="'cy'"> node-edge graph </div>
+          <div #cygraph [className]="'cy'"> node edge graph </div>
         </p-card>
         <div style=" position: absolute; top:40px; left:10px; ">
           <div *ngIf="showSNode">
@@ -96,12 +96,14 @@
             style="width:30px;height:30px;background-color:#FEE89A ; border: 1px solid #fff;">
           <div *ngIf="showSNode">
             <p> - Subscriber Node</p>
-            <img src="assets/images/icons/sn.png" style="width:30px;height:30px;background-color:#FEE89A;border: 1px solid #fff;">
+            <img src="assets/images/icons/sn.png"
+              style="width:30px;height:30px;background-color:#FEE89A;border: 1px solid #fff;">
           </div>
 
           <div *ngIf="!showSNode">
             <p> - Enterprise Node </p>
-            <img src="assets/images/icons/ep.png" style="width:30px;height:30px;background-color:#FEE89A;border: 1px solid #fff;">
+            <img src="assets/images/icons/ep.png"
+              style="width:30px;height:30px;background-color:#FEE89A;border: 1px solid #fff;">
           </div>
 
           <h4>Group by: </h4>
